@@ -1054,30 +1054,30 @@
       <div style="position:relative;width:140px;height:140px;margin:12px auto">
         <canvas id="sentimentChart"></canvas>
         <div class="sentiment-label">
-          <div class="sentiment-pct">72%</div>
-          <div class="sentiment-word">Tham lam</div>
+          <div class="sentiment-pct" id="sentimentDonutPct">--</div>
+          <div class="sentiment-word" id="sentimentDonutWord">Đang tính</div>
         </div>
       </div>
       <div class="sentiment-bars">
         <div class="sentiment-bar-row">
           <div class="sentiment-bar-label" style="color:var(--green)">Mua</div>
-          <div class="sentiment-bar-track"><div class="sentiment-bar-fill" style="width:72%;background:var(--green)"></div></div>
-          <div class="sentiment-bar-pct" style="color:var(--green)">72%</div>
+          <div class="sentiment-bar-track"><div class="sentiment-bar-fill" id="sentimentBuyFill" style="width:0%;background:var(--green)"></div></div>
+          <div class="sentiment-bar-pct" style="color:var(--green)" id="sentimentBuyPct">--%</div>
         </div>
         <div class="sentiment-bar-row">
           <div class="sentiment-bar-label" style="color:var(--text-secondary)">Giữ</div>
-          <div class="sentiment-bar-track"><div class="sentiment-bar-fill" style="width:18%;background:var(--text-secondary)"></div></div>
-          <div class="sentiment-bar-pct" style="color:var(--text-secondary)">18%</div>
+          <div class="sentiment-bar-track"><div class="sentiment-bar-fill" id="sentimentHoldFill" style="width:0%;background:var(--text-secondary)"></div></div>
+          <div class="sentiment-bar-pct" style="color:var(--text-secondary)" id="sentimentHoldPct">--%</div>
         </div>
         <div class="sentiment-bar-row">
           <div class="sentiment-bar-label" style="color:var(--red)">Bán</div>
-          <div class="sentiment-bar-track"><div class="sentiment-bar-fill" style="width:10%;background:var(--red)"></div></div>
-          <div class="sentiment-bar-pct" style="color:var(--red)">10%</div>
+          <div class="sentiment-bar-track"><div class="sentiment-bar-fill" id="sentimentSellFill" style="width:0%;background:var(--red)"></div></div>
+          <div class="sentiment-bar-pct" style="color:var(--red)" id="sentimentSellPct">--%</div>
         </div>
       </div>
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-subtle)">
         <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Khuyến nghị AI</div>
-        <div style="background:rgba(0,214,143,0.08);border:1px solid rgba(0,214,143,0.2);border-radius:8px;padding:10px;font-size:12px;line-height:1.6;color:var(--text-primary)">
+        <div id="sentimentAIBox" style="background:rgba(0,214,143,0.08);border:1px solid rgba(0,214,143,0.2);border-radius:8px;padding:10px;font-size:12px;line-height:1.6;color:var(--text-primary)">
           Nên <strong style="color:var(--green)">tích luỹ</strong> vàng tại các nhịp điều chỉnh về vùng <strong id="aiAccumZone">--</strong>.
           Tỷ trọng vàng trong danh mục nên chiếm <strong>10–15%</strong> để phòng ngừa rủi ro địa chính trị.
         </div>
@@ -2337,14 +2337,17 @@ function calcBB(prices, period = 20, mult = 2) {
 
 // =============================================
 //  RENDER SENTIMENT DONUT
+// Holds the donut chart instance for live updates
+let sentimentChartInstance = null;
+
 // =============================================
 function renderSentimentChart() {
   const ctx = document.getElementById('sentimentChart').getContext('2d');
-  new Chart(ctx, {
+  sentimentChartInstance = new Chart(ctx, {
     type: 'doughnut',
     data: {
       datasets: [{
-        data: [72, 18, 10],
+        data: [50, 30, 20],
         backgroundColor: ['rgba(0,214,143,0.8)', 'rgba(139,148,158,0.5)', 'rgba(255,71,87,0.8)'],
         borderColor: ['#070B14'],
         borderWidth: 3,
@@ -2357,6 +2360,165 @@ function renderSentimentChart() {
       animation: { duration: 1200 }
     }
   });
+}
+
+// =============================================
+//  DYNAMIC MARKET SENTIMENT ENGINE
+//  Derives Fear & Greed (0-100) from real data:
+//  VIX (35%) + Gold momentum (25%) + RSI (25%) + DXY trend (15%)
+// =============================================
+function calculateDynamicSentiment() {
+  const vix      = riskData?.vix         || 26.4;
+  const goldChg  = currentData?.goldChange24h || 0;
+  const dxyChg   = macroData?.dxy?.changePct  || 0;
+
+  // RSI from last recommendation calc, or recalculate
+  const hist30d  = generatePriceHistory(currentData?.goldUSD || MOCK.goldUSD, '30d');
+  const rsi      = calcRSI(extractPrices(hist30d), 14);
+
+  // VIX score contribution (high VIX = fear = low score)
+  let vixScore = 50;
+  if      (vix > 40) vixScore = 10;
+  else if (vix > 30) vixScore = 22;
+  else if (vix > 25) vixScore = 35;
+  else if (vix < 13) vixScore = 90;
+  else if (vix < 17) vixScore = 75;
+  else if (vix < 20) vixScore = 62;
+  else               vixScore = 50;
+
+  // Gold momentum (24h change)
+  let momScore = 50;
+  if      (goldChg >  4) momScore = 82;
+  else if (goldChg >  2) momScore = 68;
+  else if (goldChg >  0.5) momScore = 57;
+  else if (goldChg < -4) momScore = 18;
+  else if (goldChg < -2) momScore = 32;
+  else if (goldChg < -0.5) momScore = 43;
+
+  // RSI contribution (overbought = greed = high score)
+  let rsiScore = 50;
+  if      (rsi > 75) rsiScore = 82;
+  else if (rsi > 65) rsiScore = 68;
+  else if (rsi > 55) rsiScore = 57;
+  else if (rsi < 25) rsiScore = 18;
+  else if (rsi < 35) rsiScore = 32;
+  else if (rsi < 45) rsiScore = 43;
+
+  // DXY trend (USD falling = gold positive = greed)
+  let dxyScore = 50;
+  if      (dxyChg < -1.0) dxyScore = 72;
+  else if (dxyChg < -0.4) dxyScore = 60;
+  else if (dxyChg >  1.0) dxyScore = 28;
+  else if (dxyChg >  0.4) dxyScore = 40;
+
+  // Weighted composite
+  const score = Math.round(
+    vixScore * 0.35 +
+    momScore * 0.25 +
+    rsiScore * 0.25 +
+    dxyScore * 0.15
+  );
+  const clipped = Math.max(5, Math.min(95, score));
+
+  // Buy/Hold/Sell distribution from score
+  let buyPct, holdPct, sellPct;
+  if (clipped >= 72) {
+    buyPct = 74; holdPct = 18; sellPct = 8;
+  } else if (clipped >= 58) {
+    buyPct = 61; holdPct = 23; sellPct = 16;
+  } else if (clipped >= 45) {
+    buyPct = 50; holdPct = 28; sellPct = 22;
+  } else if (clipped >= 32) {
+    buyPct = 35; holdPct = 30; sellPct = 35;
+  } else if (clipped >= 20) {
+    buyPct = 24; holdPct = 26; sellPct = 50;
+  } else {
+    buyPct = 15; holdPct = 20; sellPct = 65;
+  }
+
+  // Label
+  let label, labelColor;
+  if      (clipped >= 80) { label = 'Tham lam cực độ'; labelColor = '#00D68F'; }
+  else if (clipped >= 62) { label = 'Tham lam';        labelColor = '#4ADE80'; }
+  else if (clipped >= 45) { label = 'Trung tính';      labelColor = '#F5C842'; }
+  else if (clipped >= 28) { label = 'Sợ hãi';          labelColor = '#FF9A3C'; }
+  else                    { label = 'Sợ hãi cực độ';   labelColor = '#FF4757'; }
+
+  return { score: clipped, buyPct, holdPct, sellPct, label, labelColor, rsi, vix, goldChg, dxyChg };
+}
+
+// =============================================
+//  RENDER SENTIMENT PANEL (dynamic)
+// =============================================
+function renderSentimentPanel() {
+  const s = calculateDynamicSentiment();
+
+  // 1. Update donut chart data
+  if (sentimentChartInstance) {
+    sentimentChartInstance.data.datasets[0].data = [s.buyPct, s.holdPct, s.sellPct];
+    sentimentChartInstance.update('active');
+  }
+
+  // 2. Center label
+  const pctEl  = document.getElementById('sentimentDonutPct');
+  const wordEl = document.getElementById('sentimentDonutWord');
+  if (pctEl)  { pctEl.textContent = s.score + '%'; pctEl.style.color = s.labelColor; }
+  if (wordEl) { wordEl.textContent = s.label; }
+
+  // 3. Bars
+  const set = (fillId, pctId, pct) => {
+    const f = document.getElementById(fillId);
+    const p = document.getElementById(pctId);
+    if (f) f.style.width = pct + '%';
+    if (p) p.textContent = pct + '%';
+  };
+  set('sentimentBuyFill',  'sentimentBuyPct',  s.buyPct);
+  set('sentimentHoldFill', 'sentimentHoldPct', s.holdPct);
+  set('sentimentSellFill', 'sentimentSellPct', s.sellPct);
+
+  // 4. Price card (Fear & Greed number)
+  const scoreEl = document.getElementById('sentimentScore');
+  const barEl   = document.getElementById('sentimentBar');
+  const labelEl = document.getElementById('sentimentLabel');
+  if (scoreEl) scoreEl.textContent = s.score;
+  if (barEl)   barEl.style.width   = s.score + '%';
+  if (labelEl) { labelEl.textContent = s.label; labelEl.style.color = s.labelColor; }
+
+  // 5. Dynamic AI recommendation box
+  const aiBox = document.getElementById('sentimentAIBox');
+  if (aiBox) {
+    const g    = currentData?.goldUSD || MOCK.goldUSD;
+    const fG   = v => '$' + Math.round(v).toLocaleString('en');
+    const zone = `${fG(g * 0.956)}–${fG(g * 0.974)}`;
+    document.getElementById('aiAccumZone').textContent = zone;
+
+    let action, actionColor, detail, alloc;
+    if (s.score >= 68) {
+      action = 'tích lũy mạnh'; actionColor = 'var(--green)';
+      detail = `Tâm lý thị trường tích cực (${s.score}/100). RSI ${s.rsi.toFixed(0)}, VIX ${s.vix.toFixed(1)} — điều kiện thuận lợi.`;
+      alloc  = '15–20%';
+    } else if (s.score >= 50) {
+      action = 'tích lũy'; actionColor = 'var(--green)';
+      detail = `Tâm lý trung tính-tích cực (${s.score}/100). Mua từng phần, ưu tiên vùng hỗ trợ.`;
+      alloc  = '10–15%';
+    } else if (s.score >= 35) {
+      action = 'nắm giữ'; actionColor = 'var(--gold-primary)';
+      detail = `Tâm lý hỗn hợp (${s.score}/100). VIX ${s.vix.toFixed(1)} — chờ tín hiệu rõ hơn trước khi tăng vị thế.`;
+      alloc  = '5–10%';
+    } else {
+      action = 'thận trọng'; actionColor = 'var(--red)';
+      detail = `Tâm lý tiêu cực (${s.score}/100). VIX ${s.vix.toFixed(1)} — áp lực bán còn. Quản lý rủi ro chặt.`;
+      alloc  = '5%';
+    }
+
+    const bdrColor = s.score >= 50 ? 'rgba(0,214,143,0.2)' : s.score >= 35 ? 'rgba(245,200,66,0.2)' : 'rgba(255,71,87,0.2)';
+    const bgColor  = s.score >= 50 ? 'rgba(0,214,143,0.08)' : s.score >= 35 ? 'rgba(245,200,66,0.06)' : 'rgba(255,71,87,0.06)';
+    aiBox.style.background   = bgColor;
+    aiBox.style.borderColor  = bdrColor;
+    aiBox.innerHTML = `Nên <strong style="color:${actionColor}">${action}</strong> vàng tại vùng <strong id="aiAccumZone">${zone}</strong>.
+      <br><span style="font-size:11px;color:var(--text-secondary)">${detail}</span>
+      <br>Tỷ trọng khuyến nghị: <strong style="color:${actionColor}">${alloc}</strong> danh mục.`;
+  }
 }
 
 // =============================================
@@ -2423,12 +2585,7 @@ function renderCards(data) {
   const fxUp = data.usdVNDChange >= 0;
   document.getElementById('usdvndChange').innerHTML = `<span class="${fxUp ? 'change-up' : 'change-down'}">${fxUp ? '▲' : '▼'} ${fmtPct(data.usdVNDChange)}</span>`;
 
-  // Sentiment
-  const fear = Math.floor(62 + Math.random() * 20);
-  document.getElementById('sentimentScore').textContent = fear;
-  document.getElementById('sentimentBar').style.width = fear + '%';
-  const fearLabel = fear >= 75 ? 'Tham lam cực độ' : fear >= 55 ? 'Tham lam' : fear >= 45 ? 'Trung tính' : 'Sợ hãi';
-  document.getElementById('sentimentLabel').textContent = fearLabel;
+  // Sentiment — rendered dynamically via renderSentimentPanel() called from updateRecommendation()
 
   // Sparklines
   renderSparkline('sparklineWorld', generateSparkline(data.goldUSD, 20, 0.008), 'rgb(245,200,66)');
@@ -3607,6 +3764,7 @@ function updateRecommendation() {
   try {
     const rec = calculateGoldRecommendation();
     renderRecommendation(rec);
+    renderSentimentPanel(); // Also refresh the sentiment panel with real data
   } catch(e) { console.warn('Recommendation error:', e); }
 }
 
