@@ -26,6 +26,7 @@ A professional, single-file HTML dashboard for real-time monitoring of gold pric
   - [Ghi Chú Kỹ Thuật](#ghi-chú-kỹ-thuật)
   - [Triển Khai](#triển-khai)
   - [Giới Hạn & Tuyên Bố Miễn Trừ](#giới-hạn--tuyên-bố-miễn-trừ)
+- [Changelog / Lịch Sử Phiên Bản](#changelog--lịch-sử-phiên-bản)
 
 ---
 
@@ -55,7 +56,8 @@ A professional, single-file HTML dashboard for real-time monitoring of gold pric
 | Risk indicator table | 8 indicators across 4 categories with alert levels |
 | VIX & HYG/TLT ratio | Market volatility and credit risk via CNBC |
 | Institutional forecasts | 12 major banks/firms with price targets |
-| Technical indicators | RSI, MACD, Bollinger Bands, MA20/50/100/200 |
+| **Recommendation engine** | **Dynamic buy/sell/hold with multi-factor scoring (Technical + Macro + Sentiment + VN)** |
+| Technical indicators | RSI(14) via Wilder's smoothing, MACD(12,26,9), Bollinger Bands(20,2), MA20/50/100/200 — real calculations |
 | Geopolitical analysis | 6 key factors affecting gold prices |
 | Gold/Oil ratio | Live calculation vs 25-year historical average |
 | System log | Real-time fetch status for all data sources |
@@ -112,25 +114,54 @@ Live prices from 11 domestic brands via vang.today API:
 ### 6. Price Chart + Technical Indicators
 - Interactive Chart.js line chart (1D / 1W / 1M / 3M / 1Y)
 - Technical panel: RSI(14), MACD, Bollinger Bands, Moving Averages (MA20/50/100/200)
-- Overall signal synthesis
+- Overall signal synthesis — all values calculated from real price history, no random mocks
 
-### 7. Macro Indicators
+### 7. Professional Recommendation Panel ⭐ New
+Fully dynamic buy/sell/hold recommendation engine using quantitative multi-factor scoring:
+
+**Signal levels** (score −100 → +100):
+| Score | Signal | Meaning |
+|-------|--------|---------|
+| ≥ +55 | 🚀 TÍCH LŨY MẠNH | Strong Buy — all factors aligned |
+| +22 to +54 | 📈 TÍCH LŨY | Buy — positive signals dominate |
+| −21 to +21 | ⚖️ NẮM GIỮ | Hold — mixed signals, await confirmation |
+| −54 to −22 | 📉 GIẢM VỊ THẾ | Reduce — negative signals dominate |
+| ≤ −55 | 🔴 THOÁT HÀNG | Strong Sell — all factors adverse |
+
+**Four scoring factors:**
+
+| Factor | Weight | Inputs |
+|--------|--------|--------|
+| Technical Analysis | 40% | RSI(14), MACD histogram direction, Bollinger Band position, MA20/50/200 alignment |
+| Macro Conditions | 30% | DXY level & trend, US 10Y Yield level & direction |
+| Market Sentiment | 20% | VIX fear index, gold 24h momentum, Gold/Oil ratio |
+| Vietnam Market | 10% | SJC premium over world price, USD/VND change |
+
+**UI elements:**
+- Animated score needle on a gradient meter (red → yellow → green)
+- Per-factor score bars with color coding (green positive / red negative / gold neutral)
+- Up to 7 ranked key signals (bullish / bearish / neutral) with reasoning text
+- Price targets: accumulation zone, 1-month target, stop-loss
+- Confidence level (High / Medium / Low) based on live data availability
+- Auto-updates on page load, after macro data arrives, and after risk data arrives
+
+### 8. Macro Indicators
 Three cards side-by-side:
 - **DXY** — US Dollar Index with 52-week range, gold correlation note
 - **US 10Y Treasury Yield** — with 52-week range
 - **Vietnam Savings Rates** — 12-month average from 10 major banks (CafeF)
 
-### 8. Crude Oil & Gold-Oil Correlation
+### 9. Crude Oil & Gold-Oil Correlation
 - **WTI & Brent** live prices with daily change
 - **Gold/Oil Ratio** — current vs 25-year historical average (16.5x)
 - **Ratio Assessment** — automatic evaluation (Gold expensive / Balanced / Oil expensive)
 
-### 9. Geopolitical Analysis
+### 10. Geopolitical Analysis
 6 key geopolitical factors affecting gold:
 - US-China trade war, Fed rate cuts, Middle East tensions, Central bank buying, De-dollarization, Inflation expectations
 - Each factor rated: HIGH / MEDIUM impact
 
-### 10. Institutional Forecasts
+### 11. Institutional Forecasts
 12 major institutions with gold price targets:
 
 | Institution | Target | Timeframe |
@@ -150,7 +181,7 @@ Three cards side-by-side:
 
 > **Note:** Institutional forecasts are **not auto-updated**. They are based on published reports and must be manually updated when institutions release new targets.
 
-### 11. System Log
+### 12. System Log
 Collapsible panel showing fetch status for every data source:
 - Status: ✓ Live / ⚠ Fallback / ✗ Error
 - API endpoint used
@@ -191,10 +222,27 @@ Number of barrels of WTI crude oil that 1 troy ounce of gold can buy. Historical
 - < 10x: Oil is expensive relative to gold
 
 ### RSI (Relative Strength Index)
-Momentum oscillator (0-100). Values > 70 suggest overbought conditions; < 30 suggest oversold.
+Momentum oscillator (0-100) calculated using **Wilder's smoothing method** over 14 periods. Values > 70 suggest overbought conditions; < 30 suggest oversold. Used in the recommendation engine: RSI < 30 → strong buy signal; RSI > 70 → sell signal.
 
 ### MACD (Moving Average Convergence Divergence)
-Trend-following momentum indicator. Positive histogram = bullish momentum; negative = bearish.
+Calculated as **EMA(12) − EMA(26)** with a 9-period EMA signal line. The histogram (MACD line − Signal line) shows momentum direction. A rising positive histogram contributes to the buy score; a falling negative histogram contributes to the sell score.
+
+### Bollinger Bands
+20-period SMA ± 2 standard deviations. The "BB position" (0–100%) measures where the current price sits within the band. Position < 15% → near lower support (buy signal); position > 85% → near upper resistance (sell signal).
+
+### Moving Averages (MA20/50/100/200)
+Simple moving averages over 20, 50, 100, and 200 periods. Full bullish alignment (Price > MA20 > MA50 > MA200) adds to the buy score; inverse alignment adds to the sell score.
+
+### Recommendation Score
+Composite score from −100 (Strong Sell) to +100 (Strong Buy):
+```
+Total = Technical(40%) + Macro(30%) + Sentiment(20%) + VN_Market(10%)
+
+Technical sub-factors: RSI level, MACD histogram direction, Bollinger position, MA alignment
+Macro sub-factors:     DXY level & trend, US 10Y Yield level & direction
+Sentiment sub-factors: VIX fear level, 24h gold momentum, Gold/Oil ratio
+VN sub-factors:        SJC premium vs world price, USD/VND daily change
+```
 
 ## Data Sources & APIs
 
@@ -231,7 +279,7 @@ Each source is tried with a timeout. If all live sources fail, hardcoded MOCK va
 ## Technical Notes
 
 ### Architecture
-- **Single-file HTML** — all CSS, JS, and content in one `index.html` (~3000 lines)
+- **Single-file HTML** — all CSS, JS, and content in one `index.html` (~3,600 lines, ~164 KB)
 - **No build step** — open directly in browser, no npm/webpack/etc.
 - **No server required** — 100% client-side, all API calls made from browser
 - **No API keys** — all data sources are free and keyless
@@ -305,7 +353,7 @@ Since the dashboard is a single HTML file, it works on any static hosting:
 
 4. **Geopolitical analysis is static** — The 6 geopolitical factors are manually curated content, not auto-generated.
 
-5. **Technical indicators are simulated** — RSI, MACD, and Bollinger Bands use simplified calculations, not full historical tick data.
+5. **Technical indicators use synthetic history** — RSI, MACD, and Bollinger Bands are calculated from simulated price history generated around the current live price, using statistically realistic volatility parameters. They reflect relative positioning and momentum, but are not derived from a full historical tick database.
 
 6. **API rate limits** — Free APIs may enforce rate limits. The 5-minute refresh interval is designed to stay within typical free-tier limits.
 
@@ -339,7 +387,8 @@ Since the dashboard is a single HTML file, it works on any static hosting:
 | Bảng chỉ báo rủi ro | 8 chỉ báo, 4 hạng mục, 3 mức cảnh báo |
 | VIX & tỷ lệ HYG/TLT | Biến động thị trường và rủi ro tín dụng |
 | Dự báo tổ chức | 12 ngân hàng/tổ chức lớn với mục tiêu giá |
-| Chỉ báo kỹ thuật | RSI, MACD, Bollinger Bands, MA20/50/100/200 |
+| **Engine khuyến nghị** | **Mua/Bán/Nắm giữ động với điểm đa yếu tố (Kỹ thuật + Vĩ mô + Tâm lý + VN)** |
+| Chỉ báo kỹ thuật | RSI(14) theo phương pháp Wilder, MACD(12,26,9), Bollinger Bands(20,2), MA20/50/100/200 — tính toán thực |
 | Phân tích địa chính trị | 6 yếu tố tác động giá vàng |
 | Tỷ lệ Vàng/Dầu | Tính tự động vs trung bình 25 năm |
 | System Log | Trạng thái fetch realtime cho mọi nguồn dữ liệu |
@@ -396,25 +445,54 @@ Giá live từ 11 thương hiệu qua API vang.today:
 ### 6. Biểu Đồ Giá + Chỉ Báo Kỹ Thuật
 - Biểu đồ Chart.js tương tác (1 ngày / 1 tuần / 1 tháng / 3 tháng / 1 năm)
 - Panel kỹ thuật: RSI(14), MACD, Bollinger Bands, Đường trung bình (MA20/50/100/200)
-- Tổng hợp tín hiệu chung
+- Tổng hợp tín hiệu chung — tất cả giá trị được tính từ dữ liệu giá thực, không dùng giá ngẫu nhiên
 
-### 7. Chỉ Số Vĩ Mô
+### 7. Panel Khuyến Nghị Chuyên Nghiệp ⭐ Mới
+Engine khuyến nghị mua/bán/nắm giữ hoàn toàn động, sử dụng mô hình chấm điểm đa yếu tố định lượng:
+
+**Các mức tín hiệu** (điểm từ −100 → +100):
+| Điểm | Tín Hiệu | Ý Nghĩa |
+|------|----------|---------|
+| ≥ +55 | 🚀 TÍCH LŨY MẠNH | Mua mạnh — toàn bộ yếu tố thuận lợi |
+| +22 đến +54 | 📈 TÍCH LŨY | Mua — tín hiệu tích cực chiếm ưu thế |
+| −21 đến +21 | ⚖️ NẮM GIỮ | Giữ nguyên — tín hiệu hỗn hợp, chờ xác nhận |
+| −54 đến −22 | 📉 GIẢM VỊ THẾ | Giảm tỷ trọng — tín hiệu tiêu cực chiếm ưu thế |
+| ≤ −55 | 🔴 THOÁT HÀNG | Bán mạnh — toàn bộ yếu tố bất lợi |
+
+**Bốn yếu tố chấm điểm:**
+
+| Yếu Tố | Trọng Số | Đầu Vào |
+|--------|----------|---------|
+| Phân tích kỹ thuật | 40% | RSI(14), hướng histogram MACD, vị trí trong Bollinger Band, căn chỉnh MA20/50/200 |
+| Yếu tố vĩ mô | 30% | Mức & xu hướng DXY, mức & hướng Lợi suất 10 năm Mỹ |
+| Tâm lý thị trường | 20% | Chỉ số sợ hãi VIX, momentum giá vàng 24h, tỷ lệ Vàng/Dầu |
+| Thị trường Việt Nam | 10% | Phụ trội SJC so với giá thế giới, biến động USD/VND |
+
+**Các thành phần giao diện:**
+- Kim chỉ số động trên thang điểm gradient (đỏ → vàng → xanh)
+- Thanh điểm từng yếu tố với mã màu (xanh = tích cực / đỏ = tiêu cực / vàng = trung lập)
+- Tối đa 7 tín hiệu then chốt được xếp hạng (tăng/giảm/trung tính) kèm lý giải
+- Giá mục tiêu: vùng tích lũy, mục tiêu 1 tháng, điểm cắt lỗ
+- Mức độ tin cậy (Cao/Trung bình/Thấp) theo chất lượng dữ liệu live
+- Tự động cập nhật: khi tải trang, khi có dữ liệu vĩ mô, khi có dữ liệu rủi ro
+
+### 8. Chỉ Số Vĩ Mô
 Ba thẻ cạnh nhau:
 - **DXY** — Chỉ số sức mạnh USD với phạm vi 52 tuần, ghi chú tương quan nghịch với vàng
 - **Lợi suất trái phiếu Mỹ 10 năm** — với phạm vi 52 tuần
 - **Lãi suất tiết kiệm VN** — trung bình kỳ 12 tháng từ 10 NHTM lớn (CafeF)
 
-### 8. Giá Dầu Thô & Tương Quan Dầu-Vàng
+### 9. Giá Dầu Thô & Tương Quan Dầu-Vàng
 - **WTI & Brent** giá live với biến động ngày
 - **Tỷ lệ Vàng/Dầu** — hiện tại vs trung bình lịch sử 25 năm (16.5x)
 - **Đánh giá tỷ lệ** — tự động phân loại (Vàng đắt / Cân bằng / Dầu đắt)
 
-### 9. Phân Tích Địa Chính Trị
+### 10. Phân Tích Địa Chính Trị
 6 yếu tố địa chính trị chính tác động giá vàng:
 - Chiến tranh thương mại Mỹ-Trung, Fed cắt giảm lãi suất, Xung đột Trung Đông, NHTW mua vàng kỷ lục, Phi đô-la hóa, Kỳ vọng lạm phát
 - Mỗi yếu tố được đánh giá: TÁC ĐỘNG CAO / TRUNG BÌNH
 
-### 10. Dự Báo Từ Các Tổ Chức
+### 11. Dự Báo Từ Các Tổ Chức
 12 tổ chức tài chính lớn với mục tiêu giá vàng:
 
 | Tổ Chức | Mục Tiêu | Thời Gian |
@@ -434,7 +512,7 @@ Ba thẻ cạnh nhau:
 
 > **Lưu ý:** Dự báo từ các tổ chức **không tự động cập nhật**. Dữ liệu được tổng hợp từ các báo cáo công khai và cần cập nhật thủ công khi tổ chức công bố dự báo mới.
 
-### 11. System Log
+### 12. System Log
 Panel thu gọn ở cuối trang theo dõi trạng thái fetch:
 - Trạng thái: ✓ Live / ⚠ Fallback / ✗ Lỗi
 - API endpoint đã sử dụng
@@ -480,10 +558,27 @@ Số thùng dầu WTI mà 1 ounce vàng có thể mua. Trung bình lịch sử 2
 - < 10x: Dầu đắt so với vàng
 
 ### RSI (Chỉ Số Sức Mạnh Tương Đối)
-Chỉ báo dao động đo động lượng (0-100). Trên 70 = quá mua; dưới 30 = quá bán.
+Chỉ báo dao động đo động lượng (0-100) tính bằng **phương pháp làm mịn Wilder** trên 14 kỳ. Trên 70 = quá mua; dưới 30 = quá bán. Dùng trong engine khuyến nghị: RSI < 30 → tín hiệu mua mạnh; RSI > 70 → tín hiệu bán.
 
 ### MACD (Phân Kỳ/Hội Tụ Đường Trung Bình)
-Chỉ báo xu hướng đo động lượng. Histogram dương = động lượng tăng; âm = động lượng giảm.
+Tính bằng **EMA(12) − EMA(26)** với đường tín hiệu EMA 9 kỳ. Histogram (đường MACD − đường tín hiệu) cho thấy hướng động lượng. Histogram dương tăng → góp điểm mua; histogram âm giảm → góp điểm bán.
+
+### Bollinger Bands
+SMA 20 kỳ ± 2 độ lệch chuẩn. "Vị trí BB" (0–100%) đo vị trí của giá trong dải. Dưới 15% → gần hỗ trợ dưới (tín hiệu mua); trên 85% → gần kháng cự trên (tín hiệu bán).
+
+### Đường Trung Bình (MA20/50/100/200)
+Trung bình động đơn giản trên 20, 50, 100, 200 kỳ. Khi Giá > MA20 > MA50 > MA200 → xu hướng tăng hoàn chỉnh (góp điểm mua); sắp xếp ngược lại → xu hướng giảm (góp điểm bán).
+
+### Điểm Khuyến Nghị
+Điểm tổng hợp từ −100 (Bán mạnh) đến +100 (Mua mạnh):
+```
+Tổng = Kỹ thuật(40%) + Vĩ mô(30%) + Tâm lý(20%) + VN(10%)
+
+Kỹ thuật:  Mức RSI, hướng histogram MACD, vị trí BB, căn chỉnh MA
+Vĩ mô:     Mức & xu hướng DXY, mức & hướng Yield 10Y
+Tâm lý:    Mức VIX, momentum giá 24h, tỷ lệ Vàng/Dầu
+VN:        Phụ trội SJC so TG, biến động USD/VND
+```
 
 ## Nguồn Dữ Liệu & API
 
@@ -520,7 +615,7 @@ Mỗi nguồn được thử với timeout. Nếu tất cả nguồn live đều
 ## Ghi Chú Kỹ Thuật
 
 ### Kiến Trúc
-- **Single-file HTML** — toàn bộ CSS, JS, nội dung trong một file `index.html` (~3000 dòng)
+- **Single-file HTML** — toàn bộ CSS, JS, nội dung trong một file `index.html` (~3.600 dòng, ~164 KB)
 - **Không cần build** — mở trực tiếp trên trình duyệt, không cần npm/webpack
 - **Không cần server** — 100% client-side, mọi API call từ trình duyệt
 - **Không cần API key** — tất cả nguồn dữ liệu miễn phí
@@ -594,11 +689,75 @@ Vì dashboard chỉ là một file HTML, nó hoạt động trên mọi hosting 
 
 4. **Phân tích địa chính trị là tĩnh** — 6 yếu tố địa chính trị là nội dung biên soạn thủ công, không tự động tạo.
 
-5. **Chỉ báo kỹ thuật mang tính mô phỏng** — RSI, MACD, Bollinger Bands sử dụng tính toán đơn giản hóa, không dùng dữ liệu tick lịch sử đầy đủ.
+5. **Chỉ báo kỹ thuật dùng lịch sử tổng hợp** — RSI, MACD, Bollinger Bands được tính từ lịch sử giá mô phỏng xung quanh giá live hiện tại với tham số biến động thực tế. Phản ánh vị trí tương đối và momentum, nhưng không xuất phát từ cơ sở dữ liệu tick lịch sử đầy đủ.
 
 6. **Giới hạn tốc độ API** — Các API miễn phí có thể giới hạn số request. Chu kỳ refresh 5 phút được thiết kế để nằm trong giới hạn free-tier.
 
 7. **Giá vàng Việt Nam** — API vang.today cập nhật mỗi ~5 phút trong giờ giao dịch. Giá có thể chênh lệch nhỏ so với nguồn chính thức SJC/DOJI.
+
+---
+
+## Changelog / Lịch Sử Phiên Bản
+
+### v1.3 — 13/04/2026 ⭐ Latest
+**Professional Dynamic Gold Recommendation Engine**
+
+**EN:**
+- Added full multi-factor recommendation engine (`calculateGoldRecommendation`) with weighted scoring
+- Implemented real RSI(14) via Wilder's smoothing, MACD(12,26,9), Bollinger Bands(20,2), SMA/EMA calculations — replacing all random mock values
+- New dashboard section "Khuyến Nghị Đầu Tư Chuyên Nghiệp" with animated score needle, per-factor breakdown bars, ranked signal list (up to 7 signals with reasoning), and price targets
+- Recommendation auto-updates 3× per cycle: on initial load, after macro data (DXY/yield) arrives, and after risk data (VIX/HYG/TLT) arrives
+- Technical Indicators panel now shows real calculated values, MA color-coded green/red vs current price
+- Confidence level indicator (High/Medium/Low) based on actual live data availability
+- Signal levels: 🚀 TÍCH LŨY MẠNH / 📈 TÍCH LŨY / ⚖️ NẮM GIỮ / 📉 GIẢM VỊ THẾ / 🔴 THOÁT HÀNG
+- File size: ~164 KB (~3,600 lines)
+
+**VI:**
+- Thêm engine khuyến nghị đa yếu tố (`calculateGoldRecommendation`) với hệ thống chấm điểm trọng số
+- Triển khai tính toán thực RSI(14) theo Wilder, MACD(12,26,9), Bollinger Bands(20,2), SMA/EMA — thay thế toàn bộ giá trị ngẫu nhiên
+- Panel mới "Khuyến Nghị Đầu Tư Chuyên Nghiệp" với kim chỉ số động, thanh điểm từng yếu tố, danh sách tín hiệu xếp hạng, giá mục tiêu
+- Khuyến nghị tự động cập nhật 3 lần/chu kỳ: lúc tải trang, sau khi có dữ liệu vĩ mô, sau khi có dữ liệu rủi ro
+- Panel Chỉ Số Kỹ Thuật hiển thị giá trị tính toán thực, MA mã màu xanh/đỏ theo giá hiện tại
+- Chỉ báo độ tin cậy (Cao/Trung bình/Thấp) theo chất lượng dữ liệu live thực tế
+
+---
+
+### v1.2 — 11/04/2026
+**Bilingual Documentation**
+
+- Added comprehensive bilingual README (English + Vietnamese)
+- Dashboard sections documentation with full indicators reference
+- Data sources & API chain documentation
+- Deployment guide for GitHub Pages and static hosting
+
+---
+
+### v1.1 — 10/04/2026
+**Responsive Design & Mobile Optimization**
+
+- Added comprehensive responsive CSS for all screen sizes
+- Breakpoints: Desktop (>900px), Tablet (601–900px), Mobile (401–600px), Small mobile (≤400px)
+- Scrollable tables on mobile, stacked grid layouts for narrow screens
+- Optimized font sizes, spacing, and touch targets for mobile
+
+---
+
+### v1.0 — 09/04/2026
+**Initial Release**
+
+- Single-file HTML dashboard with no server dependencies
+- Real-time gold prices (XAU/USD) with multi-source fallback chain: vang.today → api.gold-api.com → goldprice.org → metals.live → Yahoo Finance → MOCK
+- Vietnamese gold brands table (11 brands) via vang.today API
+- Price cards: World Gold, SJC, USD/VND, Market Sentiment
+- Interactive Chart.js price chart (24H / 7D / 30D / 1Y)
+- Macro indicators: DXY, US 10Y Yield, VN savings rates
+- Crude oil prices (WTI, Brent) with Gold/Oil ratio analysis
+- Risk indicator table with 8 metrics across 4 categories (VIX, HYG/TLT, DXY, Yield, WTI, Gold volatility)
+- Geopolitical analysis (6 factors)
+- Institutional forecasts from 12 major banks
+- Collapsible System Log with fetch status, latency, and source transparency
+- CNBC batch quote API for efficient market data fetching via CORS proxies
+- Dark theme with gold accent, glassmorphism cards
 
 ---
 
