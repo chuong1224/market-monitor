@@ -57,6 +57,7 @@ A professional, single-file HTML dashboard for real-time monitoring of gold pric
 | VIX & HYG/TLT ratio | Market volatility and credit risk via CNBC |
 | Institutional forecasts | 12 major banks/firms with price targets |
 | **Recommendation engine** | **Dynamic buy/sell/hold with multi-factor scoring (Technical + Macro + Sentiment + VN)** |
+| **Market Sentiment panel** | **Dynamic Fear & Greed derived from VIX, RSI, gold momentum, DXY trend — live donut chart + bars + AI advice** |
 | Technical indicators | RSI(14) via Wilder's smoothing, MACD(12,26,9), Bollinger Bands(20,2), MA20/50/100/200 — real calculations |
 | Geopolitical analysis | 6 key factors affecting gold prices |
 | Gold/Oil ratio | Live calculation vs 25-year historical average |
@@ -103,13 +104,18 @@ Four summary cards showing:
 - **World Gold** (XAU/USD) — with 24h and 7d change
 - **SJC Gold** (VND/lượng) — with premium over world price
 - **USD/VND** exchange rate
-- **Market Sentiment** (Fear & Greed index)
+- **Market Sentiment** (Fear & Greed index) — dynamic score 0–100 derived from VIX, RSI, gold momentum & DXY
 
-### 5. Vietnamese Gold Price Table
-Live prices from 11 domestic brands via vang.today API:
+### 5. Vietnamese Gold Price Table + Market Sentiment Panel
+Left: live prices from 11 domestic brands via vang.today API:
 - SJC 9999, VN Gold SJC, DOJI (3 locations), PNJ (2 types), Bảo Tín (2 types), SJC Ring, Viettin SJC
 - Columns: Brand, Buy, Sell, Spread, Premium vs World, Today's Change
-- AI investment recommendation
+
+Right: **Market Sentiment Analysis** panel (fully dynamic):
+- **Donut chart** — Buy / Hold / Sell percentages update live from real data
+- **Fear & Greed score** (0–100) with label: Sợ hãi cực độ / Sợ hãi / Trung tính / Tham lam / Tham lam cực độ
+- **Scoring inputs:** VIX (35%) + Gold 24h momentum (25%) + RSI (25%) + DXY trend (15%)
+- **AI recommendation box** — dynamic text, color, and portfolio allocation % based on score
 
 ### 6. Price Chart + Technical Indicators
 - Interactive Chart.js line chart (1D / 1W / 1M / 3M / 1Y)
@@ -220,6 +226,25 @@ Number of barrels of WTI crude oil that 1 troy ounce of gold can buy. Historical
 - \> 25x: Gold is very expensive relative to oil
 - 10-20x: Normal range
 - < 10x: Oil is expensive relative to gold
+
+### Fear & Greed Index (Market Sentiment Score)
+Dynamic score 0–100 calculated from four real-time inputs:
+
+| Input | Weight | Gold-Bullish Direction |
+|-------|--------|----------------------|
+| VIX (volatility fear gauge) | 35% | High VIX → fear → gold demand ↑ |
+| Gold 24h price momentum | 25% | Rising price → greed |
+| RSI(14) level | 25% | RSI > 65 → greed; RSI < 35 → fear/oversold |
+| DXY daily change | 15% | Falling USD → positive gold sentiment |
+
+**Score thresholds:**
+- 0–27: Sợ hãi cực độ (Extreme Fear) — historically a contrarian buy zone
+- 28–44: Sợ hãi (Fear)
+- 45–57: Trung tính (Neutral)
+- 58–79: Tham lam (Greed)
+- 80–100: Tham lam cực độ (Extreme Greed) — caution, potential reversal
+
+**Derived distribution (Buy/Hold/Sell %):** Automatically calculated from score and reflected in the donut chart and bar indicators.
 
 ### RSI (Relative Strength Index)
 Momentum oscillator (0-100) calculated using **Wilder's smoothing method** over 14 periods. Values > 70 suggest overbought conditions; < 30 suggest oversold. Used in the recommendation engine: RSI < 30 → strong buy signal; RSI > 70 → sell signal.
@@ -388,6 +413,7 @@ Since the dashboard is a single HTML file, it works on any static hosting:
 | VIX & tỷ lệ HYG/TLT | Biến động thị trường và rủi ro tín dụng |
 | Dự báo tổ chức | 12 ngân hàng/tổ chức lớn với mục tiêu giá |
 | **Engine khuyến nghị** | **Mua/Bán/Nắm giữ động với điểm đa yếu tố (Kỹ thuật + Vĩ mô + Tâm lý + VN)** |
+| **Panel Tâm Lý Nhà Đầu Tư** | **Fear & Greed động từ VIX, RSI, momentum vàng, xu hướng DXY — biểu đồ donut + thanh bars + tư vấn AI** |
 | Chỉ báo kỹ thuật | RSI(14) theo phương pháp Wilder, MACD(12,26,9), Bollinger Bands(20,2), MA20/50/100/200 — tính toán thực |
 | Phân tích địa chính trị | 6 yếu tố tác động giá vàng |
 | Tỷ lệ Vàng/Dầu | Tính tự động vs trung bình 25 năm |
@@ -434,13 +460,18 @@ Bốn thẻ tóm tắt:
 - **Vàng Thế Giới** (XAU/USD) — biến động 24h và 7 ngày
 - **Vàng SJC** (VND/lượng) — chênh lệch so với giá thế giới
 - **Tỷ giá USD/VND**
-- **Tâm lý thị trường** (Chỉ số Fear & Greed)
+- **Tâm lý thị trường** — điểm Fear & Greed động (0–100), tính từ VIX, RSI, momentum giá & DXY
 
-### 5. Bảng Giá Vàng Việt Nam
-Giá live từ 11 thương hiệu qua API vang.today:
+### 5. Bảng Giá Vàng Việt Nam + Panel Tâm Lý Nhà Đầu Tư
+Trái: giá live từ 11 thương hiệu qua API vang.today:
 - SJC 9999, VN Gold SJC, DOJI (3 địa điểm), PNJ (2 loại), Bảo Tín (2 loại), SJC Nhẫn, Viettin SJC
 - Cột: Thương hiệu, Mua vào, Bán ra, Chênh lệch, Phụ trội so TG, Biến động hôm nay
-- Khuyến nghị đầu tư AI
+
+Phải: **Panel Tâm Lý Nhà Đầu Tư** (hoàn toàn động):
+- **Biểu đồ donut** — % Mua/Giữ/Bán cập nhật live theo dữ liệu thực
+- **Chỉ số Fear & Greed** (0–100) với nhãn: Sợ hãi cực độ / Sợ hãi / Trung tính / Tham lam / Tham lam cực độ
+- **Công thức tính điểm:** VIX (35%) + Momentum vàng 24h (25%) + RSI (25%) + Xu hướng DXY (15%)
+- **Ô Khuyến nghị AI** — tự thay đổi nội dung, màu sắc và % tỷ trọng danh mục theo điểm
 
 ### 6. Biểu Đồ Giá + Chỉ Báo Kỹ Thuật
 - Biểu đồ Chart.js tương tác (1 ngày / 1 tuần / 1 tháng / 3 tháng / 1 năm)
@@ -556,6 +587,25 @@ Số thùng dầu WTI mà 1 ounce vàng có thể mua. Trung bình lịch sử 2
 - \> 25x: Vàng rất đắt so với dầu
 - 10-20x: Phạm vi bình thường
 - < 10x: Dầu đắt so với vàng
+
+### Chỉ Số Fear & Greed (Tâm Lý Thị Trường)
+Điểm động 0–100 tính từ bốn nguồn dữ liệu thực:
+
+| Đầu vào | Trọng số | Chiều hỗ trợ vàng |
+|---------|----------|-------------------|
+| VIX (chỉ số sợ hãi) | 35% | VIX cao → sợ hãi → cầu vàng tăng |
+| Momentum giá vàng 24h | 25% | Tăng giá → tham lam |
+| Mức RSI(14) | 25% | RSI > 65 → tham lam; RSI < 35 → sợ hãi/quá bán |
+| Biến động DXY ngày | 15% | USD giảm → tâm lý tích cực với vàng |
+
+**Ngưỡng điểm:**
+- 0–27: Sợ hãi cực độ — lịch sử thường là vùng tích lũy ngược xu hướng
+- 28–44: Sợ hãi
+- 45–57: Trung tính
+- 58–79: Tham lam
+- 80–100: Tham lam cực độ — cẩn trọng, nguy cơ đảo chiều
+
+**Phân bổ Mua/Giữ/Bán:** Tự tính từ điểm, phản ánh trực tiếp trên biểu đồ donut và thanh bars.
 
 ### RSI (Chỉ Số Sức Mạnh Tương Đối)
 Chỉ báo dao động đo động lượng (0-100) tính bằng **phương pháp làm mịn Wilder** trên 14 kỳ. Trên 70 = quá mua; dưới 30 = quá bán. Dùng trong engine khuyến nghị: RSI < 30 → tín hiệu mua mạnh; RSI > 70 → tín hiệu bán.
@@ -699,7 +749,31 @@ Vì dashboard chỉ là một file HTML, nó hoạt động trên mọi hosting 
 
 ## Changelog / Lịch Sử Phiên Bản
 
-### v1.3 — 13/04/2026 ⭐ Latest
+### v1.4 — 13/04/2026 ⭐ Latest
+**Dynamic Market Sentiment Panel**
+
+**EN:**
+- Replaced all hardcoded/random values in the Market Sentiment panel with real calculations
+- New `calculateDynamicSentiment()` engine: Fear & Greed score 0–100 weighted from VIX (35%), gold 24h momentum (25%), RSI(25%), DXY trend (15%)
+- Donut chart (Buy/Hold/Sell %) now live-updates via stored Chart.js instance — no page reload needed
+- Score thresholds produce correct Bear/Bull distribution: e.g. score ≥ 72 → Buy 74%/Hold 18%/Sell 8%
+- Center label (score % + text) and 3 bar fills/percentages update dynamically
+- Fear & Greed card in Price Cards row also updated — no more `Math.random()`
+- AI recommendation box changes content, background color, border color, and portfolio allocation % based on score
+- Recommendation updates synchronized: called from `updateRecommendation()` → triggers on load + after VIX/macro data arrives
+
+**VI:**
+- Thay thế toàn bộ giá trị hardcode/ngẫu nhiên trong panel Tâm Lý Nhà Đầu Tư bằng tính toán thực
+- Engine `calculateDynamicSentiment()` mới: điểm Fear & Greed 0–100 từ VIX (35%), momentum giá vàng 24h (25%), RSI (25%), xu hướng DXY (15%)
+- Biểu đồ donut (% Mua/Giữ/Bán) cập nhật live qua instance Chart.js đã lưu — không cần reload
+- Nhãn trung tâm (điểm % + văn bản) và 3 thanh bars/phần trăm cập nhật động
+- Thẻ Fear & Greed trong Price Cards cũng cập nhật động — loại bỏ `Math.random()`
+- Ô khuyến nghị AI tự thay đổi nội dung, màu nền, viền và % tỷ trọng danh mục theo điểm
+- Đồng bộ cập nhật: gọi từ `updateRecommendation()` → kích hoạt khi tải trang + sau khi có dữ liệu VIX/vĩ mô
+
+---
+
+### v1.3 — 13/04/2026
 **Professional Dynamic Gold Recommendation Engine**
 
 **EN:**
