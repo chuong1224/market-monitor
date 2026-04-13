@@ -722,6 +722,152 @@
     .inst-grid { grid-template-columns: 1fr !important; }
     .risk-badge { font-size: 8px; padding: 2px 6px; }
   }
+
+  /* ============================================= */
+  /*  RECOMMENDATION PANEL                         */
+  /* ============================================= */
+  .rec-panel {
+    margin: 0 24px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .rec-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold-primary), var(--gold-light), var(--gold-primary), var(--gold-dark));
+  }
+  .rec-header {
+    display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px;
+  }
+  .rec-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+  .rec-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .rec-timestamp { font-size: 11px; color: var(--text-muted); white-space: nowrap; padding-top: 2px; }
+
+  .rec-main {
+    display: grid;
+    grid-template-columns: 220px 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .rec-signal-block {
+    text-align: center;
+    padding: 20px 16px;
+    background: var(--bg-secondary);
+    border-radius: 14px;
+    border: 1px solid var(--border-subtle);
+  }
+  .rec-signal-icon { font-size: 40px; line-height: 1; margin-bottom: 10px; }
+  .rec-signal-label {
+    font-size: 21px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 4px;
+  }
+  .rec-signal-label.signal-strong-buy { color: #00D68F; }
+  .rec-signal-label.signal-buy { color: #4ADE80; }
+  .rec-signal-label.signal-hold { color: #F5C842; }
+  .rec-signal-label.signal-sell { color: #FF9A3C; }
+  .rec-signal-label.signal-strong-sell { color: #FF4757; }
+  .rec-signal-sub { font-size: 11px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.4; }
+
+  .rec-score-meter {
+    height: 8px;
+    background: linear-gradient(90deg, #FF4757 0%, #FF9A3C 25%, #F5C842 50%, #4ADE80 75%, #00D68F 100%);
+    border-radius: 4px;
+    position: relative;
+    margin: 10px 0 4px;
+  }
+  .rec-score-needle {
+    position: absolute; top: -5px;
+    width: 18px; height: 18px;
+    background: white; border-radius: 50%;
+    border: 3px solid rgba(0,0,0,0.4);
+    transform: translateX(-50%);
+    transition: left 1.2s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+  }
+  .rec-score-labels {
+    display: flex; justify-content: space-between;
+    font-size: 9px; color: var(--text-muted); margin-top: 6px;
+  }
+  .rec-confidence { font-size: 11px; color: var(--text-secondary); margin-top: 10px; }
+  .rec-confidence span { font-weight: 700; color: var(--gold-primary); }
+
+  .rec-factors { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .rec-factor {
+    background: var(--bg-secondary); border-radius: 10px;
+    padding: 12px; border: 1px solid var(--border-subtle);
+  }
+  .rec-factor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .rec-factor-name {
+    font-size: 10px; font-weight: 700; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .rec-factor-score { font-size: 13px; font-weight: 700; }
+  .rec-factor-score.positive { color: var(--green); }
+  .rec-factor-score.negative { color: var(--red); }
+  .rec-factor-score.neutral { color: var(--gold-primary); }
+  .rec-factor-bar-bg {
+    height: 5px; background: var(--bg-primary); border-radius: 3px; overflow: hidden; margin-bottom: 7px;
+  }
+  .rec-factor-bar { height: 100%; border-radius: 3px; transition: width 1s ease, background 0.5s ease; }
+  .rec-factor-details { font-size: 10px; color: var(--text-muted); line-height: 1.55; }
+
+  .rec-signals { display: flex; flex-direction: column; gap: 7px; }
+  .rec-signal-item {
+    display: flex; align-items: flex-start; gap: 9px;
+    font-size: 11px; color: var(--text-secondary);
+    background: var(--bg-secondary); border-radius: 8px;
+    padding: 9px 12px; border-left: 3px solid transparent;
+    line-height: 1.4;
+  }
+  .rec-signal-item.bullish { border-left-color: var(--green); }
+  .rec-signal-item.bearish { border-left-color: var(--red); }
+  .rec-signal-item.neutral { border-left-color: var(--gold-primary); }
+  .rec-signal-dot {
+    width: 8px; height: 8px; border-radius: 50%; margin-top: 3px; flex-shrink: 0;
+  }
+  .rec-signal-dot.bullish { background: var(--green); }
+  .rec-signal-dot.bearish { background: var(--red); }
+  .rec-signal-dot.neutral { background: var(--gold-primary); }
+
+  .rec-targets {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border-subtle);
+  }
+  .rec-target-item {
+    text-align: center; padding: 12px 8px;
+    background: var(--bg-secondary); border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+  }
+  .rec-target-label {
+    font-size: 10px; color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 6px; line-height: 1.4;
+  }
+  .rec-target-value { font-size: 14px; font-weight: 700; }
+  .rec-disclaimer {
+    margin-top: 16px; font-size: 10px; color: var(--text-muted);
+    font-style: italic; line-height: 1.55; text-align: center;
+    padding-top: 14px; border-top: 1px solid var(--border-subtle);
+  }
+  .indicator-signal.signal-neutral {
+    background: rgba(245,200,66,0.12); color: var(--gold-primary); border-color: rgba(245,200,66,0.2);
+  }
+  @media (max-width: 900px) {
+    .rec-main { grid-template-columns: 1fr 1fr; }
+    .rec-signal-block { grid-column: span 2; }
+  }
+  @media (max-width: 600px) {
+    .rec-panel { margin: 0 10px 16px; padding: 16px; }
+    .rec-main { grid-template-columns: 1fr; }
+    .rec-signal-block { grid-column: span 1; }
+    .rec-factors { grid-template-columns: 1fr; }
+    .rec-targets { grid-template-columns: 1fr; }
+    .rec-title { font-size: 14px; }
+  }
 </style>
 </head>
 <body>
@@ -1049,6 +1195,114 @@
         <div style="font-size:20px;font-weight:900;color:var(--green)" id="overallSignal">TÍCH LUỸ</div>
         <div style="font-size:11px;color:var(--text-secondary);margin-top:2px" id="overallSignalSub">8/11 chỉ số TĂNG</div>
       </div>
+    </div>
+  </div>
+
+  <!-- DIVIDER: RECOMMENDATION -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-text">Khuyến Nghị Đầu Tư Chuyên Nghiệp</div>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <!-- RECOMMENDATION PANEL -->
+  <div class="rec-panel" id="recommendationPanel">
+    <div class="rec-header">
+      <div>
+        <div class="rec-title">Khuyến Nghị Mua / Bán / Nắm Giữ Vàng</div>
+        <div class="rec-subtitle">Phân tích đa yếu tố: Kỹ thuật (40%) • Vĩ mô (30%) • Tâm lý thị trường (20%) • Yếu tố Việt Nam (10%)</div>
+      </div>
+      <div class="rec-timestamp">Cập nhật: <span id="recTimestamp">--:--</span></div>
+    </div>
+
+    <div class="rec-main">
+      <!-- Main Signal Block -->
+      <div class="rec-signal-block">
+        <div class="rec-signal-icon" id="recIcon">⏳</div>
+        <div class="rec-signal-label signal-hold" id="recSignal">ĐANG TÍNH...</div>
+        <div class="rec-signal-sub" id="recSignalSub">Đang phân tích dữ liệu thị trường</div>
+        <div class="rec-score-meter">
+          <div class="rec-score-needle" id="recNeedle" style="left:50%"></div>
+        </div>
+        <div class="rec-score-labels">
+          <span>BÁN MẠNH</span><span>TRUNG LẬP</span><span>MUA MẠNH</span>
+        </div>
+        <div class="rec-confidence" style="margin-top:14px">Điểm tổng hợp: <span id="recScore">0</span></div>
+        <div class="rec-confidence" style="margin-top:4px">Độ tin cậy: <span id="recConfidence">--</span></div>
+      </div>
+
+      <!-- Factor Breakdown -->
+      <div class="rec-factors">
+        <div class="rec-factor">
+          <div class="rec-factor-header">
+            <div class="rec-factor-name">Kỹ Thuật (40%)</div>
+            <div class="rec-factor-score neutral" id="techScore">--</div>
+          </div>
+          <div class="rec-factor-bar-bg">
+            <div class="rec-factor-bar" id="techBar" style="width:50%;background:var(--gold-primary)"></div>
+          </div>
+          <div class="rec-factor-details" id="techDetails">RSI · MACD · Bollinger · MA Alignment</div>
+        </div>
+        <div class="rec-factor">
+          <div class="rec-factor-header">
+            <div class="rec-factor-name">Vĩ Mô (30%)</div>
+            <div class="rec-factor-score neutral" id="macroScore">--</div>
+          </div>
+          <div class="rec-factor-bar-bg">
+            <div class="rec-factor-bar" id="macroBar" style="width:50%;background:var(--blue)"></div>
+          </div>
+          <div class="rec-factor-details" id="macroDetails">DXY · 10Y Yield · Chính sách Fed</div>
+        </div>
+        <div class="rec-factor">
+          <div class="rec-factor-header">
+            <div class="rec-factor-name">Tâm Lý (20%)</div>
+            <div class="rec-factor-score neutral" id="sentScore">--</div>
+          </div>
+          <div class="rec-factor-bar-bg">
+            <div class="rec-factor-bar" id="sentBar" style="width:50%;background:var(--orange)"></div>
+          </div>
+          <div class="rec-factor-details" id="sentDetails">VIX · HYG/TLT · Momentum giá</div>
+        </div>
+        <div class="rec-factor">
+          <div class="rec-factor-header">
+            <div class="rec-factor-name">VN Market (10%)</div>
+            <div class="rec-factor-score neutral" id="vnScore">--</div>
+          </div>
+          <div class="rec-factor-bar-bg">
+            <div class="rec-factor-bar" id="vnBar" style="width:50%;background:var(--gold-primary)"></div>
+          </div>
+          <div class="rec-factor-details" id="vnDetails">Phụ trội SJC · USD/VND · Cầu trong nước</div>
+        </div>
+      </div>
+
+      <!-- Key Signals -->
+      <div class="rec-signals" id="recSignalsList">
+        <div class="rec-signal-item neutral">
+          <div class="rec-signal-dot neutral"></div>
+          <span>Đang phân tích các chỉ số thị trường...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price Targets -->
+    <div class="rec-targets">
+      <div class="rec-target-item">
+        <div class="rec-target-label">Vùng Tích Lũy<br>(Hỗ Trợ)</div>
+        <div class="rec-target-value" style="color:var(--green)" id="recEntryZone">--</div>
+      </div>
+      <div class="rec-target-item">
+        <div class="rec-target-label">Mục Tiêu<br>1 Tháng</div>
+        <div class="rec-target-value" style="color:var(--gold-primary)" id="recTarget1m">--</div>
+      </div>
+      <div class="rec-target-item">
+        <div class="rec-target-label">Cắt Lỗ<br>(Stop-Loss)</div>
+        <div class="rec-target-value" style="color:var(--red)" id="recStopLoss">--</div>
+      </div>
+    </div>
+
+    <div class="rec-disclaimer">
+      ⚠ Khuyến nghị được tạo tự động từ mô hình định lượng đa yếu tố, cập nhật theo dữ liệu thời gian thực.
+      Không phải tư vấn tài chính cá nhân. Nhà đầu tư cần tự đánh giá rủi ro và kết hợp phân tích cơ bản trước khi quyết định.
     </div>
   </div>
 
@@ -1998,6 +2252,90 @@ function renderMainChart(goldUSD, range) {
 }
 
 // =============================================
+//  TECHNICAL INDICATOR CALCULATIONS (REAL)
+// =============================================
+
+// Extract price values from history array [{x, y}]
+function extractPrices(priceHistory) {
+  return priceHistory.map(p => p.y);
+}
+
+// Simple Moving Average
+function calcSMA(prices, period) {
+  if (prices.length < period) return prices[prices.length - 1] || 0;
+  const slice = prices.slice(-period);
+  return slice.reduce((a, b) => a + b, 0) / period;
+}
+
+// Exponential Moving Average — returns full array
+function calcEMAArr(prices, period) {
+  if (!prices || prices.length === 0) return [0];
+  const k = 2 / (period + 1);
+  const ema = [prices[0]];
+  for (let i = 1; i < prices.length; i++) {
+    ema.push(prices[i] * k + ema[i - 1] * (1 - k));
+  }
+  return ema;
+}
+
+// RSI(14) using Wilder's smoothing method
+function calcRSI(prices, period = 14) {
+  if (prices.length < period + 2) return 50;
+  const changes = [];
+  for (let i = 1; i < prices.length; i++) changes.push(prices[i] - prices[i - 1]);
+  // Initial average
+  let avgGain = 0, avgLoss = 0;
+  for (let i = 0; i < period; i++) {
+    avgGain += changes[i] > 0 ? changes[i] : 0;
+    avgLoss += changes[i] < 0 ? Math.abs(changes[i]) : 0;
+  }
+  avgGain /= period;
+  avgLoss /= period;
+  // Wilder smoothing for remaining periods
+  for (let i = period; i < changes.length; i++) {
+    const g = changes[i] > 0 ? changes[i] : 0;
+    const l = changes[i] < 0 ? Math.abs(changes[i]) : 0;
+    avgGain = (avgGain * (period - 1) + g) / period;
+    avgLoss = (avgLoss * (period - 1) + l) / period;
+  }
+  if (avgLoss === 0) return 100;
+  return 100 - (100 / (1 + avgGain / avgLoss));
+}
+
+// MACD(12,26,9) — returns {line, signal, histogram, prevHistogram}
+function calcMACD(prices) {
+  if (prices.length < 36) return { line: 0, signal: 0, histogram: 0, prevHistogram: 0 };
+  const ema12 = calcEMAArr(prices, 12);
+  const ema26 = calcEMAArr(prices, 26);
+  const macdArr = ema12.map((v, i) => v - ema26[i]);
+  const signalArr = calcEMAArr(macdArr.slice(25), 9); // EMA9 of MACD line (start from i=25)
+  const last = macdArr.length - 1;
+  const lastSigIdx = signalArr.length - 1;
+  const line = macdArr[last];
+  const sig = signalArr[lastSigIdx];
+  const prevLine = macdArr[last - 1] || line;
+  const prevSig = signalArr[lastSigIdx - 1] || sig;
+  return {
+    line, signal: sig,
+    histogram: line - sig,
+    prevHistogram: prevLine - prevSig
+  };
+}
+
+// Bollinger Bands(20, 2) — returns {upper, middle, lower}
+function calcBB(prices, period = 20, mult = 2) {
+  if (prices.length < period) {
+    const p = prices[prices.length - 1] || 0;
+    return { upper: p * 1.02, middle: p, lower: p * 0.98 };
+  }
+  const slice = prices.slice(-period);
+  const mean = slice.reduce((a, b) => a + b, 0) / period;
+  const variance = slice.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) / period;
+  const std = Math.sqrt(variance);
+  return { upper: mean + mult * std, middle: mean, lower: mean - mult * std };
+}
+
+// =============================================
 //  RENDER SENTIMENT DONUT
 // =============================================
 function renderSentimentChart() {
@@ -2052,25 +2390,10 @@ function renderTicker(data) {
 
 // =============================================
 //  RENDER TECHNICAL INDICATORS
+//  Delegates to recommendation engine for real calculations
 // =============================================
 function renderTechnicals(goldUSD) {
-  const rsi = 62 + Math.random() * 8;
-  document.getElementById('rsiValue').textContent = rsi.toFixed(1);
-  document.getElementById('rsiBar').style.width = rsi + '%';
-  document.getElementById('rsiSignal').textContent = rsi > 70 ? 'QUÁ MUA' : rsi > 50 ? 'MUA' : 'BÁN';
-  document.getElementById('rsiSignal').className = 'indicator-signal ' + (rsi > 70 ? 'signal-sell' : 'signal-buy');
-
-  const macdVal = (Math.random() * 12 + 3).toFixed(2);
-  document.getElementById('macdValue').textContent = macdVal;
-  document.getElementById('macdDetail').textContent = `Signal: ${(macdVal - 1.5).toFixed(2)} | Histogram: +${(1.5 + Math.random()).toFixed(2)}`;
-
-  const upper = goldUSD * 1.018, middle = goldUSD * 1.005, lower = goldUSD * 0.988;
-  document.getElementById('bbDetail').textContent = `Upper: $${Math.round(upper).toLocaleString()} | Mid: $${Math.round(middle).toLocaleString()} | Lower: $${Math.round(lower).toLocaleString()}`;
-
-  document.getElementById('ma20').textContent = '$' + Math.round(goldUSD * 0.988).toLocaleString();
-  document.getElementById('ma50').textContent = '$' + Math.round(goldUSD * 0.965).toLocaleString();
-  document.getElementById('ma100').textContent = '$' + Math.round(goldUSD * 0.932).toLocaleString();
-  document.getElementById('ma200').textContent = '$' + Math.round(goldUSD * 0.881).toLocaleString();
+  updateRecommendation();
 }
 
 // =============================================
@@ -2454,6 +2777,7 @@ async function fetchAndRenderMacro() {
   const elapsed = Math.round(performance.now() - t0);
   macroData = { dxy, yield10y: y10, vnRates: vnr };
   renderMacroIndicators(dxy, y10, vnr);
+  updateRecommendation(); // Refresh recommendation with new macro data
 
   // LOG
   logFetch('💲 DXY (USD Index)', dxy.live ? 'ok' : 'mock', dxy.live ? (dxy.src || 'CNBC / Yahoo') : 'MOCK data', dxy.value.toFixed(3), elapsed);
@@ -2927,6 +3251,7 @@ async function fetchAndRenderRisk(goldUSD) {
 
   riskData = { indicators, vix: vixVal, hygTltRatio, timestamp: new Date() };
   renderRiskTable(indicators);
+  updateRecommendation(); // Refresh recommendation with new risk/sentiment data
 
   // LOG
   logFetch('⚠ VIX + Rủi ro thị trường', vix ? 'ok' : 'mock', vix ? 'CNBC batch' : 'MOCK data', 'VIX=' + vixVal.toFixed(2) + (hygTltRatio ? ' | HYG/TLT=' + hygTltRatio.toFixed(4) : ''), elapsed);
@@ -2978,6 +3303,311 @@ function renderRiskTable(indicators) {
       <span class="risk-badge rb-normal"><span class="risk-badge-dot"></span>${normalCount} Bình thường</span>
     `;
   }
+}
+
+// =============================================
+//  GOLD RECOMMENDATION ENGINE
+//  Scoring: -100 (Strong Sell) → +100 (Strong Buy)
+//  Weights: Technical 40% | Macro 30% | Sentiment 20% | VN 10%
+// =============================================
+function calculateGoldRecommendation() {
+  const goldUSD   = currentData?.goldUSD  || MOCK.goldUSD;
+  const usdVND    = currentData?.usdVND   || MOCK.usdVND;
+  const vnGolds   = currentData?.vnGolds  || [];
+  const goldChg24 = currentData?.goldChange24h || 0;
+  const usdChg    = currentData?.usdVNDChange  || 0;
+
+  // Macro data (global, filled by fetchAndRenderMacro)
+  const dxy      = macroData?.dxy?.value      || MACRO_DEFAULTS.dxy.value;
+  const dxyChg   = macroData?.dxy?.changePct  || MACRO_DEFAULTS.dxy.changePct;
+  const y10      = macroData?.yield10y?.value || MACRO_DEFAULTS.yield10y.value;
+  const y10Chg   = macroData?.yield10y?.changePct || MACRO_DEFAULTS.yield10y.changePct;
+
+  // Risk/sentiment data (global, filled by fetchAndRenderRisk)
+  const vix          = riskData?.vix         || 26.4;
+  const hygTltRatio  = riskData?.hygTltRatio || null;
+
+  // Oil data (global)
+  const wti         = oilData?.wti?.value || OIL_DEFAULTS.wti.value;
+  const goldOilRatio = goldUSD / wti;
+
+  // Build price history for indicator calculation
+  const hist30d  = generatePriceHistory(goldUSD, '30d');
+  const hist1y   = generatePriceHistory(goldUSD, '1y');
+  const p30 = extractPrices(hist30d);
+  const p1y = extractPrices(hist1y);
+
+  // Real technical indicators
+  const rsi  = calcRSI(p30, 14);
+  const macd = calcMACD(p30);
+  const bb   = calcBB(p30, 20, 2);
+  const ma20  = calcSMA(p30, 20);
+  const ma50  = calcSMA(p30, Math.min(50, p30.length));
+  const ma100 = calcSMA(p1y, Math.min(100, p1y.length));
+  const ma200 = calcSMA(p1y, Math.min(200, p1y.length));
+  const bbPos = (goldUSD - bb.lower) / (bb.upper - bb.lower || 1); // 0=lower, 1=upper
+
+  // ── TECHNICAL SCORE (max ±40) ──────────────────────
+  let techScore = 0;
+  const techSig = [];
+
+  if (rsi < 30)       { techScore += 25; techSig.push({ t:'bullish', s:`RSI ${rsi.toFixed(1)} — Quá bán, tín hiệu mua mạnh` }); }
+  else if (rsi < 45)  { techScore += 12; techSig.push({ t:'bullish', s:`RSI ${rsi.toFixed(1)} — Vùng tích lũy hấp dẫn` }); }
+  else if (rsi > 75)  { techScore -= 25; techSig.push({ t:'bearish', s:`RSI ${rsi.toFixed(1)} — Quá mua, rủi ro điều chỉnh cao` }); }
+  else if (rsi > 62)  { techScore -= 10; techSig.push({ t:'neutral', s:`RSI ${rsi.toFixed(1)} — Vùng trung tính cao, thận trọng` }); }
+  else               { techSig.push({ t:'neutral', s:`RSI ${rsi.toFixed(1)} — Trung tính` }); }
+
+  if (macd.histogram > 0 && macd.histogram > macd.prevHistogram) {
+    techScore += 20; techSig.push({ t:'bullish', s:'MACD dương & tăng — Đà tăng đang được xác nhận' });
+  } else if (macd.histogram > 0) {
+    techScore += 8;  techSig.push({ t:'bullish', s:'MACD dương — Xu hướng tăng ngắn hạn' });
+  } else if (macd.histogram < 0 && macd.histogram < macd.prevHistogram) {
+    techScore -= 20; techSig.push({ t:'bearish', s:'MACD âm & giảm — Đà giảm đang được xác nhận' });
+  } else if (macd.histogram < 0) {
+    techScore -= 8;  techSig.push({ t:'bearish', s:'MACD âm — Áp lực bán ngắn hạn' });
+  }
+
+  if (bbPos < 0.15)      { techScore += 15; techSig.push({ t:'bullish', s:'Giá gần dải dưới Bollinger — Vùng hỗ trợ kỹ thuật mạnh' }); }
+  else if (bbPos > 0.85) { techScore -= 15; techSig.push({ t:'bearish', s:'Giá gần dải trên Bollinger — Kháng cự kỹ thuật, chú ý chốt lời' }); }
+
+  const fullBull = goldUSD > ma20 && ma20 > ma50 && ma50 > ma200;
+  const fullBear = goldUSD < ma20 && ma20 < ma50;
+  if (fullBull)          { techScore += 15; techSig.push({ t:'bullish', s:'Giá > MA20 > MA50 > MA200 — Xu hướng tăng hoàn chỉnh tất cả khung' }); }
+  else if (fullBear)     { techScore -= 15; techSig.push({ t:'bearish', s:'Giá < MA20 < MA50 — Xu hướng giảm rõ ràng' }); }
+  else if (goldUSD > ma200) { techScore += 5; techSig.push({ t:'neutral', s:'Giá trên MA200 — Xu hướng dài hạn vẫn tích cực' }); }
+
+  techScore = Math.max(-40, Math.min(40, techScore));
+
+  // ── MACRO SCORE (max ±30) ──────────────────────────
+  let macroScore = 0;
+  const macroSig = [];
+
+  if (dxy < 98)       { macroScore += 20; macroSig.push({ t:'bullish', s:`DXY ${dxy.toFixed(1)} — USD yếu, hỗ trợ mạnh cho giá vàng` }); }
+  else if (dxy < 102) { macroScore += 8;  macroSig.push({ t:'bullish', s:`DXY ${dxy.toFixed(1)} — USD ổn định, tích cực nhẹ cho vàng` }); }
+  else if (dxy > 108) { macroScore -= 20; macroSig.push({ t:'bearish', s:`DXY ${dxy.toFixed(1)} — USD mạnh, áp lực giảm lên vàng` }); }
+  else if (dxy > 104) { macroScore -= 8;  macroSig.push({ t:'bearish', s:`DXY ${dxy.toFixed(1)} — USD tương đối mạnh, hạn chế đà tăng` }); }
+
+  if (dxyChg < -0.6)  { macroScore += 5; macroSig.push({ t:'bullish', s:`DXY giảm ${dxyChg.toFixed(2)}% hôm nay — Lực đẩy vàng ngắn hạn` }); }
+  else if (dxyChg > 0.6) { macroScore -= 5; }
+
+  if (y10 < 3.8)      { macroScore += 15; macroSig.push({ t:'bullish', s:`Yield 10Y ${y10.toFixed(2)}% — Lợi suất thấp, chi phí cơ hội giảm` }); }
+  else if (y10 < 4.2) { macroScore += 5;  macroSig.push({ t:'neutral', s:`Yield 10Y ${y10.toFixed(2)}% — Lợi suất ở mức bình thường` }); }
+  else if (y10 > 5.0) { macroScore -= 15; macroSig.push({ t:'bearish', s:`Yield 10Y ${y10.toFixed(2)}% — Lợi suất cao, cạnh tranh với vàng` }); }
+  else if (y10 > 4.5) { macroScore -= 8;  macroSig.push({ t:'bearish', s:`Yield 10Y ${y10.toFixed(2)}% — Lợi suất khá cao, bất lợi cho vàng` }); }
+
+  macroScore = Math.max(-30, Math.min(30, macroScore));
+
+  // ── SENTIMENT SCORE (max ±20) ─────────────────────
+  let sentScore = 0;
+  const sentSig = [];
+
+  if (vix > 35)       { sentScore += 18; sentSig.push({ t:'bullish', s:`VIX ${vix.toFixed(1)} — Sợ hãi cực độ, cầu trú ẩn vào vàng tăng mạnh` }); }
+  else if (vix > 25)  { sentScore += 10; sentSig.push({ t:'bullish', s:`VIX ${vix.toFixed(1)} — Biến động cao, dòng tiền chảy vào vàng` }); }
+  else if (vix < 15)  { sentScore -= 8;  sentSig.push({ t:'bearish', s:`VIX ${vix.toFixed(1)} — Thị trường quá ổn, cầu tài sản an toàn giảm` }); }
+  else               { sentSig.push({ t:'neutral', s:`VIX ${vix.toFixed(1)} — Biến động bình thường` }); }
+
+  if (goldChg24 > 3)  { sentScore += 5;  sentSig.push({ t:'bullish', s:`Momentum +${goldChg24.toFixed(1)}% hôm nay — Lực mua ngắn hạn mạnh` }); }
+  else if (goldChg24 < -3) { sentScore -= 5; sentSig.push({ t:'bearish', s:`Giá giảm ${goldChg24.toFixed(1)}% hôm nay — Áp lực bán ngắn hạn` }); }
+
+  if (goldOilRatio > 32)    { sentScore -= 5; sentSig.push({ t:'bearish', s:`Gold/Oil ${goldOilRatio.toFixed(0)}x — Vàng đắt bất thường so với dầu (TB ~16x)` }); }
+  else if (goldOilRatio < 14) { sentScore += 5; sentSig.push({ t:'bullish', s:`Gold/Oil ${goldOilRatio.toFixed(0)}x — Vàng hấp dẫn tương đối so với dầu` }); }
+
+  sentScore = Math.max(-20, Math.min(20, sentScore));
+
+  // ── VN MARKET SCORE (max ±10) ────────────────────
+  let vnScore = 0;
+  const vnSig = [];
+
+  const sjc = vnGolds[0];
+  const sjcPrem = sjc ? parseFloat(sjc.premiumPct) : 11.5;
+
+  if (sjcPrem > 16)        { vnScore -= 8; vnSig.push({ t:'bearish', s:`Phụ trội SJC ${sjcPrem}% — Vàng VN đang quá đắt so với TG, cân nhắc chốt lời` }); }
+  else if (sjcPrem > 11)   { vnScore -= 2; vnSig.push({ t:'neutral', s:`Phụ trội SJC ${sjcPrem}% — Mức phụ trội bình thường` }); }
+  else if (sjcPrem < 6)    { vnScore += 8; vnSig.push({ t:'bullish', s:`Phụ trội SJC ${sjcPrem}% — Vàng VN hấp dẫn, cơ hội tích lũy` }); }
+  else if (sjcPrem < 9)    { vnScore += 3; vnSig.push({ t:'bullish', s:`Phụ trội SJC ${sjcPrem}% — Mức chênh lệch thấp tương đối` }); }
+
+  if (usdChg > 0.3)        { vnScore += 2; vnSig.push({ t:'bullish', s:`USD/VND tăng ${usdChg.toFixed(2)}% — VND suy yếu, hỗ trợ vàng trong nước` }); }
+  else if (usdChg < -0.3)  { vnScore -= 2; }
+
+  vnScore = Math.max(-10, Math.min(10, vnScore));
+
+  // ── TOTAL WEIGHTED SCORE ──────────────────────────
+  const totalScore = techScore + macroScore + sentScore + vnScore;
+
+  // ── RECOMMENDATION LABEL ─────────────────────────
+  let recLabel, recCls, recIcon, recSub;
+  if (totalScore >= 55) {
+    recLabel = 'TÍCH LŨY MẠNH'; recCls = 'signal-strong-buy'; recIcon = '🚀';
+    recSub = 'Toàn bộ yếu tố đều thuận lợi — Ưu tiên mua';
+  } else if (totalScore >= 22) {
+    recLabel = 'TÍCH LŨY'; recCls = 'signal-buy'; recIcon = '📈';
+    recSub = 'Nhiều tín hiệu tích cực, xu hướng có lợi';
+  } else if (totalScore >= -22) {
+    recLabel = 'NẮM GIỮ'; recCls = 'signal-hold'; recIcon = '⚖️';
+    recSub = 'Tín hiệu hỗn hợp — Chờ xác nhận thêm';
+  } else if (totalScore >= -55) {
+    recLabel = 'GIẢM VỊ THẾ'; recCls = 'signal-sell'; recIcon = '📉';
+    recSub = 'Nhiều tín hiệu tiêu cực — Cân nhắc chốt lời';
+  } else {
+    recLabel = 'THOÁT HÀNG'; recCls = 'signal-strong-sell'; recIcon = '🔴';
+    recSub = 'Áp lực bán rất mạnh — Quản lý rủi ro chặt chẽ';
+  }
+
+  // Confidence based on live data quality
+  const livePoints = (currentData?.isLive ? 40 : 0)
+    + (macroData?.dxy?.live ? 20 : 0)
+    + (riskData?.vix ? 20 : 0)
+    + (oilData?.wti?.live ? 20 : 0);
+  const confidence = livePoints >= 80 ? 'Cao (dữ liệu live)'
+    : livePoints >= 40 ? 'Trung bình (một phần live)'
+    : 'Thấp (dữ liệu ước tính)';
+
+  // Price targets
+  const fG = v => '$' + Math.round(v).toLocaleString('en');
+  const entryZone = `${fG(goldUSD * 0.956)}–${fG(goldUSD * 0.974)}`;
+  const target1m  = totalScore > 0 ? fG(goldUSD * (1 + 0.03 + totalScore / 2000))
+                                   : fG(goldUSD * (1 - 0.02 - Math.abs(totalScore) / 2000));
+  const stopLoss  = fG(goldUSD * 0.935);
+
+  // Collect & rank signals (bullish/bearish first, then neutral)
+  const allSigs = [
+    ...techSig.map(s => ({ ...s, cat: 'tech' })),
+    ...macroSig.map(s => ({ ...s, cat: 'macro' })),
+    ...sentSig.map(s => ({ ...s, cat: 'sent' })),
+    ...vnSig.map(s => ({ ...s, cat: 'vn' })),
+  ];
+  const ranked = [
+    ...allSigs.filter(s => s.t !== 'neutral'),
+    ...allSigs.filter(s => s.t === 'neutral'),
+  ].slice(0, 7);
+
+  return {
+    score: totalScore,
+    label: recLabel, cls: recCls, icon: recIcon, sub: recSub, confidence,
+    techScore, macroScore, sentScore, vnScore,
+    techDetails:  `RSI: ${rsi.toFixed(1)} | MACD: ${macd.histogram > 0 ? '+' : ''}${macd.histogram.toFixed(1)} | BB vị trí: ${(bbPos*100).toFixed(0)}%`,
+    macroDetails: `DXY: ${dxy.toFixed(1)} (${dxyChg >= 0 ? '+' : ''}${dxyChg.toFixed(2)}%) | Yield 10Y: ${y10.toFixed(2)}%`,
+    sentDetails:  `VIX: ${vix.toFixed(1)} | Gold 24h: ${goldChg24 >= 0 ? '+' : ''}${goldChg24.toFixed(2)}% | G/O: ${goldOilRatio.toFixed(0)}x`,
+    vnDetails:    `Phụ trội SJC: +${sjcPrem}% | USD/VND: ${Math.round(usdVND).toLocaleString('en')}`,
+    signals: ranked,
+    entryZone, target1m, stopLoss,
+    rsi, macd, bb, ma20, ma50, ma100, ma200, bbPos,
+  };
+}
+
+// =============================================
+//  RENDER RECOMMENDATION
+// =============================================
+function renderRecommendation(rec) {
+  if (!rec) return;
+
+  // Main signal
+  document.getElementById('recIcon').textContent   = rec.icon;
+  const sigEl = document.getElementById('recSignal');
+  sigEl.textContent = rec.label;
+  sigEl.className   = 'rec-signal-label ' + rec.cls;
+  document.getElementById('recSignalSub').textContent = rec.sub;
+
+  // Score needle: range -100 → +100 maps to 0% → 100%
+  const needlePct = Math.max(2, Math.min(98, (rec.score + 100) / 200 * 100));
+  document.getElementById('recNeedle').style.left = needlePct.toFixed(1) + '%';
+  document.getElementById('recScore').textContent = (rec.score > 0 ? '+' : '') + rec.score.toFixed(0);
+  document.getElementById('recConfidence').textContent = rec.confidence;
+  document.getElementById('recTimestamp').textContent  =
+    new Date().toLocaleTimeString('vi', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+
+  // Factor bars helper
+  function setFactor(prefix, score, maxAbs, details) {
+    const el  = document.getElementById(prefix + 'Score');
+    const bar = document.getElementById(prefix + 'Bar');
+    const det = document.getElementById(prefix + 'Details');
+    if (el) {
+      el.textContent = (score > 0 ? '+' : '') + score.toFixed(0);
+      el.className   = 'rec-factor-score ' + (score > 3 ? 'positive' : score < -3 ? 'negative' : 'neutral');
+    }
+    if (bar) {
+      const pct = Math.max(4, Math.min(96, (score + maxAbs) / (2 * maxAbs) * 100));
+      bar.style.width = pct.toFixed(0) + '%';
+      bar.style.background = score > 5 ? 'var(--green)' : score < -5 ? 'var(--red)' : 'var(--gold-primary)';
+    }
+    if (det && details) det.textContent = details;
+  }
+  setFactor('tech',  rec.techScore,  40, rec.techDetails);
+  setFactor('macro', rec.macroScore, 30, rec.macroDetails);
+  setFactor('sent',  rec.sentScore,  20, rec.sentDetails);
+  setFactor('vn',    rec.vnScore,    10, rec.vnDetails);
+
+  // Signals list
+  const listEl = document.getElementById('recSignalsList');
+  if (listEl) {
+    listEl.innerHTML = rec.signals.map(s => `
+      <div class="rec-signal-item ${s.t}">
+        <div class="rec-signal-dot ${s.t}"></div>
+        <span>${s.s}</span>
+      </div>`).join('');
+  }
+
+  // Price targets
+  const g = currentData?.goldUSD || MOCK.goldUSD;
+  document.getElementById('recEntryZone').textContent = rec.entryZone;
+  document.getElementById('recTarget1m').textContent  = rec.target1m;
+  document.getElementById('recStopLoss').textContent  = rec.stopLoss;
+
+  // ── Also update Technical Indicators panel with REAL values ──
+  document.getElementById('rsiValue').textContent = rec.rsi.toFixed(1);
+  document.getElementById('rsiBar').style.width   = rec.rsi + '%';
+  const rsiTxt = rec.rsi > 70 ? 'QUÁ MUA' : rec.rsi < 30 ? 'QUÁ BÁN' : rec.rsi > 55 ? 'TRUNG LẬP' : 'TÍCH LŨY';
+  const rsiCls = rec.rsi > 70 ? 'signal-sell' : rec.rsi < 30 ? 'signal-buy' : 'signal-neutral';
+  const rsiSigEl = document.getElementById('rsiSignal');
+  rsiSigEl.textContent = rsiTxt; rsiSigEl.className = 'indicator-signal ' + rsiCls;
+
+  document.getElementById('macdValue').textContent  = rec.macd.line.toFixed(2);
+  document.getElementById('macdDetail').textContent =
+    `Signal: ${rec.macd.signal.toFixed(2)} | Histogram: ${rec.macd.histogram >= 0 ? '+' : ''}${rec.macd.histogram.toFixed(2)}`;
+  const macdSigEl = document.getElementById('macdSignal');
+  if (macdSigEl) {
+    macdSigEl.textContent = rec.macd.histogram >= 0 ? 'MUA' : 'BÁN';
+    macdSigEl.className   = 'indicator-signal ' + (rec.macd.histogram >= 0 ? 'signal-buy' : 'signal-sell');
+  }
+
+  const bbSigEl = document.getElementById('bbSignal');
+  if (bbSigEl) {
+    const bbTxt = rec.bbPos < 0.3 ? 'MUA' : rec.bbPos > 0.7 ? 'BÁN' : 'TRUNG LẬP';
+    const bbCls = rec.bbPos < 0.3 ? 'signal-buy' : rec.bbPos > 0.7 ? 'signal-sell' : 'signal-neutral';
+    bbSigEl.textContent = bbTxt; bbSigEl.className = 'indicator-signal ' + bbCls;
+  }
+  document.getElementById('bbDetail').textContent =
+    `Upper: $${Math.round(rec.bb.upper).toLocaleString('en')} | Mid: $${Math.round(rec.bb.middle).toLocaleString('en')} | Lower: $${Math.round(rec.bb.lower).toLocaleString('en')}`;
+
+  const setMA = (id, ma) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = '$' + Math.round(ma).toLocaleString('en');
+    el.className   = 'ma-value ' + (g > ma ? 'change-up' : 'change-down');
+  };
+  setMA('ma20', rec.ma20); setMA('ma50', rec.ma50);
+  setMA('ma100', rec.ma100); setMA('ma200', rec.ma200);
+
+  // Overall signal box in tech panel
+  const ovEl  = document.getElementById('overallSignal');
+  const ovSub = document.getElementById('overallSignalSub');
+  if (ovEl) {
+    ovEl.textContent = rec.label;
+    ovEl.style.color = rec.score >= 22 ? 'var(--green)'
+      : rec.score <= -22 ? 'var(--red)' : 'var(--gold-primary)';
+  }
+  if (ovSub) {
+    const bull = rec.signals.filter(s => s.t === 'bullish').length;
+    ovSub.textContent = `${bull}/${rec.signals.length} tín hiệu TĂNG`;
+  }
+}
+
+// Called whenever any data slice is updated
+function updateRecommendation() {
+  try {
+    const rec = calculateGoldRecommendation();
+    renderRecommendation(rec);
+  } catch(e) { console.warn('Recommendation error:', e); }
 }
 
 // =============================================
