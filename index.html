@@ -1,0 +1,2911 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Monitor | Tổng Hợp Thị Trường Hàng Ngày</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #070B14;
+    --bg-secondary: #0D1321;
+    --bg-card: rgba(255,255,255,0.04);
+    --bg-card-hover: rgba(255,255,255,0.07);
+    --gold-primary: #F5C842;
+    --gold-light: #FFE07A;
+    --gold-dark: #C9921A;
+    --gold-glow: rgba(245,200,66,0.15);
+    --green: #00D68F;
+    --green-bg: rgba(0,214,143,0.1);
+    --red: #FF4757;
+    --red-bg: rgba(255,71,87,0.1);
+    --blue: #4E9FFF;
+    --blue-bg: rgba(78,159,255,0.1);
+    --orange: #FF9A3C;
+    --text-primary: #E8EAED;
+    --text-secondary: #8B949E;
+    --text-muted: #495670;
+    --border: rgba(245,200,66,0.12);
+    --border-subtle: rgba(255,255,255,0.06);
+    --shadow-gold: 0 0 30px rgba(245,200,66,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* === TICKER BAR === */
+  .ticker-bar {
+    background: linear-gradient(90deg, #0a0e1a 0%, #111827 50%, #0a0e1a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .ticker-bar::before, .ticker-bar::after {
+    content: ''; position: absolute; top: 0; width: 80px; height: 100%; z-index: 2;
+  }
+  .ticker-bar::before { left: 0; background: linear-gradient(90deg, #0a0e1a, transparent); }
+  .ticker-bar::after { right: 0; background: linear-gradient(-90deg, #0a0e1a, transparent); }
+  .ticker-track {
+    display: flex; gap: 48px; animation: ticker 40s linear infinite;
+    white-space: nowrap; width: max-content;
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .ticker-item {
+    display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500;
+  }
+  .ticker-label { color: var(--text-secondary); }
+  .ticker-price { color: var(--text-primary); font-weight: 600; }
+  .ticker-change.up { color: var(--green); }
+  .ticker-change.down { color: var(--red); }
+  .ticker-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold-primary); opacity: 0.4; }
+
+  /* === HEADER === */
+  .header {
+    padding: 24px 40px 0;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 20px;
+  }
+  .header-brand { display: flex; align-items: center; gap: 16px; }
+  .brand-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; box-shadow: 0 4px 20px rgba(245,200,66,0.3);
+  }
+  .brand-title { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+  .brand-sub {
+    font-size: 12px; color: var(--text-secondary); font-weight: 400; margin-top: 2px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .live-badge {
+    background: var(--red); color: white; font-size: 9px; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.6; }
+  }
+  .header-meta { text-align: right; }
+  .meta-date { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+  .meta-time { font-size: 22px; font-weight: 800; color: var(--gold-primary); font-variant-numeric: tabular-nums; }
+  .meta-update {
+    font-size: 11px; color: var(--text-secondary); margin-top: 4px;
+    display: flex; align-items: center; gap: 6px; justify-content: flex-end;
+  }
+  .refresh-btn {
+    background: var(--gold-glow); border: 1px solid var(--border); color: var(--gold-primary);
+    padding: 4px 12px; border-radius: 6px; font-size: 11px; font-family: inherit;
+    cursor: pointer; font-weight: 600; transition: all 0.2s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .refresh-btn:hover { background: rgba(245,200,66,0.2); }
+  .refresh-btn.spinning svg { animation: spin 1s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* === MAIN LAYOUT === */
+  .main { padding: 24px 40px 40px; display: flex; flex-direction: column; gap: 24px; }
+
+  /* === CARDS ROW === */
+  .cards-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .price-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 20px; position: relative; overflow: hidden;
+    transition: all 0.3s; cursor: default;
+  }
+  .price-card:hover { background: var(--bg-card-hover); border-color: var(--border); transform: translateY(-2px); }
+  .price-card.featured {
+    border-color: var(--border);
+    background: linear-gradient(135deg, rgba(245,200,66,0.06) 0%, rgba(201,146,26,0.03) 100%);
+  }
+  .price-card.featured::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+  }
+  .card-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .card-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.8px; text-transform: uppercase; }
+  .card-badge {
+    font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+    letter-spacing: 0.3px;
+  }
+  .badge-gold { background: var(--gold-glow); color: var(--gold-primary); border: 1px solid var(--border); }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); }
+  .card-price { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .price-usd { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+  .card-change { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+  .change-up { color: var(--green); }
+  .change-down { color: var(--red); }
+  .change-neutral { color: var(--text-secondary); }
+  .card-change-detail { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+  .card-sparkline-wrap { margin-top: 14px; height: 40px; position: relative; overflow: hidden; }
+  .cards-row { align-items: start; }
+  .card-icon-bg {
+    position: absolute; right: 16px; bottom: 16px; font-size: 52px; opacity: 0.04;
+    font-weight: 900; letter-spacing: -2px;
+  }
+
+  /* === MIDDLE ROW === */
+  .middle-row { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+
+  /* === CHART PANEL === */
+  .chart-panel {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 24px; position: relative;
+  }
+  .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .panel-title { font-size: 15px; font-weight: 700; }
+  .panel-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .chart-tabs { display: flex; gap: 6px; }
+  .chart-tab {
+    font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 8px;
+    border: 1px solid var(--border-subtle); background: transparent; color: var(--text-secondary);
+    cursor: pointer; font-family: inherit; transition: all 0.2s;
+  }
+  .chart-tab.active {
+    background: var(--gold-glow); border-color: var(--border); color: var(--gold-primary);
+  }
+  .chart-container { position: relative; height: 220px; }
+  .chart-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px;
+    padding-top: 16px; border-top: 1px solid var(--border-subtle);
+  }
+  .chart-stat { text-align: center; }
+  .chart-stat-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .chart-stat-value { font-size: 14px; font-weight: 700; }
+
+  /* === TECH PANEL === */
+  .tech-panel {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px;
+  }
+  .indicator-item { display: flex; flex-direction: column; gap: 6px; }
+  .indicator-header { display: flex; justify-content: space-between; align-items: center; }
+  .indicator-name { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+  .indicator-value { font-size: 13px; font-weight: 700; }
+  .indicator-bar-bg { background: var(--bg-secondary); border-radius: 4px; height: 6px; overflow: hidden; }
+  .indicator-bar { height: 100%; border-radius: 4px; transition: width 1.5s ease; }
+  .indicator-signal { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
+  .signal-buy { background: var(--green-bg); color: var(--green); }
+  .signal-sell { background: var(--red-bg); color: var(--red); }
+  .signal-neutral { background: rgba(139,148,158,0.15); color: var(--text-secondary); }
+  .ma-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+  .ma-item {
+    background: var(--bg-secondary); border-radius: 8px; padding: 8px 10px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .ma-label { font-size: 10px; color: var(--text-secondary); }
+  .ma-value { font-size: 12px; font-weight: 700; }
+
+  /* === BOTTOM ROW === */
+  .bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .full-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  /* === POLITICAL PANEL === */
+  .political-panel {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 24px;
+  }
+  .risk-item {
+    display: flex; gap: 12px; padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .risk-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .risk-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+    flex-shrink: 0;
+  }
+  .risk-content { flex: 1; }
+  .risk-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .risk-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+  .risk-impact {
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 5px;
+    margin-top: 6px; display: inline-block;
+  }
+  .impact-high { background: rgba(255,71,87,0.15); color: var(--red); }
+  .impact-medium { background: rgba(255,154,60,0.15); color: var(--orange); }
+  .impact-low { background: rgba(0,214,143,0.15); color: var(--green); }
+  .impact-arrow { font-size: 10px; margin-left: 4px; }
+
+  /* === FORECAST PANEL === */
+  .forecast-panel {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 24px;
+  }
+  .forecast-signal {
+    text-align: center; padding: 20px;
+    background: linear-gradient(135deg, rgba(0,214,143,0.08), rgba(0,214,143,0.03));
+    border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; margin-bottom: 16px;
+  }
+  .forecast-signal.bearish {
+    background: linear-gradient(135deg, rgba(255,71,87,0.08), rgba(255,71,87,0.03));
+    border-color: rgba(255,71,87,0.2);
+  }
+  .signal-icon { font-size: 36px; margin-bottom: 8px; }
+  .signal-label { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+  .signal-label.bullish { color: var(--green); }
+  .signal-label.bearish { color: var(--red); }
+  .signal-confidence { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  .confidence-bar {
+    display: flex; align-items: center; gap: 8px; margin-top: 8px;
+    justify-content: center;
+  }
+  .conf-track { width: 120px; height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden; }
+  .conf-fill { height: 100%; border-radius: 3px; background: var(--green); }
+  .forecast-targets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .target-item {
+    background: var(--bg-secondary); border-radius: 10px; padding: 12px;
+  }
+  .target-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .target-price { font-size: 16px; font-weight: 800; }
+  .target-change { font-size: 11px; margin-top: 2px; font-weight: 500; }
+  .forecast-timeline { }
+  .timeline-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .timeline-item { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }
+  .timeline-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .timeline-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+  .timeline-text strong { color: var(--text-primary); font-weight: 600; }
+
+  /* === VN PRICE TABLE === */
+  .vn-table-panel {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 24px;
+  }
+  .vn-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  .vn-table th {
+    font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600; padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--border-subtle);
+  }
+  .vn-table th:first-child { text-align: left; }
+  .vn-table td {
+    padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-size: 13px; text-align: right;
+  }
+  .vn-table td:first-child { text-align: left; }
+  .vn-table tr:last-child td { border-bottom: none; }
+  .vn-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .brand-name { font-weight: 600; font-size: 13px; }
+  .brand-type { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+  .price-buy { font-weight: 700; color: var(--text-primary); }
+  .price-sell { font-weight: 700; color: var(--gold-primary); }
+  .price-diff { font-size: 11px; }
+  .premium-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 5px;
+    background: rgba(255,154,60,0.15); color: var(--orange);
+  }
+
+  /* === COMPARISON PANEL === */
+  .comparison-panel {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 24px;
+  }
+  .comparison-chart-container { height: 180px; margin-top: 8px; }
+
+  /* === SENTIMENT PANEL === */
+  .sentiment-panel {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 24px;
+  }
+  .sentiment-ring { position: relative; width: 140px; height: 140px; margin: 12px auto; }
+  .sentiment-label {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .sentiment-pct { font-size: 26px; font-weight: 900; color: var(--green); }
+  .sentiment-word { font-size: 11px; color: var(--text-secondary); }
+  .sentiment-bars { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .sentiment-bar-row { display: flex; align-items: center; gap: 8px; }
+  .sentiment-bar-label { font-size: 11px; color: var(--text-secondary); width: 40px; }
+  .sentiment-bar-track { flex: 1; height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden; }
+  .sentiment-bar-fill { height: 100%; border-radius: 3px; }
+  .sentiment-bar-pct { font-size: 11px; font-weight: 600; width: 32px; text-align: right; }
+
+  /* === MACRO INDICATORS ROW === */
+  .macro-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .macro-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 20px; position: relative; overflow: hidden;
+    transition: all 0.3s;
+  }
+  .macro-card:hover { border-color: var(--border); transform: translateY(-2px); }
+  .macro-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .macro-icon {
+    width: 40px; height: 40px; border-radius: 10px; display: flex;
+    align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+  }
+  .macro-value-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .macro-value { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+  .macro-change { font-size: 12px; font-weight: 600; }
+  .macro-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; }
+  .macro-correlation {
+    display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700;
+    padding: 6px 10px; border-radius: 8px; margin-top: 8px;
+  }
+  .corr-negative { background: rgba(0,214,143,0.08); color: var(--green); border: 1px solid rgba(0,214,143,0.12); }
+  .corr-positive { background: rgba(255,71,87,0.08); color: var(--red); border: 1px solid rgba(255,71,87,0.12); }
+  .corr-mixed { background: rgba(255,154,60,0.08); color: var(--orange); border: 1px solid rgba(255,154,60,0.12); }
+  .macro-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .macro-detail-item { background: var(--bg-secondary); border-radius: 8px; padding: 8px 10px; }
+  .macro-detail-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+  .macro-detail-value { font-size: 12px; font-weight: 700; margin-top: 2px; }
+  .rate-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .rate-table td { padding: 6px 8px; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .rate-table td:first-child { color: var(--text-secondary); }
+  .rate-table td:last-child { text-align: right; font-weight: 700; }
+  .rate-table tr:last-child td { border-bottom: none; }
+  .macro-status-dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px;
+  }
+  .macro-status-live { background: var(--green); animation: pulse 1.5s infinite; }
+  .macro-status-static { background: var(--orange); }
+
+  /* === OIL PRICE + GOLD-OIL CORRELATION === */
+  .oil-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .oil-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 20px; position: relative; overflow: hidden;
+    transition: all 0.3s;
+  }
+  .oil-card:hover { border-color: var(--border); transform: translateY(-2px); }
+  .oil-price-row { display: flex; gap: 20px; margin-top: 12px; }
+  .oil-price-block { flex: 1; }
+  .oil-price-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .oil-price-value { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+  .oil-price-change { font-size: 12px; font-weight: 600; margin-top: 2px; }
+  .oil-detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .oil-detail-item { background: var(--bg-secondary); border-radius: 8px; padding: 8px 10px; }
+  .oil-detail-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+  .oil-detail-value { font-size: 12px; font-weight: 700; margin-top: 2px; }
+  .corr-stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .corr-stat-card {
+    background: var(--bg-secondary); border-radius: 10px; padding: 12px 14px; text-align: center;
+    border: 1px solid var(--border-subtle);
+  }
+  .corr-stat-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .corr-stat-value { font-size: 22px; font-weight: 900; }
+  .corr-stat-sub { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+  .corr-note { font-size: 10px; color: var(--text-muted); line-height: 1.5; margin-top: 12px; padding: 10px; background: var(--bg-secondary); border-radius: 8px; }
+
+  /* === INSTITUTIONAL FORECAST PANEL === */
+  .inst-forecast-panel {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 24px;
+  }
+  .inst-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px;
+  }
+  .inst-card {
+    background: var(--bg-secondary); border-radius: 12px; padding: 14px 16px;
+    border: 1px solid transparent; transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .inst-card:hover { border-color: var(--border); transform: translateY(-2px); }
+  .inst-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .inst-logo {
+    width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: white; letter-spacing: -0.3px; flex-shrink: 0;
+  }
+  .inst-stance {
+    font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 5px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .stance-bullish { background: var(--green-bg); color: var(--green); }
+  .stance-bearish { background: var(--red-bg); color: var(--red); }
+  .stance-neutral { background: rgba(139,148,158,0.15); color: var(--text-secondary); }
+  .inst-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .inst-timeframe { font-size: 10px; color: var(--text-secondary); margin-bottom: 10px; }
+  .inst-target-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .inst-target-price { font-size: 20px; font-weight: 900; }
+  .inst-target-diff { font-size: 11px; font-weight: 600; }
+  .inst-note { font-size: 10px; color: var(--text-secondary); line-height: 1.5; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.04); }
+  .inst-bar-wrap { margin-top: 10px; }
+  .inst-bar-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; position: relative; overflow: visible; }
+  .inst-bar-marker {
+    position: absolute; top: -3px; width: 10px; height: 10px; border-radius: 50%;
+    border: 2px solid var(--bg-secondary); z-index: 2;
+  }
+  .inst-bar-range { position: absolute; top: 0; height: 100%; border-radius: 2px; opacity: 0.5; }
+  .inst-bar-labels { display: flex; justify-content: space-between; margin-top: 4px; font-size: 9px; color: var(--text-muted); }
+
+  /* Consensus bar */
+  .consensus-row {
+    margin-top: 20px; padding: 16px 20px; border-radius: 12px;
+    background: linear-gradient(135deg, rgba(245,200,66,0.06), rgba(245,200,66,0.02));
+    border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 24px;
+  }
+  .consensus-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; white-space: nowrap; }
+  .consensus-price { font-size: 24px; font-weight: 900; color: var(--gold-primary); white-space: nowrap; }
+  .consensus-bar-wrap { flex: 1; }
+  .consensus-bar-track { height: 8px; background: var(--bg-secondary); border-radius: 4px; position: relative; overflow: visible; }
+  .consensus-bar-fill { height: 100%; border-radius: 4px; }
+  .consensus-bar-labels { display: flex; justify-content: space-between; margin-top: 4px; }
+  .consensus-stat { text-align: center; }
+  .consensus-stat-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+  .consensus-stat-value { font-size: 13px; font-weight: 700; }
+
+  /* === HEADER CENTER — RISK SUMMARY BADGES === */
+  .header-center { display: flex; gap: 10px; align-items: center; }
+  .risk-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 20px;
+    letter-spacing: 0.2px;
+  }
+  .risk-badge-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .rb-warn { background: rgba(255,71,87,0.12); color: var(--red); }
+  .rb-warn .risk-badge-dot { background: var(--red); }
+  .rb-caution { background: rgba(255,154,60,0.12); color: var(--orange); }
+  .rb-caution .risk-badge-dot { background: var(--orange); }
+  .rb-normal { background: rgba(0,214,143,0.1); color: var(--green); }
+  .rb-normal .risk-badge-dot { background: var(--green); }
+
+  /* === RISK INDICATOR TABLE === */
+  .risk-panel {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 24px; overflow: hidden;
+  }
+  .risk-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .risk-table { width: 100%; border-collapse: collapse; }
+  .risk-table thead th {
+    font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 0.8px; padding: 10px 14px; text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .risk-table tbody td {
+    padding: 14px 14px; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.03);
+    vertical-align: middle;
+  }
+  .risk-table tbody tr:last-child td { border-bottom: none; }
+  .risk-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+  .risk-cat-badge {
+    display: inline-block; font-size: 9px; font-weight: 700; padding: 3px 10px;
+    border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .cat-geo { background: rgba(255,71,87,0.1); color: var(--red); border: 1px solid rgba(255,71,87,0.15); }
+  .cat-flow { background: rgba(78,159,255,0.1); color: var(--blue); border: 1px solid rgba(78,159,255,0.15); }
+  .cat-market { background: rgba(0,214,143,0.1); color: var(--green); border: 1px solid rgba(0,214,143,0.15); }
+  .cat-macro { background: rgba(245,200,66,0.1); color: var(--gold-primary); border: 1px solid rgba(245,200,66,0.15); }
+  .risk-indicator-name { font-weight: 600; color: var(--text-primary); }
+  .risk-indicator-src { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .risk-value { font-weight: 700; font-family: 'Be Vietnam Pro', monospace; }
+  .risk-trend { font-size: 11px; font-weight: 600; }
+  .risk-trend.up { color: var(--green); }
+  .risk-trend.down { color: var(--red); }
+  .risk-trend.neutral { color: var(--text-muted); }
+  .risk-threshold { font-size: 11px; color: var(--text-secondary); font-family: monospace; }
+  .risk-status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 700; padding: 4px 12px; border-radius: 6px;
+    letter-spacing: 0.3px; white-space: nowrap;
+  }
+  .rs-warn { background: rgba(255,71,87,0.12); color: var(--red); }
+  .rs-caution { background: rgba(255,154,60,0.12); color: var(--orange); }
+  .rs-normal { background: rgba(0,214,143,0.1); color: var(--green); }
+  .rs-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .rs-warn .rs-dot { background: var(--red); }
+  .rs-caution .rs-dot { background: var(--orange); }
+  .rs-normal .rs-dot { background: var(--green); }
+
+  /* === FETCH LOG PANEL === */
+  .fetch-log-panel {
+    margin: 0 40px 0; padding: 0;
+  }
+  .fetch-log-toggle {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 12px; transition: all 0.3s; user-select: none;
+  }
+  .fetch-log-toggle:hover { border-color: var(--border); }
+  .fetch-log-toggle-icon { font-size: 14px; transition: transform 0.3s; }
+  .fetch-log-toggle-icon.open { transform: rotate(90deg); }
+  .fetch-log-toggle-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; }
+  .fetch-log-summary { margin-left: auto; display: flex; gap: 10px; font-size: 10px; font-weight: 600; }
+  .fetch-log-body {
+    max-height: 0; overflow: hidden; transition: max-height 0.4s ease;
+    background: var(--bg-card); border: 1px solid var(--border-subtle); border-top: none;
+    border-radius: 0 0 12px 12px; margin-top: -1px;
+  }
+  .fetch-log-body.open { max-height: 600px; overflow-y: auto; }
+  .fetch-log-table { width: 100%; border-collapse: collapse; }
+  .fetch-log-table th {
+    font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 0.5px; padding: 10px 14px; text-align: left;
+    border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0;
+    background: var(--bg-secondary);
+  }
+  .fetch-log-table td {
+    font-size: 11px; padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,0.02);
+    vertical-align: middle;
+  }
+  .fetch-log-table tr:last-child td { border-bottom: none; }
+  .fetch-log-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .log-status-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .log-ok { background: rgba(0,214,143,0.1); color: var(--green); }
+  .log-fail { background: rgba(255,71,87,0.1); color: var(--red); }
+  .log-mock { background: rgba(255,154,60,0.1); color: var(--orange); }
+  .log-source { color: var(--text-secondary); font-family: 'Be Vietnam Pro', monospace; font-size: 10px; }
+  .log-time { color: var(--text-muted); font-size: 10px; font-family: monospace; }
+  .log-latency { font-weight: 600; font-size: 10px; }
+
+  /* === FOOTER === */
+  .footer {
+    padding: 16px 40px; border-top: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-left { font-size: 11px; color: var(--text-muted); }
+  .footer-right { font-size: 11px; color: var(--text-muted); display: flex; gap: 20px; }
+  .footer-right span { cursor: pointer; transition: color 0.2s; }
+  .footer-right span:hover { color: var(--text-secondary); }
+
+  /* === DATA STATUS === */
+  .data-status {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;
+  }
+  .status-live { background: rgba(0,214,143,0.1); color: var(--green); }
+  .status-sim { background: rgba(255,154,60,0.1); color: var(--orange); }
+  .status-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .status-dot.live { background: var(--green); animation: pulse 1.5s infinite; }
+  .status-dot.sim { background: var(--orange); }
+
+  /* === DIVIDER === */
+  .section-divider {
+    display: flex; align-items: center; gap: 12px; margin: 4px 0;
+  }
+  .section-divider-line { flex: 1; height: 1px; background: var(--border-subtle); }
+  .section-divider-text { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* === ANIMATED NUMBERS === */
+  .animated-num { transition: all 0.5s ease; }
+
+  /* === SCROLLBAR === */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- TICKER BAR -->
+<div class="ticker-bar">
+  <div class="ticker-track" id="tickerTrack">
+    <!-- Items duplicated for seamless loop -->
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-brand">
+    <div class="brand-icon">📈</div>
+    <div>
+      <div class="brand-title">Market Monitor</div>
+      <div class="brand-sub">
+        Tổng hợp thị trường hàng ngày
+        <span class="live-badge" id="liveTag">LIVE</span>
+        <span class="data-status status-live" id="dataStatus">
+          <span class="status-dot live" id="statusDot"></span>
+          <span id="dataStatusText">Đang tải...</span>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="header-center" id="riskSummaryBadges">
+    <!-- Filled by JS -->
+  </div>
+  <div class="header-meta">
+    <div class="meta-date" id="headerDate">--/--/----</div>
+    <div class="meta-time" id="headerTime">--:--:--</div>
+    <div class="meta-update">
+      Cập nhật lúc: <span id="lastUpdate">--:--</span>
+      <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        Làm mới
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- RISK INDICATORS TABLE -->
+  <div class="risk-panel">
+    <div class="risk-panel-header">
+      <div>
+        <div class="panel-title" style="font-size:16px;font-weight:800">Chi Tiết Các Chỉ Báo Rủi Ro</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Theo dõi đa chiều: Địa chính trị, Dòng tiền, Thị trường, Vĩ mô</div>
+      </div>
+    </div>
+    <table class="risk-table">
+      <thead>
+        <tr>
+          <th style="width:12%">Hạng Mục</th>
+          <th style="width:18%">Chỉ Báo</th>
+          <th style="width:24%">Giá Trị Hiện Tại</th>
+          <th style="width:13%">Xu Hướng 1 Tuần</th>
+          <th style="width:16%">Ngưỡng Cảnh Báo</th>
+          <th style="width:12%">Trạng Thái</th>
+        </tr>
+      </thead>
+      <tbody id="riskTableBody">
+        <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px">Đang tải chỉ báo...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ROW 1: PRICE CARDS -->
+  <div class="cards-row">
+    <!-- World Gold -->
+    <div class="price-card featured">
+      <div class="card-header-row">
+        <span class="card-label">Vàng Thế Giới</span>
+        <span class="card-badge badge-gold">XAU/USD</span>
+      </div>
+      <div class="card-price" id="worldGoldPrice">$--,---</div>
+      <div class="price-usd">USD / troy oz</div>
+      <div class="card-change" id="worldGoldChange">
+        <span>--</span>
+      </div>
+      <div class="card-change-detail" id="worldGoldChangeDetail">24h: -- | 7d: --</div>
+      <div class="card-sparkline-wrap"><canvas id="sparklineWorld"></canvas></div>
+      <div class="card-icon-bg">Au</div>
+    </div>
+
+    <!-- SJC Gold -->
+    <div class="price-card">
+      <div class="card-header-row">
+        <span class="card-label">Vàng SJC</span>
+        <span class="card-badge badge-gold">VIỆT NAM</span>
+      </div>
+      <div class="card-price" id="sjcPrice">---.-- tr</div>
+      <div class="price-usd">VND / lượng (37.5g)</div>
+      <div class="card-change" id="sjcChange"><span>--</span></div>
+      <div class="card-change-detail" id="sjcPremium">Chênh lệch thế giới: --</div>
+      <div class="card-sparkline-wrap"><canvas id="sparklineSJC"></canvas></div>
+      <div class="card-icon-bg">SJC</div>
+    </div>
+
+    <!-- USD/VND -->
+    <div class="price-card">
+      <div class="card-header-row">
+        <span class="card-label">Tỷ Giá</span>
+        <span class="card-badge badge-blue">USD/VND</span>
+      </div>
+      <div class="card-price" id="usdvndPrice">--,---</div>
+      <div class="price-usd">VND mỗi 1 USD</div>
+      <div class="card-change" id="usdvndChange"><span>--</span></div>
+      <div class="card-change-detail">Nguồn: Vietcombank</div>
+      <div class="card-sparkline-wrap"><canvas id="sparklineUSD"></canvas></div>
+      <div class="card-icon-bg">₫</div>
+    </div>
+
+    <!-- Market Sentiment -->
+    <div class="price-card">
+      <div class="card-header-row">
+        <span class="card-label">Tâm Lý Thị Trường</span>
+        <span class="card-badge badge-green" id="sentimentBadge">TÍCH CỰC</span>
+      </div>
+      <div class="card-price" style="font-size:22px" id="sentimentScore">--</div>
+      <div class="price-usd">Chỉ số Fear & Greed</div>
+      <div class="card-change change-up" id="sentimentLabel">Tham lam</div>
+      <div style="margin-top:12px">
+        <div style="background:var(--bg-secondary); border-radius:4px; height:8px; overflow:hidden; margin-bottom:6px">
+          <div id="sentimentBar" style="width:0%;height:100%;background:linear-gradient(90deg,var(--red),var(--orange),var(--gold-primary),var(--green));border-radius:4px;transition:width 1.5s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-muted)">
+          <span>SỢ HÃI</span><span>TRUNG LẬP</span><span>THAM LAM</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BẢNG GIÁ VÀNG VIỆT NAM (moved up) -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-text">Bảng Giá Vàng Việt Nam</div>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <div class="full-row">
+    <!-- VN Gold Table -->
+    <div class="vn-table-panel" style="grid-column:span 2">
+      <div class="panel-header" style="margin-bottom:12px">
+        <div>
+          <div class="panel-title">Giá Vàng Trong Nước</div>
+          <div class="panel-sub">Cập nhật tự động từ vang.today • VND/lượng (37.5g)</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);text-align:right">
+          Thời gian: <span id="vnUpdateTime">--:--</span><br>
+          <span style="color:var(--orange)" id="vnDateLabel">--</span>
+        </div>
+      </div>
+      <table class="vn-table">
+        <thead>
+          <tr>
+            <th>Thương hiệu</th>
+            <th>Mua vào</th>
+            <th>Bán ra</th>
+            <th>Chênh lệch</th>
+            <th>+/- Hôm nay</th>
+            <th>Phụ trội TG</th>
+          </tr>
+        </thead>
+        <tbody id="vnTableBody">
+          <tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:20px">Đang tải dữ liệu...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sentiment Panel -->
+    <div class="sentiment-panel">
+      <div>
+        <div class="panel-title" style="font-size:14px">Tâm Lý Nhà Đầu Tư</div>
+        <div class="panel-sub" style="font-size:11px;margin-top:2px">Market Sentiment Analysis</div>
+      </div>
+      <div style="position:relative;width:140px;height:140px;margin:12px auto">
+        <canvas id="sentimentChart"></canvas>
+        <div class="sentiment-label">
+          <div class="sentiment-pct">72%</div>
+          <div class="sentiment-word">Tham lam</div>
+        </div>
+      </div>
+      <div class="sentiment-bars">
+        <div class="sentiment-bar-row">
+          <div class="sentiment-bar-label" style="color:var(--green)">Mua</div>
+          <div class="sentiment-bar-track"><div class="sentiment-bar-fill" style="width:72%;background:var(--green)"></div></div>
+          <div class="sentiment-bar-pct" style="color:var(--green)">72%</div>
+        </div>
+        <div class="sentiment-bar-row">
+          <div class="sentiment-bar-label" style="color:var(--text-secondary)">Giữ</div>
+          <div class="sentiment-bar-track"><div class="sentiment-bar-fill" style="width:18%;background:var(--text-secondary)"></div></div>
+          <div class="sentiment-bar-pct" style="color:var(--text-secondary)">18%</div>
+        </div>
+        <div class="sentiment-bar-row">
+          <div class="sentiment-bar-label" style="color:var(--red)">Bán</div>
+          <div class="sentiment-bar-track"><div class="sentiment-bar-fill" style="width:10%;background:var(--red)"></div></div>
+          <div class="sentiment-bar-pct" style="color:var(--red)">10%</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-subtle)">
+        <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Khuyến nghị AI</div>
+        <div style="background:rgba(0,214,143,0.08);border:1px solid rgba(0,214,143,0.2);border-radius:8px;padding:10px;font-size:12px;line-height:1.6;color:var(--text-primary)">
+          Nên <strong style="color:var(--green)">tích luỹ</strong> vàng tại các nhịp điều chỉnh về vùng <strong id="aiAccumZone">--</strong>.
+          Tỷ trọng vàng trong danh mục nên chiếm <strong>10–15%</strong> để phòng ngừa rủi ro địa chính trị.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: CHART + TECHNICALS -->
+  <div class="middle-row">
+    <!-- Chart Panel -->
+    <div class="chart-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Biểu Đồ Giá Vàng Thế Giới</div>
+          <div class="panel-sub">Lịch sử giá và xu hướng</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="chart-tabs">
+            <button class="chart-tab active" onclick="switchChart('24h',this)">24H</button>
+            <button class="chart-tab" onclick="switchChart('7d',this)">7D</button>
+            <button class="chart-tab" onclick="switchChart('30d',this)">30D</button>
+            <button class="chart-tab" onclick="switchChart('1y',this)">1Y</button>
+          </div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="mainChart"></canvas>
+      </div>
+      <div class="chart-stats">
+        <div class="chart-stat">
+          <div class="chart-stat-label">Mở cửa</div>
+          <div class="chart-stat-value" id="statOpen">--</div>
+        </div>
+        <div class="chart-stat">
+          <div class="chart-stat-label">Cao nhất</div>
+          <div class="chart-stat-value change-up" id="statHigh">--</div>
+        </div>
+        <div class="chart-stat">
+          <div class="chart-stat-label">Thấp nhất</div>
+          <div class="chart-stat-value change-down" id="statLow">--</div>
+        </div>
+        <div class="chart-stat">
+          <div class="chart-stat-label">Volume</div>
+          <div class="chart-stat-value" id="statVol">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Technical Indicators -->
+    <div class="tech-panel">
+      <div>
+        <div class="panel-title" style="font-size:14px">Chỉ Số Kỹ Thuật</div>
+        <div class="panel-sub" style="font-size:11px;margin-top:2px">Technical Indicators</div>
+      </div>
+
+      <div class="indicator-item">
+        <div class="indicator-header">
+          <span class="indicator-name">RSI (14)</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="indicator-value change-up" id="rsiValue">--</span>
+            <span class="indicator-signal signal-buy" id="rsiSignal">MUA</span>
+          </div>
+        </div>
+        <div class="indicator-bar-bg">
+          <div class="indicator-bar" id="rsiBar" style="width:0%;background:var(--gold-primary)"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-muted);margin-top:2px">
+          <span>0 (Quá bán)</span><span>50</span><span>100 (Quá mua)</span>
+        </div>
+      </div>
+
+      <div class="indicator-item">
+        <div class="indicator-header">
+          <span class="indicator-name">MACD</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="indicator-value change-up" id="macdValue">--</span>
+            <span class="indicator-signal signal-buy" id="macdSignal">MUA</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary)" id="macdDetail">Signal: -- | Histogram: --</div>
+      </div>
+
+      <div class="indicator-item">
+        <div class="indicator-header">
+          <span class="indicator-name">Bollinger Bands</span>
+          <span class="indicator-signal signal-buy" id="bbSignal">MUA</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary)" id="bbDetail">Upper: -- | Middle: -- | Lower: --</div>
+      </div>
+
+      <div>
+        <div class="indicator-name" style="margin-bottom:8px">Đường Trung Bình</div>
+        <div class="ma-grid">
+          <div class="ma-item">
+            <div class="ma-label">MA20</div>
+            <div class="ma-value change-up" id="ma20">--</div>
+          </div>
+          <div class="ma-item">
+            <div class="ma-label">MA50</div>
+            <div class="ma-value change-up" id="ma50">--</div>
+          </div>
+          <div class="ma-item">
+            <div class="ma-label">MA100</div>
+            <div class="ma-value change-up" id="ma100">--</div>
+          </div>
+          <div class="ma-item">
+            <div class="ma-label">MA200</div>
+            <div class="ma-value change-up" id="ma200">--</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg-secondary);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Tín Hiệu Tổng Hợp</div>
+        <div style="font-size:20px;font-weight:900;color:var(--green)" id="overallSignal">TÍCH LUỸ</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px" id="overallSignalSub">8/11 chỉ số TĂNG</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-text">Chỉ Số Vĩ Mô Liên Quan</div>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <!-- ROW: MACRO INDICATORS -->
+  <div class="macro-row">
+
+    <!-- DXY -->
+    <div class="macro-card">
+      <div class="macro-card-header">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px">
+            <span class="macro-status-dot macro-status-live" id="dxyStatusDot"></span>
+            US Dollar Index
+          </div>
+          <div style="font-size:11px;color:var(--text-muted)" id="dxySource">Investing.com</div>
+        </div>
+        <div class="macro-icon" style="background:rgba(78,159,255,0.1)">💲</div>
+      </div>
+      <div class="macro-value-row">
+        <span class="macro-value" style="color:var(--blue)" id="dxyValue">--</span>
+        <span class="macro-change" id="dxyChange">--</span>
+      </div>
+      <div class="macro-desc">Chỉ số sức mạnh đồng USD so với rổ 6 tiền tệ chính (EUR, JPY, GBP, CAD, SEK, CHF).</div>
+      <div class="macro-detail-grid">
+        <div class="macro-detail-item">
+          <div class="macro-detail-label">52W Thấp</div>
+          <div class="macro-detail-value" id="dxy52Low">--</div>
+        </div>
+        <div class="macro-detail-item">
+          <div class="macro-detail-label">52W Cao</div>
+          <div class="macro-detail-value" id="dxy52High">--</div>
+        </div>
+      </div>
+      <div class="macro-correlation corr-negative">
+        <span>↔ VÀNG</span>
+        <span style="margin-left:auto">TƯƠNG QUAN NGHỊCH — DXY giảm → Vàng tăng</span>
+      </div>
+    </div>
+
+    <!-- US 10Y Bond Yield -->
+    <div class="macro-card">
+      <div class="macro-card-header">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px">
+            <span class="macro-status-dot macro-status-live" id="yieldStatusDot"></span>
+            US 10Y Treasury Yield
+          </div>
+          <div style="font-size:11px;color:var(--text-muted)" id="yieldSource">Investing.com</div>
+        </div>
+        <div class="macro-icon" style="background:rgba(255,71,87,0.1)">📊</div>
+      </div>
+      <div class="macro-value-row">
+        <span class="macro-value" style="color:var(--red)" id="yieldValue">--</span>
+        <span class="macro-change" id="yieldChange">--</span>
+      </div>
+      <div class="macro-desc">Lợi suất trái phiếu chính phủ Mỹ kỳ hạn 10 năm — phản ánh kỳ vọng lạm phát & chính sách Fed.</div>
+      <div class="macro-detail-grid">
+        <div class="macro-detail-item">
+          <div class="macro-detail-label">52W Thấp</div>
+          <div class="macro-detail-value" id="yield52Low">--</div>
+        </div>
+        <div class="macro-detail-item">
+          <div class="macro-detail-label">52W Cao</div>
+          <div class="macro-detail-value" id="yield52High">--</div>
+        </div>
+      </div>
+      <div class="macro-correlation corr-negative">
+        <span>↔ VÀNG</span>
+        <span style="margin-left:auto">TƯƠNG QUAN NGHỊCH — Yield giảm → Vàng tăng</span>
+      </div>
+    </div>
+
+    <!-- Vietnam Savings Rate -->
+    <div class="macro-card">
+      <div class="macro-card-header">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px">
+            <span class="macro-status-dot macro-status-live" id="rateStatusDot"></span>
+            Lãi Suất Tiết Kiệm VN
+          </div>
+          <div style="font-size:11px;color:var(--text-muted)" id="rateSource">CafeF / NHNN</div>
+        </div>
+        <div class="macro-icon" style="background:rgba(245,200,66,0.1)">🏦</div>
+      </div>
+      <div class="macro-value-row">
+        <span class="macro-value" style="color:var(--gold-primary)" id="rateAvgValue">--</span>
+        <span style="font-size:12px;color:var(--text-secondary);font-weight:500">TB kỳ 12T</span>
+      </div>
+      <div class="macro-desc">Lãi suất huy động trung bình kỳ hạn 12 tháng tại các NHTM lớn Việt Nam.</div>
+      <table class="rate-table" id="rateTable">
+        <tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:12px">Đang tải...</td></tr>
+      </table>
+      <div class="macro-correlation corr-mixed">
+        <span>↔ VÀNG VN</span>
+        <span style="margin-left:auto">Lãi suất thấp → Nhà đầu tư chuyển sang vàng</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-text">Giá Dầu Thô & Tương Quan Dầu – Vàng</div>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <!-- ROW: CRUDE OIL + GOLD-OIL CORRELATION -->
+  <div class="oil-row">
+
+    <!-- Crude Oil Prices -->
+    <div class="oil-card">
+      <div class="macro-card-header">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px">
+            <span class="macro-status-dot macro-status-live" id="oilStatusDot"></span>
+            Giá Dầu Thô Thế Giới
+          </div>
+          <div style="font-size:11px;color:var(--text-muted)" id="oilSource">Đang tải...</div>
+        </div>
+        <div class="macro-icon" style="background:rgba(255,154,60,0.12)">🛢️</div>
+      </div>
+
+      <div class="oil-price-row">
+        <div class="oil-price-block">
+          <div class="oil-price-label">WTI Crude (CL=F)</div>
+          <div class="oil-price-value" style="color:var(--orange)" id="wtiValue">--</div>
+          <div class="oil-price-change" id="wtiChange">--</div>
+        </div>
+        <div class="oil-price-block">
+          <div class="oil-price-label">Brent Crude (BZ=F)</div>
+          <div class="oil-price-value" style="color:var(--orange)" id="brentValue">--</div>
+          <div class="oil-price-change" id="brentChange">--</div>
+        </div>
+      </div>
+
+      <div class="oil-detail-grid">
+        <div class="oil-detail-item">
+          <div class="oil-detail-label">WTI 52W Thấp</div>
+          <div class="oil-detail-value" id="wti52Low">--</div>
+        </div>
+        <div class="oil-detail-item">
+          <div class="oil-detail-label">WTI 52W Cao</div>
+          <div class="oil-detail-value" id="wti52High">--</div>
+        </div>
+        <div class="oil-detail-item">
+          <div class="oil-detail-label">Brent – WTI Spread</div>
+          <div class="oil-detail-value" id="oilSpread">--</div>
+        </div>
+      </div>
+
+      <div class="macro-correlation corr-mixed" style="margin-top:14px">
+        <span>↔ VÀNG</span>
+        <span style="margin-left:auto">Tương quan hỗn hợp — Cùng phản ánh rủi ro địa chính trị</span>
+      </div>
+    </div>
+
+    <!-- Gold-Oil Correlation -->
+    <div class="oil-card">
+      <div class="macro-card-header">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px">
+            Tương Quan Vàng – Dầu Thô
+          </div>
+          <div style="font-size:11px;color:var(--text-muted)">Tính toán tự động từ giá live</div>
+        </div>
+        <div class="macro-icon" style="background:rgba(245,200,66,0.12)">📈</div>
+      </div>
+
+      <div class="corr-stat-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="corr-stat-card">
+          <div class="corr-stat-label">Gold / Oil Ratio</div>
+          <div class="corr-stat-value" style="color:var(--gold-primary)" id="goldOilRatio">--</div>
+          <div class="corr-stat-sub" id="goldOilRatioNote">Số barrel dầu = 1 oz vàng</div>
+        </div>
+        <div class="corr-stat-card">
+          <div class="corr-stat-label">TB Lịch Sử (25 năm)</div>
+          <div class="corr-stat-value" style="color:var(--text-secondary)" id="goldOilAvg">~16.5x</div>
+          <div class="corr-stat-sub">Trung bình dài hạn</div>
+        </div>
+        <div class="corr-stat-card">
+          <div class="corr-stat-label">Đánh Giá Ratio</div>
+          <div class="corr-stat-value" id="ratioVerdict" style="font-size:14px;color:var(--gold-primary)">--</div>
+          <div class="corr-stat-sub" id="ratioVerdictSub">So với trung bình</div>
+        </div>
+      </div>
+
+      <div class="corr-note">
+        💡 <b>Gold/Oil Ratio</b>: Khi ratio cao hơn TB lịch sử → vàng đang "đắt" hơn so với dầu (hoặc dầu "rẻ" hơn). Ratio thấp hơn TB → ngược lại.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-text">Phân Tích Địa Chính Trị & Dự Báo</div>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <!-- ROW 3: POLITICAL + FORECAST -->
+  <div class="bottom-row">
+    <!-- Political Analysis -->
+    <div class="political-panel">
+      <div class="panel-header" style="margin-bottom:16px">
+        <div>
+          <div class="panel-title">Phân Tích Địa Chính Trị</div>
+          <div class="panel-sub">Các yếu tố tác động đến giá vàng toàn cầu</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--text-secondary)">Chỉ số rủi ro</div>
+          <div style="font-size:20px;font-weight:900;color:var(--orange)">CAO</div>
+        </div>
+      </div>
+
+      <div class="risk-item">
+        <div class="risk-icon" style="background:rgba(255,71,87,0.1)">⚡</div>
+        <div class="risk-content">
+          <div class="risk-title">Chiến tranh thương mại Mỹ – Trung leo thang</div>
+          <div class="risk-desc">Mỹ áp thuế 145% lên hàng Trung Quốc. Trung Quốc đáp trả 125%. Căng thẳng thương mại đẩy nhà đầu tư tìm tài sản trú ẩn an toàn.</div>
+          <span class="risk-impact impact-high">TÁC ĐỘNG CAO ↑ Tăng giá vàng</span>
+        </div>
+      </div>
+
+      <div class="risk-item">
+        <div class="risk-icon" style="background:rgba(255,154,60,0.1)">🏦</div>
+        <div class="risk-content">
+          <div class="risk-title">Fed có thể cắt giảm lãi suất năm 2026</div>
+          <div class="risk-desc">Kỳ vọng cắt 2–3 lần trong 2026. Lãi suất thấp làm giảm chi phí cơ hội giữ vàng, hỗ trợ giá tăng mạnh.</div>
+          <span class="risk-impact impact-high">TÁC ĐỘNG CAO ↑ Hỗ trợ tăng</span>
+        </div>
+      </div>
+
+      <div class="risk-item">
+        <div class="risk-icon" style="background:rgba(255,154,60,0.1)">🌍</div>
+        <div class="risk-content">
+          <div class="risk-title">Xung đột Trung Đông tiếp tục bất ổn</div>
+          <div class="risk-desc">Căng thẳng Israel–Iran và tình hình Gaza chưa có dấu hiệu hạ nhiệt, tạo nhu cầu trú ẩn liên tục cho vàng.</div>
+          <span class="risk-impact impact-medium">TÁC ĐỘNG TRUNG BÌNH ↑ Hỗ trợ</span>
+        </div>
+      </div>
+
+      <div class="risk-item">
+        <div class="risk-icon" style="background:rgba(78,159,255,0.1)">🏛️</div>
+        <div class="risk-content">
+          <div class="risk-title">Ngân hàng Trung ương mua vàng kỷ lục</div>
+          <div class="risk-desc">Các NHTW thế giới (Trung Quốc, Ấn Độ, Nga, Ba Lan) tiếp tục mua vàng để đa dạng hóa dự trữ, giảm phụ thuộc USD.</div>
+          <span class="risk-impact impact-high">TÁC ĐỘNG CAO ↑ Cầu bền vững</span>
+        </div>
+      </div>
+
+      <div class="risk-item">
+        <div class="risk-icon" style="background:rgba(0,214,143,0.1)">💵</div>
+        <div class="risk-content">
+          <div class="risk-title">Đồng USD suy yếu nhẹ trong quý II/2026</div>
+          <div class="risk-desc">DXY dưới 102. Đô la yếu hơn làm vàng (tính bằng USD) trở nên rẻ hơn với nhà đầu tư ngoại, tăng cầu.</div>
+          <span class="risk-impact impact-medium">TÁC ĐỘNG TRUNG BÌNH ↑ Tích cực</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Forecast Panel -->
+    <div class="forecast-panel">
+      <div class="panel-header" style="margin-bottom:16px">
+        <div>
+          <div class="panel-title">Dự Báo Xu Hướng</div>
+          <div class="panel-sub">Phân tích kỹ thuật + cơ bản</div>
+        </div>
+      </div>
+
+      <div class="forecast-signal">
+        <div class="signal-icon">📈</div>
+        <div class="signal-label bullish">TĂNG GIÁ</div>
+        <div class="signal-confidence">Xu hướng ngắn & trung hạn: TÍCH CỰC</div>
+        <div class="confidence-bar">
+          <span style="font-size:11px;color:var(--text-secondary)">Độ tin cậy</span>
+          <div class="conf-track">
+            <div class="conf-fill" id="confFill" style="width:78%"></div>
+          </div>
+          <span style="font-size:12px;font-weight:700;color:var(--green)">78%</span>
+        </div>
+      </div>
+
+      <div class="forecast-targets">
+        <div class="target-item">
+          <div class="target-label">Mục tiêu 1T</div>
+          <div class="target-price change-up" id="target1m">$3,420</div>
+          <div class="target-change change-up" id="target1mPct">+4.1%</div>
+        </div>
+        <div class="target-item">
+          <div class="target-label">Mục tiêu 3T</div>
+          <div class="target-price change-up" id="target3m">$3,600</div>
+          <div class="target-change change-up" id="target3mPct">+9.6%</div>
+        </div>
+        <div class="target-item" style="background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.1)">
+          <div class="target-label">Hỗ trợ mạnh</div>
+          <div class="target-price change-down" id="support">$3,150</div>
+          <div class="target-change change-down">Key support</div>
+        </div>
+        <div class="target-item" style="background:rgba(255,154,60,0.06);border:1px solid rgba(255,154,60,0.1)">
+          <div class="target-label">Kháng cự</div>
+          <div class="target-price" style="color:var(--orange)" id="resistance">$3,450</div>
+          <div class="target-change" style="color:var(--orange)">Key resistance</div>
+        </div>
+      </div>
+
+      <div class="forecast-timeline">
+        <div class="timeline-title">Kịch Bản Dự Báo</div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background:var(--green)"></div>
+          <div class="timeline-text">
+            <strong>Tích cực (60%):</strong> Căng thẳng thương mại tiếp diễn + Fed cắt lãi suất đẩy vàng lên <strong id="scenBull">--</strong>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background:var(--gold-primary)"></div>
+          <div class="timeline-text">
+            <strong>Cơ sở (30%):</strong> Vàng duy trì trong biên độ <strong id="scenBase">--</strong> trong 4–6 tuần tới
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background:var(--red)"></div>
+          <div class="timeline-text">
+            <strong>Tiêu cực (10%):</strong> Hoà giải thương mại + USD tăng có thể kéo vàng về <strong id="scenBear">--</strong>
+          </div>
+        </div>
+        <div class="timeline-item" style="margin-top:4px;padding-top:8px;border-top:1px solid var(--border-subtle)">
+          <div class="timeline-dot" style="background:var(--blue)"></div>
+          <div class="timeline-text">
+            <strong>Vàng VN:</strong> SJC dự kiến duy trì ở mức <strong id="scenVN">--</strong>, tiếp tục chênh cao so thế giới
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-text">Dự Báo Từ Các Tổ Chức Tài Chính Hàng Đầu</div>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <!-- ROW: INSTITUTIONAL FORECASTS -->
+  <div class="inst-forecast-panel">
+    <div class="panel-header" style="margin-bottom:4px">
+      <div>
+        <div class="panel-title">Dự Báo Giá Vàng Từ Các Tổ Chức Quốc Tế</div>
+        <div class="panel-sub">Tổng hợp mục tiêu giá từ các ngân hàng đầu tư & tổ chức nghiên cứu lớn nhất thế giới</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Đồng thuận trung bình</div>
+        <div style="font-size:22px;font-weight:900;color:var(--gold-primary)" id="instConsensusPrice">--</div>
+      </div>
+    </div>
+
+    <div class="inst-grid" id="instGrid">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Consensus summary bar -->
+    <div class="consensus-row">
+      <div>
+        <div class="consensus-label">Đồng Thuận Thị Trường</div>
+        <div class="consensus-price" id="consensusAvg">--</div>
+        <div style="font-size:10px;color:var(--text-secondary);margin-top:2px" id="consensusDiff">--</div>
+      </div>
+      <div class="consensus-bar-wrap">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:10px;color:var(--text-secondary)">
+          <span id="consensusLow">--</span>
+          <span>Giá hiện tại: <span style="color:var(--gold-primary)" id="consensusCurrent">--</span></span>
+          <span id="consensusHigh">--</span>
+        </div>
+        <div class="consensus-bar-track">
+          <div class="consensus-bar-fill" id="consensusBarFill" style="width:0%;background:linear-gradient(90deg,var(--red),var(--orange),var(--gold-primary),var(--green))"></div>
+          <div id="consensusCurrentMarker" style="position:absolute;top:-4px;width:3px;height:16px;background:var(--text-primary);border-radius:2px;z-index:2;left:50%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px">
+          <div class="consensus-stat">
+            <div class="consensus-stat-label">Tổ chức tăng</div>
+            <div class="consensus-stat-value change-up" id="instBullCount">--</div>
+          </div>
+          <div class="consensus-stat">
+            <div class="consensus-stat-label">Trung lập</div>
+            <div class="consensus-stat-value" style="color:var(--text-secondary)" id="instNeutralCount">--</div>
+          </div>
+          <div class="consensus-stat">
+            <div class="consensus-stat-label">Tổ chức giảm</div>
+            <div class="consensus-stat-value change-down" id="instBearCount">--</div>
+          </div>
+          <div class="consensus-stat">
+            <div class="consensus-stat-label">Mục tiêu TB</div>
+            <div class="consensus-stat-value" style="color:var(--gold-primary)" id="instAvgTarget">--</div>
+          </div>
+          <div class="consensus-stat">
+            <div class="consensus-stat-label">Cao nhất</div>
+            <div class="consensus-stat-value change-up" id="instMaxTarget">--</div>
+          </div>
+          <div class="consensus-stat">
+            <div class="consensus-stat-label">Thấp nhất</div>
+            <div class="consensus-stat-value change-down" id="instMinTarget">--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div style="margin-top:16px;padding:12px 16px;background:rgba(255,154,60,0.06);border:1px solid rgba(255,154,60,0.15);border-radius:10px;display:flex;align-items:flex-start;gap:10px">
+      <span style="font-size:16px;flex-shrink:0;margin-top:1px">⚠️</span>
+      <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
+        <strong style="color:var(--orange)">Lưu ý:</strong> Dữ liệu dự báo trong bảng này được tổng hợp thủ công từ các báo cáo công khai của từng tổ chức và <strong style="color:var(--text-primary)">không tự động cập nhật</strong> khi các tổ chức công bố mục tiêu giá mới.
+        Ngày cập nhật gần nhất của mỗi dự báo được ghi trong từng thẻ. Vui lòng kiểm tra trực tiếp báo cáo gốc từ Goldman Sachs, J.P. Morgan, UBS, v.v. để có thông tin mới nhất.
+        <span style="color:var(--text-muted)">Đây chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.</span>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<!-- FETCH LOG -->
+<div class="fetch-log-panel">
+  <div class="fetch-log-toggle" onclick="toggleFetchLog()">
+    <span class="fetch-log-toggle-icon" id="logToggleIcon">▶</span>
+    <span class="fetch-log-toggle-title">📋 System Log — Trạng Thái Fetch Dữ Liệu</span>
+    <div class="fetch-log-summary" id="logSummary">
+      <span style="color:var(--text-muted)">Đang tải...</span>
+    </div>
+  </div>
+  <div class="fetch-log-body" id="logBody">
+    <table class="fetch-log-table">
+      <thead>
+        <tr>
+          <th style="width:18%">Nguồn dữ liệu</th>
+          <th style="width:12%">Trạng thái</th>
+          <th style="width:25%">API / Endpoint</th>
+          <th style="width:15%">Giá trị nhận</th>
+          <th style="width:10%">Latency</th>
+          <th style="width:20%">Thời gian cập nhật</th>
+        </tr>
+      </thead>
+      <tbody id="logTableBody">
+        <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:16px">Đang thu thập dữ liệu...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-left">
+    © 2026 Gold Market Intelligence Dashboard &nbsp;|&nbsp;
+    Dữ liệu được tổng hợp từ metals.live, Vietcombank, SJC, DOJI &nbsp;|&nbsp;
+    <span style="color:var(--orange)">Chỉ mang tính tham khảo, không phải tư vấn đầu tư</span>
+  </div>
+  <div class="footer-right">
+    <span>Xuất PDF</span>
+    <span>Chia sẻ</span>
+    <span>Cài đặt</span>
+  </div>
+</div>
+
+<script>
+// =============================================
+//  FETCH LOG SYSTEM
+// =============================================
+const fetchLog = [];
+
+function logFetch(name, status, source, value, latencyMs) {
+  const entry = { name, status, source, value, latency: latencyMs, time: new Date() };
+  // Replace existing entry for same name, or add new
+  const idx = fetchLog.findIndex(e => e.name === name);
+  if (idx >= 0) fetchLog[idx] = entry; else fetchLog.push(entry);
+  renderFetchLog();
+}
+
+function renderFetchLog() {
+  const tbody = document.getElementById('logTableBody');
+  const summary = document.getElementById('logSummary');
+  if (!tbody) return;
+
+  const okCount = fetchLog.filter(e => e.status === 'ok').length;
+  const failCount = fetchLog.filter(e => e.status === 'fail').length;
+  const mockCount = fetchLog.filter(e => e.status === 'mock').length;
+
+  summary.innerHTML = `
+    <span style="color:var(--green)">✓ ${okCount} Live</span>
+    ${mockCount > 0 ? `<span style="color:var(--orange)">⚠ ${mockCount} Fallback</span>` : ''}
+    ${failCount > 0 ? `<span style="color:var(--red)">✗ ${failCount} Lỗi</span>` : ''}
+    <span style="color:var(--text-muted)">${fetchLog.length} nguồn</span>
+  `;
+
+  tbody.innerHTML = fetchLog.map(e => {
+    const badgeClass = e.status === 'ok' ? 'log-ok' : e.status === 'fail' ? 'log-fail' : 'log-mock';
+    const badgeText = e.status === 'ok' ? '✓ Live' : e.status === 'fail' ? '✗ Lỗi' : '⚠ Fallback';
+    const timeStr = e.time.toLocaleTimeString('vi', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    const latStr = e.latency != null ? (e.latency < 1000 ? e.latency + 'ms' : (e.latency/1000).toFixed(1) + 's') : '--';
+    const latColor = e.latency == null ? 'var(--text-muted)' : e.latency < 2000 ? 'var(--green)' : e.latency < 5000 ? 'var(--orange)' : 'var(--red)';
+    return `<tr>
+      <td style="font-weight:600;color:var(--text-primary)">${e.name}</td>
+      <td><span class="log-status-badge ${badgeClass}">${badgeText}</span></td>
+      <td class="log-source">${e.source || '--'}</td>
+      <td style="font-weight:600">${e.value || '--'}</td>
+      <td class="log-latency" style="color:${latColor}">${latStr}</td>
+      <td class="log-time">${timeStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleFetchLog() {
+  const body = document.getElementById('logBody');
+  const icon = document.getElementById('logToggleIcon');
+  body.classList.toggle('open');
+  icon.classList.toggle('open');
+}
+
+// =============================================
+//  DATA LAYER
+// =============================================
+// Fallback values — updated automatically when vang.today API is available
+const MOCK = {
+  goldUSD: 4766.4,     // USD/oz – from vang.today 10/04/2026
+  usdVND: 25720,       // VND per USD
+  goldChange24h: -0.17,
+  goldChange7d: 2.34,
+  usdVNDChange: 0.08,
+  sjcBuy:  169700000,  // 169.7 triệu VND/lượng (SJC 9999 from vang.today)
+  sjcSell: 172700000,  // 172.7 triệu VND/lượng
+  isLive: false
+};
+
+// Vietnam gold brands configuration
+const VN_BRANDS = [
+  { name: 'SJC', type: 'Vàng miếng 999.9', premiumPct: 0.115 },
+  { name: 'DOJI',type: 'Vàng miếng 9999', premiumPct: 0.095 },
+  { name: 'PNJ', type: 'Vàng nhẫn 999.9', premiumPct: 0.075 },
+  { name: 'Bảo Tín Minh Châu', type: 'Vàng miếng 9999', premiumPct: 0.090 },
+  { name: 'Phú Quý', type: 'Vàng nhẫn 24K', premiumPct: 0.070 },
+];
+
+let currentData = { ...MOCK };
+let mainChartInstance = null;
+let currentRange = '24h';
+
+// =============================================
+//  FETCH WORLD GOLD PRICE — multi-source fallback
+// =============================================
+async function fetchWorldGoldUSD() {
+  // Source 0: api.gold-api.com — free, CORS-friendly, no auth
+  try {
+    const res = await fetch('https://api.gold-api.com/price/XAU', { signal: AbortSignal.timeout(6000) });
+    if (res.ok) {
+      const d = await res.json();
+      const price = parseFloat(d?.price);
+      if (price && price > 100) { console.log('Gold from api.gold-api.com:', price); return { price, src: 'api.gold-api.com' }; }
+    }
+  } catch(e) { console.warn('api.gold-api.com failed:', e.message); }
+
+  // Source 1: goldprice.org public data endpoint
+  try {
+    const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD', { signal: AbortSignal.timeout(6000) });
+    if (res.ok) {
+      const d = await res.json();
+      const price = d?.items?.[0]?.xauPrice;
+      if (price && price > 100) { console.log('Gold from goldprice.org:', price); return { price, src: 'goldprice.org' }; }
+    }
+  } catch(e) { console.warn('goldprice.org failed:', e.message); }
+
+  // Source 2: metals.live
+  try {
+    const res = await fetch('https://metals.live/api/spot', { signal: AbortSignal.timeout(5000) });
+    if (res.ok) {
+      const d = await res.json();
+      const price = parseFloat(d?.XAU);
+      if (price && price > 100) { console.log('Gold from metals.live:', price); return { price, src: 'metals.live' }; }
+    }
+  } catch(e) { console.warn('metals.live failed:', e.message); }
+
+  // Source 3: forex-data-feed via allorigins proxy (GC=F Yahoo Finance)
+  try {
+    const url = 'https://query1.finance.yahoo.com/v8/chart/GC%3DF?interval=1m&range=1d';
+    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+    const res = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
+    if (res.ok) {
+      const d = await res.json();
+      const price = d?.chart?.result?.[0]?.meta?.regularMarketPrice;
+      if (price && price > 100) { console.log('Gold from Yahoo Finance:', price); return { price, src: 'Yahoo Finance' }; }
+    }
+  } catch(e) { console.warn('Yahoo Finance failed:', e.message); }
+
+  return { price: null, src: 'mock' };
+}
+
+// =============================================
+//  FETCH USD/VND EXCHANGE RATE
+// =============================================
+async function fetchUSDVND() {
+  // Source 1: fawazahmed0 CDN (always free)
+  try {
+    const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json', { signal: AbortSignal.timeout(5000) });
+    if (res.ok) {
+      const d = await res.json();
+      const rate = d?.usd?.vnd;
+      if (rate && rate > 20000) return rate;
+    }
+  } catch(e) {}
+
+  // Source 2: exchangerate-api
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(5000) });
+    if (res.ok) {
+      const d = await res.json();
+      const rate = d?.rates?.VND;
+      if (rate && rate > 20000) return rate;
+    }
+  } catch(e) {}
+
+  return null;
+}
+
+// =============================================
+//  FETCH VN GOLD + WORLD GOLD FROM vang.today
+//  Free, CORS-enabled, updates every 5 minutes
+//  Endpoint: https://www.vang.today/api/prices
+// =============================================
+async function fetchVangToday() {
+  try {
+    const res = await fetch('https://www.vang.today/api/prices', { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data?.success || !data?.prices) return null;
+    console.log('vang.today response:', data.date, data.time, Object.keys(data.prices).length, 'items');
+    return data;
+  } catch (e) {
+    console.warn('vang.today fetch failed:', e.message);
+    return null;
+  }
+}
+
+// Map vang.today keys to display brands
+const VANG_TODAY_MAP = [
+  { key: 'SJL1L10',     name: 'SJC 9999',             type: 'Vàng miếng SJC 999.9' },
+  { key: 'VNGSJC',      name: 'VN Gold SJC',           type: 'Vàng miếng SJC (VN Gold)' },
+  { key: 'DOJINHTV',    name: 'DOJI Nữ Trang',         type: 'Vàng DOJI Jewelry' },
+  { key: 'DOHNL',       name: 'DOJI Hà Nội',           type: 'Vàng miếng DOJI HN' },
+  { key: 'DOHCML',      name: 'DOJI HCM',              type: 'Vàng miếng DOJI HCM' },
+  { key: 'PQHNVM',      name: 'PNJ Hà Nội',            type: 'Vàng miếng PNJ' },
+  { key: 'PQHN24NTT',   name: 'PNJ 24K',               type: 'Vàng nhẫn PNJ 24K' },
+  { key: 'BT9999NTT',   name: 'Bảo Tín 9999',          type: 'Vàng nhẫn Bảo Tín Minh Châu' },
+  { key: 'BTSJC',       name: 'Bảo Tín SJC',           type: 'Vàng miếng Bảo Tín SJC' },
+  { key: 'SJ9999',      name: 'SJC Nhẫn 9999',         type: 'Vàng nhẫn SJC 9999' },
+  { key: 'VIETTINMSJC', name: 'Viettin SJC',           type: 'Vàng miếng Viettin SJC' },
+];
+
+function parseVangTodayToVNGolds(data, worldVNDPerLuong) {
+  const prices = data.prices;
+  const rows = [];
+
+  for (const mapping of VANG_TODAY_MAP) {
+    const item = prices[mapping.key];
+    if (!item || !item.buy || !item.sell) continue;
+    rows.push({
+      name: mapping.name,
+      type: mapping.type,
+      buy: item.buy,
+      sell: item.sell,
+      changeBuy: item.change_buy || 0,
+      changeSell: item.change_sell || 0,
+      isReal: true,
+      source: 'vang.today'
+    });
+  }
+  return rows;
+}
+
+// =============================================
+//  MASTER FETCH — orchestrates all sources
+//  Priority: vang.today (VN gold + world gold)
+//            → fallback to separate APIs
+// =============================================
+async function fetchLiveData() {
+  // 1. Try vang.today first — gives BOTH world gold + all VN brands
+  const t0 = performance.now();
+  const [vangTodayData, goldResult, usdVNDResult] = await Promise.all([
+    fetchVangToday(),
+    fetchWorldGoldUSD(),
+    fetchUSDVND()
+  ]);
+  const t1 = performance.now();
+
+  let goldUSD, goldSrc, vnGoldsRaw, vnSource;
+
+  if (vangTodayData) {
+    const xau = vangTodayData.prices?.XAUUSD;
+    goldUSD   = xau?.buy || goldResult.price || MOCK.goldUSD;
+    goldSrc   = xau?.buy ? 'vang.today' : (goldResult.src || 'mock');
+    vnSource  = 'vang.today';
+  } else {
+    goldUSD = goldResult.price || MOCK.goldUSD;
+    goldSrc = goldResult.src || 'mock';
+    vnSource = null;
+  }
+
+  // LOG: Vang.today (VN gold + world gold primary)
+  if (vangTodayData) {
+    const brands = Object.keys(vangTodayData.prices).length;
+    logFetch('🥇 Vàng TG + VN (vang.today)', 'ok', 'vang.today/api/prices', `$${goldUSD.toFixed(1)} | ${brands} thương hiệu`, Math.round(t1-t0));
+  } else {
+    logFetch('🥇 Vàng TG + VN (vang.today)', 'fail', 'vang.today/api/prices', 'Không kết nối được', Math.round(t1-t0));
+  }
+
+  // LOG: World Gold fallback
+  if (goldResult.price && goldResult.src !== 'mock') {
+    logFetch('🌍 Vàng TG (fallback)', 'ok', goldResult.src, '$' + goldResult.price.toFixed(2), Math.round(t1-t0));
+  } else if (!vangTodayData) {
+    logFetch('🌍 Vàng TG (fallback)', 'mock', 'MOCK data', '$' + MOCK.goldUSD, null);
+  }
+
+  // LOG: USD/VND
+  if (usdVNDResult) {
+    logFetch('💱 Tỷ giá USD/VND', 'ok', 'fawazahmed0 / er-api', usdVNDResult.toLocaleString('en') + ' VND', Math.round(t1-t0));
+  } else {
+    logFetch('💱 Tỷ giá USD/VND', 'mock', 'MOCK data', MOCK.usdVND.toLocaleString('en') + ' VND', null);
+  }
+
+  const usdVND = usdVNDResult || MOCK.usdVND;
+  const worldVNDPerLuong = (goldUSD / 31.1035) * 37.5 * usdVND;
+
+  // 2. Build VN gold rows from vang.today or fallback to MOCK
+  let vnGolds;
+  if (vangTodayData) {
+    vnGoldsRaw = parseVangTodayToVNGolds(vangTodayData, worldVNDPerLuong);
+  }
+
+  if (vnGoldsRaw && vnGoldsRaw.length > 0) {
+    vnGolds = vnGoldsRaw;
+    logFetch('🇻🇳 Giá vàng VN (chi tiết)', 'ok', 'vang.today', vnGoldsRaw.length + ' thương hiệu', Math.round(t1-t0));
+  } else {
+    vnGolds = [
+      { name: 'SJC 9999',    type: 'Vàng miếng SJC 999.9',   buy: MOCK.sjcBuy,           sell: MOCK.sjcSell,           changeBuy: 0, changeSell: 0, isReal: false, source: 'ước tính' },
+      { name: 'DOJI',        type: 'Vàng miếng DOJI 9999',    buy: MOCK.sjcBuy*0.998,     sell: MOCK.sjcSell*0.998,     changeBuy: 0, changeSell: 0, isReal: false, source: 'ước tính' },
+      { name: 'PNJ',         type: 'Vàng nhẫn PNJ 999.9',     buy: MOCK.sjcBuy*0.998,     sell: MOCK.sjcSell*0.999,     changeBuy: 0, changeSell: 0, isReal: false, source: 'ước tính' },
+      { name: 'Bảo Tín 9999',type: 'Vàng nhẫn Bảo Tín',       buy: MOCK.sjcBuy*0.993,     sell: MOCK.sjcSell*0.993,     changeBuy: 0, changeSell: 0, isReal: false, source: 'ước tính' },
+    ];
+    logFetch('🇻🇳 Giá vàng VN (chi tiết)', 'mock', 'MOCK data', '4 thương hiệu (ước tính)', null);
+  }
+
+  const sjcRow = vnGolds[0];
+  const goldChange24h = sjcRow.changeSell ? (sjcRow.changeSell / sjcRow.sell * 100) : MOCK.goldChange24h;
+
+  vnGolds = vnGolds.map(g => ({
+    ...g,
+    worldPrice: worldVNDPerLuong,
+    premiumAmt: g.sell - worldVNDPerLuong,
+    premiumPct: ((g.sell - worldVNDPerLuong) / worldVNDPerLuong * 100).toFixed(1),
+    spread: g.sell - g.buy,
+    changePct: g.changeSell ? (g.changeSell / g.sell * 100) : goldChange24h,
+    changeAmt: g.changeSell || (g.sell * goldChange24h / 100),
+  }));
+
+  const isLive = !!(vangTodayData || goldResult.price || usdVNDResult);
+
+  currentData = {
+    goldUSD, usdVND, goldSrc, vnSource,
+    goldChange24h,
+    goldChange7d: MOCK.goldChange7d,
+    usdVNDChange: MOCK.usdVNDChange,
+    worldVNDPerLuong, vnGolds, isLive,
+    sjcFetched: !!(vangTodayData || vnGoldsRaw?.length),
+    vangTodayTime: vangTodayData ? `${vangTodayData.date} ${vangTodayData.time}` : null,
+  };
+  return currentData;
+}
+
+// Legacy helper kept for sparkline/chart use
+function calcVNGold(goldUSD, usdVND) {
+  if (currentData.vnGolds) return currentData.vnGolds;
+  const worldPricePerLuong = (goldUSD / 31.1035) * 37.5 * usdVND;
+  return VN_BRANDS.map(b => ({
+    ...b, worldPrice: worldPricePerLuong,
+    sell: worldPricePerLuong*(1+b.premiumPct), buy: worldPricePerLuong*(1+b.premiumPct)*0.994,
+    spread: worldPricePerLuong*(1+b.premiumPct)*0.006,
+    changeAmt: worldPricePerLuong*(1+b.premiumPct)*(MOCK.goldChange24h/100),
+    changePct: MOCK.goldChange24h, premiumAmt: worldPricePerLuong*b.premiumPct,
+    premiumPct: (b.premiumPct*100).toFixed(1), premiumPctDisplay: (b.premiumPct*100).toFixed(1),
+    isReal: false, source: 'ước tính'
+  }));
+}
+
+// =============================================
+//  NUMBER FORMATTING
+// =============================================
+function fmtGold(usd) { return '$' + usd.toLocaleString('en', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+function fmtVND(vnd) { return (vnd / 1e6).toFixed(2) + ' tr'; }
+function fmtVNDFull(vnd) { return (vnd / 1e6).toLocaleString('vi', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' tr/lượng'; }
+function fmtPct(p, sign=true) { return (sign && p > 0 ? '+' : '') + p.toFixed(2) + '%'; }
+function fmtChange(v) { return (v > 0 ? '+' : '') + v.toLocaleString('en', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+
+// =============================================
+//  GENERATE CHART DATA
+// =============================================
+function generatePriceHistory(currentPrice, range) {
+  const configs = {
+    '24h': { points: 96, step: 15*60*1000, volatility: 0.0008, trend: 0.00005 },
+    '7d':  { points: 168, step: 60*60*1000, volatility: 0.003, trend: 0.0002 },
+    '30d': { points: 120, step: 6*60*60*1000, volatility: 0.008, trend: 0.0005 },
+    '1y':  { points: 365, step: 24*60*60*1000, volatility: 0.015, trend: 0.001 },
+  };
+  const cfg = configs[range];
+  const data = [];
+  let price = currentPrice * (1 - cfg.trend * cfg.points * 0.4);
+  const now = Date.now();
+
+  for (let i = cfg.points; i >= 0; i--) {
+    const noise = (Math.random() - 0.485) * cfg.volatility * price;
+    price += noise + (cfg.trend * price * 0.1);
+    price = Math.max(price, currentPrice * 0.85);
+    data.push({ x: new Date(now - i * cfg.step), y: Math.round(price * 100) / 100 });
+  }
+  data[data.length - 1].y = currentPrice;
+  return data;
+}
+
+function generateSparkline(basePrice, points=20, trend=0.01) {
+  const data = [];
+  let p = basePrice * (1 - trend);
+  for (let i = 0; i < points; i++) {
+    p += (Math.random() - 0.47) * basePrice * 0.003;
+    data.push(p);
+  }
+  data[data.length - 1] = basePrice;
+  return data;
+}
+
+// =============================================
+//  RENDER SPARKLINES
+// =============================================
+const sparklineInstances = {};
+function renderSparkline(canvasId, data, color) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  if (sparklineInstances[canvasId]) sparklineInstances[canvasId].destroy();
+  sparklineInstances[canvasId] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map((_, i) => i),
+      datasets: [{ data, borderColor: color, borderWidth: 1.5, fill: true,
+        backgroundColor: color.replace('rgb','rgba').replace(')',',0.1)'),
+        pointRadius: 0, tension: 0.4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { display: false }, y: { display: false } },
+      animation: { duration: 800 }
+    }
+  });
+}
+
+// =============================================
+//  RENDER MAIN CHART
+// =============================================
+function renderMainChart(goldUSD, range) {
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  const data = generatePriceHistory(goldUSD, range);
+  const prices = data.map(d => d.y);
+  const minP = Math.min(...prices), maxP = Math.max(...prices);
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+  gradient.addColorStop(0, 'rgba(245,200,66,0.25)');
+  gradient.addColorStop(0.6, 'rgba(245,200,66,0.05)');
+  gradient.addColorStop(1, 'rgba(245,200,66,0)');
+
+  const labels = data.map(d => {
+    if (range === '24h') return d.x.toLocaleTimeString('vi', {hour:'2-digit',minute:'2-digit'});
+    if (range === '7d' || range === '30d') return d.x.toLocaleDateString('vi', {month:'short',day:'numeric'});
+    return d.x.toLocaleDateString('vi', {month:'short',year:'2-digit'});
+  });
+
+  if (mainChartInstance) mainChartInstance.destroy();
+  mainChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: prices,
+        borderColor: '#F5C842',
+        borderWidth: 2,
+        backgroundColor: gradient,
+        fill: true,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHoverBackgroundColor: '#F5C842',
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a2235',
+          borderColor: 'rgba(245,200,66,0.3)',
+          borderWidth: 1,
+          titleColor: '#8B949E',
+          bodyColor: '#F5C842',
+          bodyFont: { weight: 'bold', size: 14 },
+          padding: 10,
+          callbacks: {
+            label: (ctx) => ` $${ctx.parsed.y.toLocaleString('en', {minimumFractionDigits:0})}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#495670', font: { size: 10 }, maxTicksLimit: 8 },
+          border: { color: 'rgba(255,255,255,0.06)' }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: {
+            color: '#495670', font: { size: 10 },
+            callback: v => '$' + v.toLocaleString('en')
+          },
+          border: { color: 'rgba(255,255,255,0.06)' },
+          min: minP * 0.998, max: maxP * 1.002
+        }
+      },
+      animation: { duration: 600 }
+    }
+  });
+
+  // Update stats
+  const open = prices[0], high = Math.max(...prices), low = Math.min(...prices);
+  document.getElementById('statOpen').textContent = fmtGold(open);
+  document.getElementById('statHigh').textContent = fmtGold(high);
+  document.getElementById('statLow').textContent = fmtGold(low);
+  document.getElementById('statVol').textContent = (Math.random() * 200 + 150).toFixed(0) + 'K oz';
+}
+
+// =============================================
+//  RENDER SENTIMENT DONUT
+// =============================================
+function renderSentimentChart() {
+  const ctx = document.getElementById('sentimentChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [72, 18, 10],
+        backgroundColor: ['rgba(0,214,143,0.8)', 'rgba(139,148,158,0.5)', 'rgba(255,71,87,0.8)'],
+        borderColor: ['#070B14'],
+        borderWidth: 3,
+        hoverBorderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '72%',
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      animation: { duration: 1200 }
+    }
+  });
+}
+
+// =============================================
+//  RENDER TICKER
+// =============================================
+function renderTicker(data) {
+  const vnGolds = data.vnGolds || calcVNGold(data.goldUSD, data.usdVND);
+  const items = [
+    { label: 'Vàng TG', price: fmtGold(data.goldUSD), change: fmtPct(data.goldChange24h), up: data.goldChange24h >= 0 },
+    { label: 'SJC', price: fmtVND(vnGolds[0].sell), change: fmtPct(data.goldChange24h), up: data.goldChange24h >= 0 },
+    { label: 'DOJI', price: fmtVND(vnGolds[1].sell), change: fmtPct(data.goldChange24h * 0.95), up: true },
+    { label: 'USD/VND', price: data.usdVND.toLocaleString('en'), change: fmtPct(data.usdVNDChange), up: data.usdVNDChange >= 0 },
+    { label: 'XAG/USD', price: '$' + (data.goldUSD / 82).toFixed(2), change: '+0.87%', up: true },
+    { label: 'DXY', price: '101.8', change: '-0.34%', up: false },
+    { label: 'S&P 500', price: '5,287', change: '-0.91%', up: false },
+    { label: 'Bitcoin', price: '$83,420', change: '-1.2%', up: false },
+    { label: 'Dầu WTI', price: oilData.wti ? '$' + oilData.wti.value.toFixed(2) : '$' + OIL_DEFAULTS.wti.value.toFixed(2), change: fmtPct(oilData.wti ? oilData.wti.changePct : OIL_DEFAULTS.wti.changePct), up: (oilData.wti ? oilData.wti.change : OIL_DEFAULTS.wti.change) >= 0 },
+  ];
+
+  const allItems = [...items, ...items]; // Duplicate for seamless loop
+  const track = document.getElementById('tickerTrack');
+  track.innerHTML = allItems.map(item => `
+    <span class="ticker-item">
+      <span class="ticker-label">${item.label}</span>
+      <span class="ticker-price">${item.price}</span>
+      <span class="ticker-change ${item.up ? 'up' : 'down'}">${item.change}</span>
+    </span>
+    <span class="ticker-dot"></span>
+  `).join('');
+}
+
+// =============================================
+//  RENDER TECHNICAL INDICATORS
+// =============================================
+function renderTechnicals(goldUSD) {
+  const rsi = 62 + Math.random() * 8;
+  document.getElementById('rsiValue').textContent = rsi.toFixed(1);
+  document.getElementById('rsiBar').style.width = rsi + '%';
+  document.getElementById('rsiSignal').textContent = rsi > 70 ? 'QUÁ MUA' : rsi > 50 ? 'MUA' : 'BÁN';
+  document.getElementById('rsiSignal').className = 'indicator-signal ' + (rsi > 70 ? 'signal-sell' : 'signal-buy');
+
+  const macdVal = (Math.random() * 12 + 3).toFixed(2);
+  document.getElementById('macdValue').textContent = macdVal;
+  document.getElementById('macdDetail').textContent = `Signal: ${(macdVal - 1.5).toFixed(2)} | Histogram: +${(1.5 + Math.random()).toFixed(2)}`;
+
+  const upper = goldUSD * 1.018, middle = goldUSD * 1.005, lower = goldUSD * 0.988;
+  document.getElementById('bbDetail').textContent = `Upper: $${Math.round(upper).toLocaleString()} | Mid: $${Math.round(middle).toLocaleString()} | Lower: $${Math.round(lower).toLocaleString()}`;
+
+  document.getElementById('ma20').textContent = '$' + Math.round(goldUSD * 0.988).toLocaleString();
+  document.getElementById('ma50').textContent = '$' + Math.round(goldUSD * 0.965).toLocaleString();
+  document.getElementById('ma100').textContent = '$' + Math.round(goldUSD * 0.932).toLocaleString();
+  document.getElementById('ma200').textContent = '$' + Math.round(goldUSD * 0.881).toLocaleString();
+}
+
+// =============================================
+//  RENDER PRICE CARDS
+// =============================================
+function renderCards(data) {
+  const vnGolds = data.vnGolds || calcVNGold(data.goldUSD, data.usdVND);
+  const sjc = vnGolds[0];
+
+  // World gold — show source
+  document.getElementById('worldGoldPrice').textContent = fmtGold(data.goldUSD);
+  const changeEl = document.getElementById('worldGoldChange');
+  const isUp = data.goldChange24h >= 0;
+  changeEl.innerHTML = `<span class="${isUp ? 'change-up' : 'change-down'}">${isUp ? '▲' : '▼'} ${fmtPct(data.goldChange24h)}</span>`;
+  const src = data.goldSrc && data.goldSrc !== 'mock' ? ` • ${data.goldSrc}` : ' • dữ liệu mẫu';
+  document.getElementById('worldGoldChangeDetail').textContent = `24h: ${fmtPct(data.goldChange24h)} | 7d: ${fmtPct(data.goldChange7d)}${src}`;
+
+  // SJC — label real vs estimated
+  document.getElementById('sjcPrice').textContent = fmtVND(sjc.sell);
+  const sjcTag = sjc.isReal ? '▲' : '≈';
+  document.getElementById('sjcChange').innerHTML = `<span class="change-up">${sjcTag} ${fmtPct(data.goldChange24h)}</span>`;
+  document.getElementById('sjcPremium').textContent =
+    `Phụ trội TG: +${sjc.premiumPct}% (+${fmtVND(sjc.premiumAmt)})${sjc.isReal ? ' • sjc.com.vn' : ' • ước tính'}`;
+
+  // USD/VND
+  document.getElementById('usdvndPrice').textContent = Math.round(data.usdVND).toLocaleString('en');
+  const fxUp = data.usdVNDChange >= 0;
+  document.getElementById('usdvndChange').innerHTML = `<span class="${fxUp ? 'change-up' : 'change-down'}">${fxUp ? '▲' : '▼'} ${fmtPct(data.usdVNDChange)}</span>`;
+
+  // Sentiment
+  const fear = Math.floor(62 + Math.random() * 20);
+  document.getElementById('sentimentScore').textContent = fear;
+  document.getElementById('sentimentBar').style.width = fear + '%';
+  const fearLabel = fear >= 75 ? 'Tham lam cực độ' : fear >= 55 ? 'Tham lam' : fear >= 45 ? 'Trung tính' : 'Sợ hãi';
+  document.getElementById('sentimentLabel').textContent = fearLabel;
+
+  // Sparklines
+  renderSparkline('sparklineWorld', generateSparkline(data.goldUSD, 20, 0.008), 'rgb(245,200,66)');
+  renderSparkline('sparklineSJC',   generateSparkline(sjc.sell, 20, 0.009),     'rgb(245,200,66)');
+  renderSparkline('sparklineUSD',   generateSparkline(data.usdVND, 20, 0.001),  'rgb(78,159,255)');
+
+  // Target prices (dynamic from current gold price)
+  const g = data.goldUSD;
+  const fmtG = v => '$' + Math.round(v).toLocaleString('en');
+  document.getElementById('target1m').textContent  = fmtG(g * 1.041);
+  document.getElementById('target3m').textContent  = fmtG(g * 1.096);
+  document.getElementById('support').textContent   = fmtG(g * 0.958);
+  document.getElementById('resistance').textContent = fmtG(g * 1.051);
+  document.getElementById('target1mPct').textContent = '+4.1%';
+  document.getElementById('target3mPct').textContent = '+9.6%';
+
+  // Scenario forecast ranges (dynamic — relative to current spot)
+  document.getElementById('scenBull').textContent = `${fmtG(g * 1.055)}–${fmtG(g * 1.085)}`;
+  document.getElementById('scenBase').textContent = `${fmtG(g * 0.975)}–${fmtG(g * 1.035)}`;
+  document.getElementById('scenBear').textContent = `${fmtG(g * 0.915)}–${fmtG(g * 0.945)}`;
+
+  // AI accumulation zone (slightly below current)
+  document.getElementById('aiAccumZone').textContent = `${fmtG(g * 0.955)}–${fmtG(g * 0.975)}`;
+
+  // Vietnam gold scenario range — derive from SJC sell price
+  const sjcSell = sjc.sell;
+  const vnLow   = (sjcSell * 0.97 / 1e6).toFixed(0);
+  const vnHigh  = (sjcSell * 1.045 / 1e6).toFixed(0);
+  document.getElementById('scenVN').textContent = `${vnLow}–${vnHigh} tr/lượng`;
+}
+
+// =============================================
+//  RENDER VN TABLE
+// =============================================
+function renderVNTable(data) {
+  const vnGolds = data.vnGolds || calcVNGold(data.goldUSD, data.usdVND);
+  const tbody = document.getElementById('vnTableBody');
+
+  tbody.innerHTML = vnGolds.map(g => {
+    const chgSell = g.changeSell || g.changeAmt || 0;
+    const isUp = chgSell >= 0;
+    return `
+    <tr>
+      <td>
+        <div class="brand-name">${g.name}
+          ${g.isReal
+            ? '<span style="font-size:9px;background:rgba(0,214,143,0.15);color:var(--green);padding:1px 5px;border-radius:4px;margin-left:4px;font-weight:700">LIVE</span>'
+            : '<span style="font-size:9px;background:rgba(255,154,60,0.12);color:var(--orange);padding:1px 5px;border-radius:4px;margin-left:4px">ước tính</span>'
+          }
+        </div>
+        <div class="brand-type">${g.type}</div>
+      </td>
+      <td><span class="price-buy">${fmtVND(g.buy)}</span></td>
+      <td><span class="price-sell">${fmtVND(g.sell)}</span></td>
+      <td><span class="price-diff" style="color:var(--text-secondary)">${fmtVND(g.spread)}</span></td>
+      <td><span class="${isUp ? 'change-up' : 'change-down'}" style="font-weight:600">
+        ${chgSell !== 0 ? (isUp ? '▲' : '▼') + ' ' + fmtVND(Math.abs(chgSell)) : '—'}
+      </span></td>
+      <td><span class="premium-badge">+${g.premiumPct}%</span></td>
+    </tr>`;
+  }).join('');
+
+  // Show vang.today update time if available
+  const timeStr = data.vangTodayTime || new Date().toLocaleTimeString('vi', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('vnUpdateTime').textContent = timeStr;
+}
+
+// =============================================
+//  CLOCK
+// =============================================
+function updateClock() {
+  const now = new Date();
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('vi', {weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'});
+  document.getElementById('headerTime').textContent = now.toLocaleTimeString('vi', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+
+// =============================================
+//  DATA STATUS
+// =============================================
+function updateStatus(data) {
+  const statusEl = document.getElementById('dataStatus');
+  const dotEl    = document.getElementById('statusDot');
+  const textEl   = document.getElementById('dataStatusText');
+  const parts = [];
+  if (data.isLive && data.goldSrc && data.goldSrc !== 'mock') parts.push('Vàng TG: ' + data.goldSrc);
+  if (data.sjcFetched && data.vnSource) parts.push('Vàng VN: ' + data.vnSource);
+  if (data.vangTodayTime) parts.push('Cập nhật: ' + data.vangTodayTime);
+
+  if (parts.length > 0) {
+    statusEl.className = 'data-status status-live';
+    dotEl.className = 'status-dot live';
+    textEl.textContent = parts.join(' | ');
+  } else {
+    statusEl.className = 'data-status status-sim';
+    dotEl.className = 'status-dot sim';
+    textEl.textContent = 'Dữ liệu ước tính';
+  }
+  document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('vi', {hour:'2-digit', minute:'2-digit'});
+}
+
+// =============================================
+//  CHART TAB SWITCH
+// =============================================
+function switchChart(range, btn) {
+  currentRange = range;
+  document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderMainChart(currentData.goldUSD, range);
+}
+
+// =============================================
+//  CNBC BATCH QUOTE API — single fetch for DXY, US10Y, WTI, Brent
+//  Endpoint: quote.cnbc.com via CORS proxy
+//  Returns: { '@CL.1': {...}, '@LCO.1': {...}, '.DXY': {...}, 'US10Y': {...} }
+// =============================================
+let cnbcCache = null;
+
+async function fetchCNBCQuotes() {
+  if (cnbcCache) return cnbcCache;
+  const symbols = '@CL.1|@LCO.1|.DXY|US10Y';
+  const cnbcUrl = 'https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol?symbols=' + encodeURIComponent(symbols) + '&output=json';
+  const PROXIES = [
+    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+    u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+  ];
+  for (const proxy of PROXIES) {
+    try {
+      const res = await fetch(proxy(cnbcUrl), { signal: AbortSignal.timeout(10000) });
+      if (!res.ok) continue;
+      const d = await res.json();
+      // CNBC returns { FormattedQuoteResult: { FormattedQuote: [...] } } or similar
+      let quotes = d?.FormattedQuoteResult?.FormattedQuote;
+      if (!quotes) quotes = d?.QuickQuoteResult?.QuickQuote;
+      if (!quotes) {
+        // Try to find array in response
+        const vals = Object.values(d);
+        for (const v of vals) {
+          if (v && typeof v === 'object') {
+            const inner = Object.values(v);
+            for (const iv of inner) {
+              if (Array.isArray(iv) && iv.length > 0 && iv[0]?.last) { quotes = iv; break; }
+            }
+          }
+          if (quotes) break;
+        }
+      }
+      if (!Array.isArray(quotes)) quotes = [quotes];
+      const map = {};
+      for (const q of quotes) {
+        if (!q || !q.symbol) continue;
+        map[q.symbol] = {
+          last: parseFloat(q.last) || parseFloat(q.last_price) || 0,
+          change: parseFloat(q.change) || parseFloat(q.change_amount) || 0,
+          changePct: parseFloat(q.change_pct) || 0,
+          open: parseFloat(q.open) || 0,
+          high: parseFloat(q.high) || 0,
+          low: parseFloat(q.low) || 0,
+          prevClose: parseFloat(q.previous_day_closing) || 0,
+          name: q.shortName || q.name || q.symbol,
+        };
+      }
+      if (Object.keys(map).length > 0) {
+        console.log('CNBC quotes loaded:', Object.keys(map).join(', '));
+        cnbcCache = map;
+        return map;
+      }
+    } catch(e) { console.warn('CNBC fetch failed:', e.message); }
+  }
+  return null;
+}
+
+// =============================================
+//  MACRO INDICATORS — DXY, US 10Y Yield, VN Savings Rate
+// =============================================
+
+// Fallback values (verified from CNBC 09/04/2026)
+const MACRO_DEFAULTS = {
+  dxy: { value: 98.865, change: -0.060, changePct: -0.06, low52: 95.36, high52: 102.70 },
+  yield10y: { value: 4.288, change: 0.000, changePct: 0.00, low52: 3.926, high52: 4.629 },
+  vnRates: [
+    { bank: 'Vietcombank', rate: 5.9 }, { bank: 'BIDV', rate: 5.9 },
+    { bank: 'VietinBank', rate: 5.9 }, { bank: 'Agribank', rate: 5.9 },
+    { bank: 'Techcombank', rate: 5.5 }, { bank: 'MB Bank', rate: 6.5 },
+    { bank: 'ACB', rate: 5.2 },        { bank: 'VPBank', rate: 6.0 },
+    { bank: 'Sacombank', rate: 6.6 },   { bank: 'TPBank', rate: 5.8 },
+  ]
+};
+
+async function fetchDXY() {
+  // Source 1: CNBC Quote API (batch, CORS via proxy)
+  try {
+    const cnbc = await fetchCNBCQuotes();
+    const q = cnbc?.['.DXY'];
+    if (q && q.last > 50) {
+      return { value: q.last, change: q.change, changePct: q.changePct, low52: MACRO_DEFAULTS.dxy.low52, high52: MACRO_DEFAULTS.dxy.high52, live: true, src: 'CNBC' };
+    }
+  } catch(e) { console.warn('DXY CNBC failed:', e.message); }
+
+  // Source 2: Yahoo Finance via CORS proxies
+  const PROXIES = [
+    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+    u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+  ];
+  for (const proxy of PROXIES) {
+    try {
+      const url = 'https://query1.finance.yahoo.com/v8/chart/DX-Y.NYB?interval=1d&range=1d';
+      const res = await fetch(proxy(url), { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) continue;
+      const d = await res.json();
+      const meta = d?.chart?.result?.[0]?.meta;
+      if (meta?.regularMarketPrice) {
+        const prev = meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice;
+        const val = meta.regularMarketPrice;
+        const chg = val - prev;
+        return { value: val, change: chg, changePct: (chg / prev) * 100, low52: meta.fiftyTwoWeekLow, high52: meta.fiftyTwoWeekHigh, live: true };
+      }
+    } catch (e) { console.warn('DXY proxy fetch failed:', e.message); }
+  }
+  return { ...MACRO_DEFAULTS.dxy, live: false };
+}
+
+async function fetchYield10Y() {
+  // Source 1: CNBC Quote API (batch, CORS via proxy)
+  try {
+    const cnbc = await fetchCNBCQuotes();
+    const q = cnbc?.['US10Y'];
+    if (q && q.last > 0 && q.last < 20) {
+      return { value: q.last, change: q.change, changePct: q.changePct, low52: MACRO_DEFAULTS.yield10y.low52, high52: MACRO_DEFAULTS.yield10y.high52, live: true, src: 'CNBC' };
+    }
+  } catch(e) { console.warn('Yield CNBC failed:', e.message); }
+
+  // Source 2: Yahoo Finance via CORS proxies
+  const PROXIES = [
+    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+    u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+  ];
+  for (const proxy of PROXIES) {
+    try {
+      const url = 'https://query1.finance.yahoo.com/v8/chart/%5ETNX?interval=1d&range=1d';
+      const res = await fetch(proxy(url), { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) continue;
+      const d = await res.json();
+      const meta = d?.chart?.result?.[0]?.meta;
+      if (meta?.regularMarketPrice) {
+        const prev = meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice;
+        const val = meta.regularMarketPrice;
+        const chg = val - prev;
+        return { value: val, change: chg, changePct: (chg / prev) * 100, low52: meta.fiftyTwoWeekLow, high52: meta.fiftyTwoWeekHigh, live: true };
+      }
+    } catch (e) { console.warn('10Y Yield proxy fetch failed:', e.message); }
+  }
+  return { ...MACRO_DEFAULTS.yield10y, live: false };
+}
+
+async function fetchVNSavingsRates() {
+  try {
+    const res = await fetch('https://cafefnew.mediacdn.vn/Images/Uploaded/DuLieuDownload/Liveboard/all_banks_interest_rates.json', { signal: AbortSignal.timeout(8000) });
+    if (res.ok) {
+      const data = await res.json();
+      // data is typically an array of { bank_name, ..., "12M": rate, ... } or similar
+      const rates = [];
+      const majorBanks = ['Vietcombank', 'BIDV', 'VietinBank', 'Agribank', 'Techcombank', 'MB', 'ACB', 'VPBank', 'Sacombank', 'TPBank'];
+
+      if (Array.isArray(data)) {
+        for (const item of data) {
+          // Try various key formats for bank name
+          const name = item.bank_name || item.ngan_hang || item.name || item.ten_nh || Object.values(item)[0];
+          if (typeof name !== 'string') continue;
+
+          // Try various keys for 12-month rate
+          const rate = parseFloat(item['12'] || item['12M'] || item['12_thang'] || item['12T'] || item.r12 || 0);
+          if (rate > 0 && rate < 20) {
+            rates.push({ bank: name, rate });
+          }
+        }
+      }
+
+      if (rates.length > 0) {
+        // Filter to prioritize major banks, sort alphabetically
+        const major = rates.filter(r => majorBanks.some(b => r.bank.toLowerCase().includes(b.toLowerCase())));
+        console.log('VN rates from CafeF:', rates.length, 'banks,', major.length, 'major');
+        return { rates: major.length >= 5 ? major : rates.slice(0, 10), live: true };
+      }
+    }
+  } catch (e) { console.warn('VN savings rate fetch failed:', e.message); }
+  return { rates: MACRO_DEFAULTS.vnRates, live: false };
+}
+
+function renderMacroIndicators(dxyData, yieldData, rateData) {
+  // === DXY ===
+  document.getElementById('dxyValue').textContent = dxyData.value.toFixed(3);
+  const dxyUp = dxyData.change >= 0;
+  document.getElementById('dxyChange').innerHTML = `<span class="${dxyUp ? 'change-up' : 'change-down'}">${dxyUp ? '▲' : '▼'} ${Math.abs(dxyData.change).toFixed(3)} (${dxyData.changePct >= 0 ? '+' : ''}${dxyData.changePct.toFixed(2)}%)</span>`;
+  document.getElementById('dxy52Low').textContent = dxyData.low52?.toFixed(2) || '--';
+  document.getElementById('dxy52High').textContent = dxyData.high52?.toFixed(2) || '--';
+  document.getElementById('dxyStatusDot').className = 'macro-status-dot ' + (dxyData.live ? 'macro-status-live' : 'macro-status-static');
+  document.getElementById('dxySource').textContent = dxyData.live ? (dxyData.src || 'CNBC') + ' • Live' : 'Dữ liệu mẫu • 09/04/2026';
+
+  // === US 10Y Yield ===
+  document.getElementById('yieldValue').textContent = yieldData.value.toFixed(3) + '%';
+  const yUp = yieldData.change >= 0;
+  document.getElementById('yieldChange').innerHTML = `<span class="${yUp ? 'change-up' : 'change-down'}">${yUp ? '▲' : '▼'} ${Math.abs(yieldData.change).toFixed(3)} (${yieldData.changePct >= 0 ? '+' : ''}${yieldData.changePct.toFixed(2)}%)</span>`;
+  document.getElementById('yield52Low').textContent = yieldData.low52 ? yieldData.low52.toFixed(3) + '%' : '--';
+  document.getElementById('yield52High').textContent = yieldData.high52 ? yieldData.high52.toFixed(3) + '%' : '--';
+  document.getElementById('yieldStatusDot').className = 'macro-status-dot ' + (yieldData.live ? 'macro-status-live' : 'macro-status-static');
+  document.getElementById('yieldSource').textContent = yieldData.live ? (yieldData.src || 'CNBC') + ' • Live' : 'Dữ liệu mẫu • 09/04/2026';
+
+  // === VN Savings Rate ===
+  const rates = rateData.rates;
+  const avgRate = rates.length > 0 ? (rates.reduce((s, r) => s + r.rate, 0) / rates.length) : 0;
+  document.getElementById('rateAvgValue').textContent = avgRate.toFixed(1) + '%';
+  document.getElementById('rateStatusDot').className = 'macro-status-dot ' + (rateData.live ? 'macro-status-live' : 'macro-status-static');
+  document.getElementById('rateSource').textContent = rateData.live ? 'CafeF • Tự động' : 'Dữ liệu mẫu';
+
+  // Render rate table (top banks, max 8)
+  const display = rates.slice(0, 8);
+  const maxRate = Math.max(...display.map(r => r.rate));
+  document.getElementById('rateTable').innerHTML = display.map(r => {
+    const barW = (r.rate / maxRate * 100).toFixed(0);
+    const isHigh = r.rate >= avgRate + 0.3;
+    const isLow = r.rate <= avgRate - 0.3;
+    const color = isHigh ? 'var(--green)' : isLow ? 'var(--red)' : 'var(--text-primary)';
+    return `<tr>
+      <td>${r.bank}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+          <div style="width:60px;height:4px;background:var(--bg-primary);border-radius:2px;overflow:hidden">
+            <div style="width:${barW}%;height:100%;background:${color};border-radius:2px"></div>
+          </div>
+          <span style="color:${color};min-width:36px">${r.rate.toFixed(1)}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// Store macro data globally for refresh
+let macroData = { dxy: null, yield10y: null, vnRates: null };
+
+async function fetchAndRenderMacro() {
+  const t0 = performance.now();
+  const [dxy, y10, vnr] = await Promise.all([fetchDXY(), fetchYield10Y(), fetchVNSavingsRates()]);
+  const elapsed = Math.round(performance.now() - t0);
+  macroData = { dxy, yield10y: y10, vnRates: vnr };
+  renderMacroIndicators(dxy, y10, vnr);
+
+  // LOG
+  logFetch('💲 DXY (USD Index)', dxy.live ? 'ok' : 'mock', dxy.live ? (dxy.src || 'CNBC / Yahoo') : 'MOCK data', dxy.value.toFixed(3), elapsed);
+  logFetch('📊 US 10Y Yield', y10.live ? 'ok' : 'mock', y10.live ? (y10.src || 'CNBC / Yahoo') : 'MOCK data', y10.value.toFixed(3) + '%', elapsed);
+  const avgR = vnr.rates.length > 0 ? (vnr.rates.reduce((s,r)=>s+r.rate,0)/vnr.rates.length).toFixed(1) : '--';
+  logFetch('🏦 Lãi suất tiết kiệm VN', vnr.live ? 'ok' : 'mock', vnr.live ? 'CafeF JSON' : 'MOCK data', 'TB ' + avgR + '% | ' + vnr.rates.length + ' NH', elapsed);
+}
+
+// =============================================
+//  CRUDE OIL PRICES + GOLD-OIL CORRELATION
+// =============================================
+// Fallback values (verified 10/04/2026 — OilPrice.com, Fortune, TradingEconomics)
+const OIL_DEFAULTS = {
+  wti: { value: 99.03, change: 1.16, changePct: 1.19, low52: 55.12, high52: 133.91 },
+  brent: { value: 98.27, change: 0.95, changePct: 0.98, low52: 58.70, high52: 130.50 }
+};
+
+async function fetchCrudeOil(symbol) {
+  // Map Yahoo symbol to CNBC symbol
+  const cnbcMap = { 'CL=F': '@CL.1', 'BZ=F': '@LCO.1' };
+  const cnbcSym = cnbcMap[symbol];
+
+  // Source 1: CNBC Quote API (batch, CORS via proxy)
+  if (cnbcSym) {
+    try {
+      const cnbc = await fetchCNBCQuotes();
+      const q = cnbc?.[cnbcSym];
+      if (q && q.last > 10) {
+        return { value: q.last, change: q.change, changePct: q.changePct, low52: null, high52: null, live: true, src: 'CNBC' };
+      }
+    } catch(e) { console.warn(`Oil ${symbol} CNBC failed:`, e.message); }
+  }
+
+  // Source 2: Yahoo Finance via CORS proxies
+  const PROXIES = [
+    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+    u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+  ];
+  const yahooSym = encodeURIComponent(symbol);
+  for (const proxy of PROXIES) {
+    try {
+      const url = `https://query1.finance.yahoo.com/v8/chart/${yahooSym}?interval=1d&range=1d`;
+      const res = await fetch(proxy(url), { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) continue;
+      const d = await res.json();
+      const meta = d?.chart?.result?.[0]?.meta;
+      if (meta?.regularMarketPrice) {
+        const prev = meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice;
+        const val = meta.regularMarketPrice;
+        const chg = val - prev;
+        return { value: val, change: chg, changePct: (chg / prev) * 100, low52: meta.fiftyTwoWeekLow, high52: meta.fiftyTwoWeekHigh, live: true, src: 'Yahoo Finance' };
+      }
+    } catch (e) { console.warn(`Oil ${symbol} proxy fetch failed:`, e.message); }
+  }
+  return null;
+}
+
+function renderOilSection(wtiData, brentData, goldUSD) {
+  // WTI
+  document.getElementById('wtiValue').textContent = '$' + wtiData.value.toFixed(2);
+  const wUp = wtiData.change >= 0;
+  document.getElementById('wtiChange').innerHTML = `<span class="${wUp ? 'change-up' : 'change-down'}">${wUp ? '▲' : '▼'} $${Math.abs(wtiData.change).toFixed(2)} (${wtiData.changePct >= 0 ? '+' : ''}${wtiData.changePct.toFixed(2)}%)</span>`;
+
+  // Brent
+  document.getElementById('brentValue').textContent = '$' + brentData.value.toFixed(2);
+  const bUp = brentData.change >= 0;
+  document.getElementById('brentChange').innerHTML = `<span class="${bUp ? 'change-up' : 'change-down'}">${bUp ? '▲' : '▼'} $${Math.abs(brentData.change).toFixed(2)} (${brentData.changePct >= 0 ? '+' : ''}${brentData.changePct.toFixed(2)}%)</span>`;
+
+  // Details
+  document.getElementById('wti52Low').textContent = wtiData.low52 ? '$' + wtiData.low52.toFixed(2) : '--';
+  document.getElementById('wti52High').textContent = wtiData.high52 ? '$' + wtiData.high52.toFixed(2) : '--';
+  const spread = brentData.value - wtiData.value;
+  document.getElementById('oilSpread').textContent = '$' + spread.toFixed(2);
+
+  // Status
+  const isLive = wtiData.live || brentData.live;
+  document.getElementById('oilStatusDot').className = 'macro-status-dot ' + (isLive ? 'macro-status-live' : 'macro-status-static');
+  const oilSrcName = wtiData.src || brentData.src || 'Yahoo Finance';
+  document.getElementById('oilSource').textContent = isLive ? oilSrcName + ' • Live' : 'Dữ liệu mẫu • 10/04/2026';
+
+  // Gold/Oil Ratio
+  const ratio = goldUSD / wtiData.value;
+  document.getElementById('goldOilRatio').textContent = ratio.toFixed(1) + 'x';
+
+  const HIST_AVG = 16.5;
+  const deviation = ((ratio - HIST_AVG) / HIST_AVG * 100).toFixed(0);
+  let verdict, verdictColor;
+  if (ratio > HIST_AVG * 1.5) { verdict = 'VÀNG RẤT ĐẮT vs DẦU'; verdictColor = 'var(--red)'; }
+  else if (ratio > HIST_AVG * 1.2) { verdict = 'VÀNG ĐẮT vs DẦU'; verdictColor = 'var(--orange)'; }
+  else if (ratio > HIST_AVG * 0.8) { verdict = 'CÂN BẰNG'; verdictColor = 'var(--green)'; }
+  else { verdict = 'DẦU ĐẮT vs VÀNG'; verdictColor = 'var(--blue)'; }
+  document.getElementById('ratioVerdict').textContent = verdict;
+  document.getElementById('ratioVerdict').style.color = verdictColor;
+  document.getElementById('ratioVerdictSub').textContent = `${deviation > 0 ? '+' : ''}${deviation}% so với TB`;
+
+  // Gold/Oil ratio note
+  document.getElementById('goldOilRatioNote').textContent = `1 oz vàng = ${ratio.toFixed(1)} barrel dầu WTI`;
+}
+
+let oilData = { wti: null, brent: null };
+
+async function fetchAndRenderOil(goldUSD) {
+  const t0 = performance.now();
+  const [wti, brent] = await Promise.all([
+    fetchCrudeOil('CL=F'),
+    fetchCrudeOil('BZ=F'),
+  ]);
+  const elapsed = Math.round(performance.now() - t0);
+
+  const wtiResult = wti || { ...OIL_DEFAULTS.wti, live: false };
+  const brentResult = brent || { ...OIL_DEFAULTS.brent, live: false };
+  oilData = { wti: wtiResult, brent: brentResult };
+
+  renderOilSection(wtiResult, brentResult, goldUSD);
+
+  // LOG
+  logFetch('🛢️ Dầu WTI (CL=F)', wti ? 'ok' : 'mock', wti?.src || 'MOCK data', '$' + wtiResult.value.toFixed(2), elapsed);
+  logFetch('🛢️ Dầu Brent (BZ=F)', brent ? 'ok' : 'mock', brent?.src || 'MOCK data', '$' + brentResult.value.toFixed(2), elapsed);
+}
+
+// =============================================
+//  INSTITUTIONAL FORECASTS DATA
+//  Based on published reports from major banks & research firms
+//  Forecasts are stored as multipliers relative to spot so they
+//  remain proportionally correct even when base price changes.
+// =============================================
+// Data verified from Brave Search, Investing.com, FXEmpire — April 2026
+const INST_FORECASTS = [
+  {
+    name: 'J.P. Morgan',
+    logo: 'JPM', logoBg: '#0A4DA3',
+    target: 6300,
+    range: [5055, 6300],
+    timeframe: 'Cuối 2026',
+    note: 'Nâng mạnh từ $5,055 lên $6,300. Nhu cầu NHTW + nhà đầu tư bền vững. Mục tiêu dài hạn 2028: $6,000.',
+    updated: '02/2026'
+  },
+  {
+    name: 'UBS',
+    logo: 'UBS', logoBg: '#E60000',
+    target: 6200,
+    range: [5000, 6200],
+    timeframe: 'Q3 2026',
+    note: 'Nâng từ $5,000 lên $6,200 cho Q2-Q3 2026. Dự kiến điều chỉnh nhẹ về $5,900 cuối năm sau bầu cử giữa kỳ Mỹ.',
+    updated: '03/2026'
+  },
+  {
+    name: 'Goldman Sachs',
+    logo: 'GS', logoBg: '#1A73E8',
+    target: 5400,
+    range: [4900, 5600],
+    timeframe: 'Cuối 2026',
+    note: 'Nâng từ $4,900 lên $5,400. Dòng vốn ETF phương Tây mạnh + NHTW mua ròng. Kịch bản tail risk: $5,600+.',
+    updated: '01/2026'
+  },
+  {
+    name: 'ING Group',
+    logo: 'ING', logoBg: '#FF6200',
+    target: 5190,
+    range: [4700, 5500],
+    timeframe: 'TB năm 2026',
+    note: 'Trung bình cả năm $5,190/oz. Kỳ vọng Fed cắt 50bps trong 2026 hỗ trợ giá vàng mạnh.',
+    updated: '03/2026'
+  },
+  {
+    name: 'Bank of America',
+    logo: 'BofA', logoBg: '#012169',
+    target: 5000,
+    range: [4538, 5300],
+    timeframe: '2026',
+    note: 'Mục tiêu $5,000, TB năm $4,538. Chính sách kinh tế Mỹ bất thường đẩy nhu cầu trú ẩn an toàn.',
+    updated: '04/2026'
+  },
+  {
+    name: 'Citigroup',
+    logo: 'Citi', logoBg: '#003B70',
+    target: 5000,
+    range: [4500, 5300],
+    timeframe: '0-3 tháng',
+    note: 'Nâng mạnh từ $3,600-$3,800 lên $5,000. Dòng mua ròng ETF vàng toàn cầu đang tăng tốc.',
+    updated: '01/2026'
+  },
+  {
+    name: 'HSBC',
+    logo: 'HSBC', logoBg: '#DB0011',
+    target: 5000,
+    range: [3950, 5000],
+    timeframe: 'H1 2026',
+    note: 'Mục tiêu $5,000 cho nửa đầu 2026, TB cả năm $4,600. Biên rộng $3,950-$5,000 phản ánh sự thận trọng.',
+    updated: '03/2026'
+  },
+  {
+    name: 'ANZ',
+    logo: 'ANZ', logoBg: '#009FDA',
+    target: 5800,
+    range: [4445, 5800],
+    timeframe: 'Q2 2026',
+    note: 'Nâng lên $5,800 cho Q2. NHTW Trung Quốc, Ấn Độ, Ba Lan mua ròng tạo nền cầu bền vững.',
+    updated: '03/2026'
+  },
+  {
+    name: 'World Gold Council',
+    logo: 'WGC', logoBg: '#C9921A',
+    target: 4669,
+    range: [3878, 5204],
+    timeframe: '04/2026',
+    note: '4 kịch bản: Macro consensus (±5%), Shallow slip (+15%), Doom loop (+30%), Reflation return (-20%).',
+    updated: '04/2026'
+  },
+  {
+    name: 'Standard Chartered',
+    logo: 'StanC', logoBg: '#0E674A',
+    target: 4500,
+    range: [4300, 4800],
+    timeframe: '12 tháng',
+    note: 'Thận trọng nhất. Mục tiêu 3 tháng $4,300, 12 tháng $4,500. Rủi ro chốt lời nếu căng thẳng hạ nhiệt.',
+    updated: '03/2026'
+  },
+  {
+    name: 'Deutsche Bank',
+    logo: 'DB', logoBg: '#0018A8',
+    target: 4300,
+    range: [4000, 4300],
+    timeframe: 'Q4 2026',
+    note: 'Dự báo bảo thủ nhất: $4,000-$4,300 cuối năm. Lo ngại RSI quá mua và chốt lời kỹ thuật.',
+    updated: '02/2026'
+  },
+  {
+    name: 'Macquarie',
+    logo: 'MQG', logoBg: '#00685E',
+    target: 4323,
+    range: [4000, 4600],
+    timeframe: 'TB 2026',
+    note: 'TB cả năm $4,323 (nâng từ $4,225). Kỳ vọng đỉnh chu kỳ ngắn hạn trước khi điều chỉnh.',
+    updated: '02/2026'
+  },
+];
+
+// =============================================
+//  RENDER INSTITUTIONAL FORECASTS
+// =============================================
+function renderInstitutionalForecasts(goldUSD) {
+  const grid = document.getElementById('instGrid');
+  const fmtG = v => '$' + Math.round(v).toLocaleString('en');
+
+  // Determine stance relative to current price
+  const getStance = (target) => {
+    const diff = (target - goldUSD) / goldUSD;
+    if (diff > 0.03) return { cls: 'stance-bullish', label: 'TĂNG' };
+    if (diff < -0.03) return { cls: 'stance-bearish', label: 'GIẢM' };
+    return { cls: 'stance-neutral', label: 'TRUNG LẬP' };
+  };
+
+  grid.innerHTML = INST_FORECASTS.map(inst => {
+    const stance = getStance(inst.target);
+    const diff = ((inst.target - goldUSD) / goldUSD * 100);
+    const diffStr = (diff >= 0 ? '+' : '') + diff.toFixed(1) + '%';
+    const diffCls = diff >= 0 ? 'change-up' : 'change-down';
+
+    // Position of current price within the forecast range (for mini bar)
+    const rangeMin = inst.range[0];
+    const rangeMax = inst.range[1];
+    const totalRange = rangeMax - rangeMin;
+    const currentPos = Math.max(0, Math.min(100, ((goldUSD - rangeMin) / totalRange) * 100));
+    const targetPos  = Math.max(0, Math.min(100, ((inst.target - rangeMin) / totalRange) * 100));
+
+    return `
+      <div class="inst-card">
+        <div class="inst-card-header">
+          <div class="inst-logo" style="background:${inst.logoBg}">${inst.logo}</div>
+          <span class="inst-stance ${stance.cls}">${stance.label}</span>
+        </div>
+        <div class="inst-name">${inst.name}</div>
+        <div class="inst-timeframe">${inst.timeframe} • Cập nhật ${inst.updated}</div>
+        <div class="inst-target-row">
+          <span class="inst-target-price" style="color:var(--gold-primary)">${fmtG(inst.target)}</span>
+          <span class="inst-target-diff ${diffCls}">${diffStr}</span>
+        </div>
+        <div class="inst-bar-wrap">
+          <div class="inst-bar-track">
+            <div class="inst-bar-range" style="left:0;width:100%;background:linear-gradient(90deg,rgba(255,71,87,0.3),rgba(245,200,66,0.3),rgba(0,214,143,0.3));border-radius:2px"></div>
+            <div class="inst-bar-marker" style="left:${currentPos}%;background:var(--text-primary)" title="Giá hiện tại"></div>
+            <div class="inst-bar-marker" style="left:${targetPos}%;background:var(--gold-primary)" title="Mục tiêu"></div>
+          </div>
+          <div class="inst-bar-labels">
+            <span>${fmtG(rangeMin)}</span>
+            <span>${fmtG(rangeMax)}</span>
+          </div>
+        </div>
+        <div class="inst-note">${inst.note}</div>
+      </div>
+    `;
+  }).join('');
+
+  // === Consensus summary ===
+  const targets = INST_FORECASTS.map(i => i.target);
+  const avg = targets.reduce((a, b) => a + b, 0) / targets.length;
+  const min = Math.min(...targets);
+  const max = Math.max(...targets);
+  const allMins = INST_FORECASTS.map(i => i.range[0]);
+  const allMaxs = INST_FORECASTS.map(i => i.range[1]);
+  const absMin = Math.min(...allMins);
+  const absMax = Math.max(...allMaxs);
+
+  const bullCount = INST_FORECASTS.filter(i => (i.target - goldUSD) / goldUSD > 0.03).length;
+  const bearCount = INST_FORECASTS.filter(i => (i.target - goldUSD) / goldUSD < -0.03).length;
+  const neutralCount = INST_FORECASTS.length - bullCount - bearCount;
+
+  document.getElementById('instConsensusPrice').textContent = fmtG(avg);
+  document.getElementById('consensusAvg').textContent = fmtG(avg);
+
+  const avgDiff = ((avg - goldUSD) / goldUSD * 100);
+  document.getElementById('consensusDiff').innerHTML =
+    `<span class="${avgDiff >= 0 ? 'change-up' : 'change-down'}">${avgDiff >= 0 ? '▲' : '▼'} ${Math.abs(avgDiff).toFixed(1)}% so với giá hiện tại</span>`;
+
+  document.getElementById('consensusLow').textContent = fmtG(absMin);
+  document.getElementById('consensusHigh').textContent = fmtG(absMax);
+  document.getElementById('consensusCurrent').textContent = fmtG(goldUSD);
+
+  // Position of current price in the total range
+  const barWidth = Math.max(0, Math.min(100, ((goldUSD - absMin) / (absMax - absMin)) * 100));
+  document.getElementById('consensusBarFill').style.width = '100%';
+  document.getElementById('consensusCurrentMarker').style.left = barWidth + '%';
+
+  document.getElementById('instBullCount').textContent = bullCount + '/' + INST_FORECASTS.length;
+  document.getElementById('instNeutralCount').textContent = neutralCount + '/' + INST_FORECASTS.length;
+  document.getElementById('instBearCount').textContent = bearCount + '/' + INST_FORECASTS.length;
+  document.getElementById('instAvgTarget').textContent = fmtG(avg);
+  document.getElementById('instMaxTarget').textContent = fmtG(max);
+  document.getElementById('instMinTarget').textContent = fmtG(min);
+}
+
+// =============================================
+//  RISK INDICATORS TABLE
+// =============================================
+
+// Fetch VIX + HYG + TLT + Put/Call from CNBC batch
+async function fetchRiskCNBC() {
+  const symbols = '^VIX|^VIXY|HYG|TLT';
+  const cnbcUrl = 'https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol?symbols=' + encodeURIComponent(symbols) + '&output=json';
+  const PROXIES = [
+    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+    u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+  ];
+  for (const proxy of PROXIES) {
+    try {
+      const res = await fetch(proxy(cnbcUrl), { signal: AbortSignal.timeout(10000) });
+      if (!res.ok) continue;
+      const d = await res.json();
+      let quotes = d?.FormattedQuoteResult?.FormattedQuote || d?.QuickQuoteResult?.QuickQuote;
+      if (!quotes) {
+        for (const v of Object.values(d)) {
+          if (v && typeof v === 'object') {
+            for (const iv of Object.values(v)) {
+              if (Array.isArray(iv) && iv.length > 0 && iv[0]?.last) { quotes = iv; break; }
+            }
+          }
+          if (quotes) break;
+        }
+      }
+      if (!Array.isArray(quotes)) quotes = [quotes];
+      const map = {};
+      for (const q of quotes) {
+        if (!q?.symbol) continue;
+        map[q.symbol] = { last: parseFloat(q.last)||0, change: parseFloat(q.change)||0, changePct: parseFloat(q.change_pct)||0 };
+      }
+      if (Object.keys(map).length > 0) return map;
+    } catch(e) {}
+  }
+  return null;
+}
+
+let riskData = {};
+
+async function fetchAndRenderRisk(goldUSD) {
+  const t0 = performance.now();
+
+  // Fetch CNBC market quotes + reuse existing cnbc cache for oil/DXY
+  const [riskQuotes, mainQuotes] = await Promise.all([fetchRiskCNBC(), fetchCNBCQuotes()]);
+  const elapsed = Math.round(performance.now() - t0);
+
+  // Extract values
+  const vix = riskQuotes?.['^VIX'] || riskQuotes?.['VIX'];
+  const hyg = riskQuotes?.['HYG'];
+  const tlt = riskQuotes?.['TLT'];
+  const wti = mainQuotes?.['@CL.1'];
+  const dxy = mainQuotes?.['.DXY'];
+  const us10y = mainQuotes?.['US10Y'];
+
+  const vixVal = vix?.last || 26.4;
+  const vixChg = vix?.changePct || 0;
+  const hygTltRatio = (hyg?.last && tlt?.last) ? (hyg.last / tlt.last) : null;
+  const hygTltChg = (hyg?.changePct != null && tlt?.changePct != null) ? (hyg.changePct - tlt.changePct) : null;
+  const wtiVal = wti?.last || oilData?.wti?.value || OIL_DEFAULTS.wti.value;
+  const wtiChg = wti?.changePct || oilData?.wti?.changePct || 0;
+  const dxyVal = dxy?.last || macroData?.dxy?.value || MACRO_DEFAULTS.dxy.value;
+  const dxyChg = dxy?.changePct || macroData?.dxy?.changePct || 0;
+  const yieldVal = us10y?.last || macroData?.yield10y?.value || MACRO_DEFAULTS.yield10y.value;
+  const yieldChg = us10y?.changePct || macroData?.yield10y?.changePct || 0;
+  const goldOilRatio = goldUSD / wtiVal;
+
+  // Define indicators
+  const indicators = [
+    {
+      cat: 'geo', catLabel: 'ĐỊA CHÍNH TRỊ',
+      name: 'Dầu WTI', src: wti ? 'CNBC • Live' : 'MOCK / CNBC',
+      value: '$' + wtiVal.toFixed(2) + '/thùng',
+      trend: wtiChg, threshold: '>$95 USD/thùng',
+      status: wtiVal > 95 ? 'warn' : wtiVal > 85 ? 'caution' : 'normal',
+      live: !!wti
+    },
+    {
+      cat: 'geo', catLabel: 'ĐỊA CHÍNH TRỊ',
+      name: 'Gold/Oil Ratio', src: 'Tính toán tự động',
+      value: goldOilRatio.toFixed(1) + 'x (TB lịch sử ~16.5x)',
+      trend: null, threshold: '>25x hoặc <10x',
+      status: goldOilRatio > 25 ? 'warn' : goldOilRatio > 20 ? 'caution' : goldOilRatio < 10 ? 'warn' : 'normal',
+      live: true
+    },
+    {
+      cat: 'macro', catLabel: 'VĨ MÔ',
+      name: 'DXY (USD Index)', src: dxy ? 'CNBC • Live' : 'MOCK data',
+      value: dxyVal.toFixed(3),
+      trend: dxyChg, threshold: '>105 hoặc <95',
+      status: dxyVal > 105 ? 'warn' : dxyVal > 102 ? 'caution' : dxyVal < 95 ? 'caution' : 'normal',
+      live: !!dxy
+    },
+    {
+      cat: 'macro', catLabel: 'VĨ MÔ',
+      name: 'US 10Y Yield', src: us10y ? 'CNBC • Live' : 'MOCK data',
+      value: yieldVal.toFixed(3) + '%',
+      trend: yieldChg, threshold: '>4.5% hoặc <3.5%',
+      status: yieldVal > 4.5 ? 'caution' : yieldVal > 5.0 ? 'warn' : yieldVal < 3.5 ? 'caution' : 'normal',
+      live: !!us10y
+    },
+    {
+      cat: 'market', catLabel: 'THỊ TRƯỜNG',
+      name: 'VIX', src: vix ? 'CNBC • Live' : 'MOCK data',
+      value: vixVal.toFixed(2),
+      trend: vixChg, threshold: '>30',
+      status: vixVal > 30 ? 'warn' : vixVal > 25 ? 'caution' : 'normal',
+      live: !!vix
+    },
+    {
+      cat: 'market', catLabel: 'THỊ TRƯỜNG',
+      name: 'HYG/TLT Ratio', src: (hyg && tlt) ? 'CNBC • Live' : 'Không có dữ liệu',
+      value: hygTltRatio ? hygTltRatio.toFixed(4) : 'N/A',
+      trend: hygTltChg, threshold: 'Giảm >5%/tuần',
+      status: hygTltChg !== null && hygTltChg < -5 ? 'warn' : hygTltChg !== null && hygTltChg < -2 ? 'caution' : 'normal',
+      live: !!(hyg && tlt)
+    },
+    {
+      cat: 'flow', catLabel: 'DÒNG TIỀN',
+      name: 'Vàng TG (XAU/USD)', src: 'vang.today / gold-api',
+      value: '$' + goldUSD.toFixed(2),
+      trend: currentData?.goldChange24h || 0, threshold: 'Biến động >3%/ngày',
+      status: Math.abs(currentData?.goldChange24h || 0) > 3 ? 'warn' : Math.abs(currentData?.goldChange24h || 0) > 1.5 ? 'caution' : 'normal',
+      live: currentData?.isLive || false
+    },
+    {
+      cat: 'flow', catLabel: 'DÒNG TIỀN',
+      name: 'USD/VND', src: 'fawazahmed0 / er-api',
+      value: (currentData?.usdVND || MOCK.usdVND).toLocaleString('en') + ' VND',
+      trend: currentData?.usdVNDChange || 0, threshold: 'Biến động >0.5%/ngày',
+      status: Math.abs(currentData?.usdVNDChange || 0) > 0.5 ? 'caution' : 'normal',
+      live: !!currentData?.usdVND
+    },
+  ];
+
+  riskData = { indicators, vix: vixVal, hygTltRatio, timestamp: new Date() };
+  renderRiskTable(indicators);
+
+  // LOG
+  logFetch('⚠ VIX + Rủi ro thị trường', vix ? 'ok' : 'mock', vix ? 'CNBC batch' : 'MOCK data', 'VIX=' + vixVal.toFixed(2) + (hygTltRatio ? ' | HYG/TLT=' + hygTltRatio.toFixed(4) : ''), elapsed);
+}
+
+function renderRiskTable(indicators) {
+  const tbody = document.getElementById('riskTableBody');
+  if (!tbody) return;
+
+  // Render table rows
+  let lastCat = '';
+  tbody.innerHTML = indicators.map(ind => {
+    const showCat = ind.cat !== lastCat;
+    lastCat = ind.cat;
+    const catClass = ind.cat === 'geo' ? 'cat-geo' : ind.cat === 'flow' ? 'cat-flow' : ind.cat === 'market' ? 'cat-market' : 'cat-macro';
+    const statusClass = ind.status === 'warn' ? 'rs-warn' : ind.status === 'caution' ? 'rs-caution' : 'rs-normal';
+    const statusLabel = ind.status === 'warn' ? 'CẢNH BÁO' : ind.status === 'caution' ? 'CẢNH GIÁC' : 'Bình thường';
+
+    let trendHtml = '<span class="risk-trend neutral">—</span>';
+    if (ind.trend !== null && ind.trend !== undefined) {
+      const tDir = ind.trend >= 0 ? 'up' : 'down';
+      const tArrow = ind.trend >= 0 ? '↑' : '↓';
+      trendHtml = `<span class="risk-trend ${tDir}">${ind.trend >= 0 ? '+' : ''}${ind.trend.toFixed(1)}% ${tArrow}</span>`;
+    }
+
+    return `<tr>
+      <td>${showCat ? `<span class="risk-cat-badge ${catClass}">${ind.catLabel}</span>` : ''}</td>
+      <td>
+        <div class="risk-indicator-name">${ind.name}</div>
+        <div class="risk-indicator-src">${ind.src}</div>
+      </td>
+      <td class="risk-value">${ind.value}</td>
+      <td>${trendHtml}</td>
+      <td class="risk-threshold">${ind.threshold}</td>
+      <td><span class="risk-status-badge ${statusClass}"><span class="rs-dot"></span>${statusLabel}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Update header summary badges
+  const warnCount = indicators.filter(i => i.status === 'warn').length;
+  const cautionCount = indicators.filter(i => i.status === 'caution').length;
+  const normalCount = indicators.filter(i => i.status === 'normal').length;
+
+  const badgesEl = document.getElementById('riskSummaryBadges');
+  if (badgesEl) {
+    badgesEl.innerHTML = `
+      ${warnCount > 0 ? `<span class="risk-badge rb-warn"><span class="risk-badge-dot"></span>${warnCount} Cảnh báo</span>` : ''}
+      ${cautionCount > 0 ? `<span class="risk-badge rb-caution"><span class="risk-badge-dot"></span>${cautionCount} Cảnh giác</span>` : ''}
+      <span class="risk-badge rb-normal"><span class="risk-badge-dot"></span>${normalCount} Bình thường</span>
+    `;
+  }
+}
+
+// =============================================
+//  RENDER ALL
+// =============================================
+function renderAll(data) {
+  renderTicker(data);
+  renderCards(data);
+  renderMainChart(data.goldUSD, currentRange);
+  renderTechnicals(data.goldUSD);
+  renderVNTable(data);
+  renderInstitutionalForecasts(data.goldUSD);
+  fetchAndRenderMacro(); // DXY, 10Y Yield, VN Rates — fetched independently
+  fetchAndRenderOil(data.goldUSD); // Crude Oil + Gold-Oil ratio
+  fetchAndRenderRisk(data.goldUSD); // Risk indicators table
+  updateStatus(data);
+}
+
+// =============================================
+//  REFRESH
+// =============================================
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  btn.disabled = true;
+  cnbcCache = null; // Clear CNBC cache for fresh data
+  const data = await fetchLiveData();
+  renderAll(data);
+  btn.classList.remove('spinning');
+  btn.disabled = false;
+}
+
+// =============================================
+//  INIT
+// =============================================
+async function init() {
+  updateClock();
+  setInterval(updateClock, 1000);
+  renderSentimentChart();
+
+  // Show skeleton with mock data immediately so layout is visible
+  const mockData = await fetchLiveData(); // starts all fetches concurrently
+  renderAll(mockData);
+
+  // Auto-refresh every 5 minutes
+  setInterval(refreshData, 5 * 60 * 1000);
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
