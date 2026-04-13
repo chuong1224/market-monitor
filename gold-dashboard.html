@@ -601,6 +601,127 @@
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg-secondary); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ============================================= */
+  /*  RESPONSIVE — TABLET (<900px)                 */
+  /* ============================================= */
+  @media (max-width: 900px) {
+    .header { flex-wrap: wrap; padding: 16px 20px; gap: 12px; }
+    .header-center { order: 3; width: 100%; justify-content: center; flex-wrap: wrap; gap: 6px; }
+    .main { padding: 16px 16px 30px; gap: 16px; }
+    .cards-row { grid-template-columns: repeat(2, 1fr); }
+    .inst-grid { grid-template-columns: repeat(2, 1fr); }
+    .macro-row { grid-template-columns: 1fr; }
+    .oil-row { grid-template-columns: 1fr; }
+    .bottom-row { grid-template-columns: 1fr; }
+    .middle-row { grid-template-columns: 1fr; }
+    .full-row { grid-template-columns: 1fr; }
+    .full-row .vn-table-panel[style*="grid-column"] { grid-column: auto !important; }
+  }
+
+  /* ============================================= */
+  /*  RESPONSIVE — MOBILE (<600px)                 */
+  /* ============================================= */
+  @media (max-width: 600px) {
+    /* --- HEADER --- */
+    .header { flex-direction: column; align-items: flex-start; padding: 12px 16px; gap: 8px; }
+    .header-brand { gap: 10px; }
+    .brand-icon { width: 38px; height: 38px; font-size: 18px; border-radius: 10px; }
+    .brand-title { font-size: 17px; }
+    .brand-sub { font-size: 10px; flex-wrap: wrap; gap: 4px; }
+    .header-center { order: 3; width: 100%; gap: 5px; flex-wrap: wrap; }
+    .risk-badge { font-size: 9px; padding: 3px 8px; }
+    .header-meta { width: 100%; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .meta-date { font-size: 12px; }
+    .meta-time { font-size: 16px; }
+    .meta-update { font-size: 10px; }
+    .data-status { font-size: 9px; padding: 2px 6px; }
+
+    /* --- MAIN LAYOUT --- */
+    .main { padding: 12px 10px 24px; gap: 12px; }
+    .section-divider { margin: 2px 0; }
+    .section-divider-text { font-size: 8px; letter-spacing: 0.5px; }
+
+    /* --- RISK TABLE --- */
+    .risk-panel { padding: 14px 10px; overflow-x: auto; }
+    .risk-panel-header .panel-title { font-size: 14px !important; }
+    .risk-table { min-width: 650px; font-size: 11px; }
+    .risk-table thead th { padding: 8px 8px; font-size: 8px; }
+    .risk-table tbody td { padding: 10px 8px; font-size: 11px; }
+
+    /* --- CARDS ROW --- */
+    .cards-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .price-card { padding: 14px 12px; }
+    .card-price { font-size: 20px; }
+    .card-label { font-size: 10px; }
+    .card-badge { font-size: 8px; padding: 1px 5px; }
+    .price-usd { font-size: 9px; }
+    .card-change { font-size: 10px; }
+    .card-change-detail { font-size: 9px; }
+    .card-sparkline-wrap { height: 30px; }
+    .card-icon-bg { font-size: 48px; }
+
+    /* --- VN TABLE + SENTIMENT (side-by-side → stacked) --- */
+    .full-row { grid-template-columns: 1fr !important; }
+    .full-row .vn-table-panel[style*="grid-column"] { grid-column: auto !important; }
+    .vn-section-row { display: flex; flex-direction: column !important; gap: 12px; }
+    .vn-section-row > * { width: 100% !important; min-width: 0 !important; }
+    .vn-table-panel, .sentiment-panel { width: 100% !important; }
+    .vn-table-panel { overflow-x: auto; }
+    .vn-table { font-size: 10px; min-width: 500px; }
+    .vn-table th { padding: 8px 6px; font-size: 8px; }
+    .vn-table td { padding: 8px 6px; font-size: 10px; }
+
+    /* --- CHART + TECHNICALS (side-by-side → stacked) --- */
+    .middle-row { grid-template-columns: 1fr !important; }
+    .chart-panel, .tech-panel { min-width: 0 !important; }
+
+    /* --- MACRO ROW (3 cols → 1 col) --- */
+    .macro-row { grid-template-columns: 1fr !important; }
+    .macro-card { padding: 16px; }
+    .macro-value { font-size: 22px; }
+    .macro-desc { font-size: 10px; }
+
+    /* --- OIL ROW (2 cols → 1 col) --- */
+    .oil-row { grid-template-columns: 1fr !important; }
+    .oil-card { padding: 16px; }
+    .oil-price-value { font-size: 22px; }
+    .oil-price-row { flex-direction: column; gap: 12px; }
+    .oil-detail-grid { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .corr-stat-grid { grid-template-columns: 1fr !important; gap: 8px; }
+
+    /* --- BOTTOM ROW: POLITICAL + FORECAST (stacked) --- */
+    .bottom-row { grid-template-columns: 1fr !important; }
+
+    /* --- INSTITUTIONAL FORECASTS --- */
+    .inst-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+    .inst-card { padding: 10px 12px; }
+    .inst-logo { width: 30px; height: 30px; font-size: 9px; }
+    .consensus-row { flex-direction: column; gap: 8px; }
+
+    /* --- FETCH LOG --- */
+    .fetch-log-panel { margin: 0 10px; }
+    .fetch-log-toggle { padding: 10px 12px; }
+    .fetch-log-toggle-title { font-size: 9px; }
+    .fetch-log-summary { font-size: 9px; gap: 6px; }
+    .fetch-log-table { min-width: 550px; }
+    .fetch-log-body { overflow-x: auto; }
+
+    /* --- FOOTER --- */
+    .footer { flex-direction: column; gap: 8px; padding: 12px 16px; text-align: center; }
+    .footer-left { font-size: 9px; }
+    .footer-right { font-size: 10px; justify-content: center; }
+  }
+
+  /* ============================================= */
+  /*  RESPONSIVE — VERY SMALL (<400px)             */
+  /* ============================================= */
+  @media (max-width: 400px) {
+    .cards-row { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .card-price { font-size: 17px; }
+    .inst-grid { grid-template-columns: 1fr !important; }
+    .risk-badge { font-size: 8px; padding: 2px 6px; }
+  }
 </style>
 </head>
 <body>
