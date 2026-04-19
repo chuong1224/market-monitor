@@ -257,8 +257,8 @@
   .signal-neutral { background: rgba(139,148,158,0.15); color: var(--text-secondary); }
   .ma-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
   .ma-item {
-    background: var(--bg-secondary); border-radius: 8px; padding: 8px 10px;
-    display: flex; flex-direction: column; gap: 2px;
+    background: rgba(255,255,255,0.03); border-radius: var(--radius-sm); padding: 8px 10px;
+    display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--border-subtle);
   }
   .ma-label { font-size: 10px; color: var(--text-secondary); }
   .ma-value { font-size: 12px; font-weight: 700; }
@@ -278,7 +278,7 @@
   }
   .risk-item:last-child { border-bottom: none; padding-bottom: 0; }
   .risk-icon {
-    width: 36px; height: 36px; border-radius: 10px;
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
     display: flex; align-items: center; justify-content: center; font-size: 16px;
     flex-shrink: 0;
   }
@@ -286,12 +286,12 @@
   .risk-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
   .risk-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
   .risk-impact {
-    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 5px;
-    margin-top: 6px; display: inline-block;
+    font-size: 9.5px; font-weight: 700; padding: 2px 9px; border-radius: 20px;
+    margin-top: 6px; display: inline-block; border: 1px solid transparent;
   }
-  .impact-high { background: rgba(255,71,87,0.15); color: var(--red); }
-  .impact-medium { background: rgba(255,154,60,0.15); color: var(--orange); }
-  .impact-low { background: rgba(0,214,143,0.15); color: var(--green); }
+  .impact-high { background: var(--red-bg); color: var(--red); border-color: rgba(240,62,82,0.2); }
+  .impact-medium { background: rgba(240,144,48,0.12); color: var(--orange); border-color: rgba(240,144,48,0.2); }
+  .impact-low { background: var(--green-bg); color: var(--green); border-color: rgba(0,201,125,0.2); }
   .impact-arrow { font-size: 10px; margin-left: 4px; }
 
   /* === FORECAST PANEL === */
@@ -301,18 +301,18 @@
   }
   .forecast-signal {
     text-align: center; padding: 20px;
-    background: linear-gradient(135deg, rgba(0,214,143,0.08), rgba(0,214,143,0.03));
-    border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; margin-bottom: 16px;
+    background: linear-gradient(135deg, rgba(0,201,125,0.08), rgba(0,201,125,0.02));
+    border: 1px solid rgba(0,201,125,0.18); border-radius: var(--radius-md); margin-bottom: 16px;
   }
   .forecast-signal.bearish {
-    background: linear-gradient(135deg, rgba(255,71,87,0.08), rgba(255,71,87,0.03));
-    border-color: rgba(255,71,87,0.2);
+    background: linear-gradient(135deg, rgba(240,62,82,0.08), rgba(240,62,82,0.02));
+    border-color: rgba(240,62,82,0.18);
   }
   .signal-icon { font-size: 36px; margin-bottom: 8px; }
   .signal-label { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
   .signal-label.bullish { color: var(--green); }
   .signal-label.bearish { color: var(--red); }
-  .signal-confidence { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  .signal-confidence { font-size: 11.5px; color: var(--text-secondary); margin-top: 4px; }
   .confidence-bar {
     display: flex; align-items: center; gap: 8px; margin-top: 8px;
     justify-content: center;
@@ -321,7 +321,8 @@
   .conf-fill { height: 100%; border-radius: 3px; background: var(--green); }
   .forecast-targets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
   .target-item {
-    background: var(--bg-secondary); border-radius: 10px; padding: 12px;
+    background: rgba(255,255,255,0.03); border-radius: var(--radius-md); padding: 12px;
+    border: 1px solid var(--border-subtle);
   }
   .target-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
   .target-price { font-size: 16px; font-weight: 800; }
@@ -357,8 +358,8 @@
   .price-sell { font-weight: 700; color: var(--gold-primary); }
   .price-diff { font-size: 11px; }
   .premium-badge {
-    font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 5px;
-    background: rgba(255,154,60,0.15); color: var(--orange);
+    font-size: 9.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+    background: rgba(240,144,48,0.12); color: var(--orange); border: 1px solid rgba(240,144,48,0.2);
   }
 
   /* === COMPARISON PANEL === */
@@ -397,7 +398,7 @@
   .macro-card:hover { border-color: var(--border-glass); transform: translateY(-3px); box-shadow: var(--shadow-elevated); }
   .macro-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
   .macro-icon {
-    width: 40px; height: 40px; border-radius: 10px; display: flex;
+    width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex;
     align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
   }
   .macro-value-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
@@ -405,15 +406,15 @@
   .macro-change { font-size: 12px; font-weight: 600; }
   .macro-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; }
   .macro-correlation {
-    display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700;
-    padding: 6px 10px; border-radius: 8px; margin-top: 8px;
+    display: flex; align-items: center; gap: 6px; font-size: 9.5px; font-weight: 700;
+    padding: 6px 12px; border-radius: 20px; margin-top: 8px; border: 1px solid transparent;
   }
-  .corr-negative { background: rgba(0,214,143,0.08); color: var(--green); border: 1px solid rgba(0,214,143,0.12); }
-  .corr-positive { background: rgba(255,71,87,0.08); color: var(--red); border: 1px solid rgba(255,71,87,0.12); }
-  .corr-mixed { background: rgba(255,154,60,0.08); color: var(--orange); border: 1px solid rgba(255,154,60,0.12); }
-  .macro-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-  .macro-detail-item { background: var(--bg-secondary); border-radius: 8px; padding: 8px 10px; }
-  .macro-detail-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+  .corr-negative { background: var(--green-bg); color: var(--green); border-color: rgba(0,201,125,0.15); }
+  .corr-positive { background: var(--red-bg); color: var(--red); border-color: rgba(240,62,82,0.15); }
+  .corr-mixed { background: rgba(240,144,48,0.08); color: var(--orange); border-color: rgba(240,144,48,0.15); }
+  .macro-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
+  .macro-detail-item { background: rgba(255,255,255,0.03); border-radius: var(--radius-sm); padding: 8px 10px; border: 1px solid var(--border-subtle); }
+  .macro-detail-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
   .macro-detail-value { font-size: 12px; font-weight: 700; margin-top: 2px; }
   .rate-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
   .rate-table td { padding: 6px 8px; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.03); }
@@ -440,18 +441,19 @@
   .oil-price-value { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
   .oil-price-change { font-size: 12px; font-weight: 600; margin-top: 2px; }
   .oil-detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; }
-  .oil-detail-item { background: var(--bg-secondary); border-radius: 8px; padding: 8px 10px; }
-  .oil-detail-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+  .oil-detail-item { background: rgba(255,255,255,0.03); border-radius: var(--radius-sm); padding: 8px 10px; border: 1px solid var(--border-subtle); }
+  .oil-detail-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
   .oil-detail-value { font-size: 12px; font-weight: 700; margin-top: 2px; }
   .corr-stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 14px; }
   .corr-stat-card {
-    background: var(--bg-secondary); border-radius: 10px; padding: 12px 14px; text-align: center;
-    border: 1px solid var(--border-subtle);
+    background: rgba(255,255,255,0.03); border-radius: var(--radius-md); padding: 12px 14px; text-align: center;
+    border: 1px solid var(--border-subtle); transition: border-color 0.2s;
   }
+  .corr-stat-card:hover { border-color: var(--border-glass); }
   .corr-stat-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .corr-stat-value { font-size: 22px; font-weight: 900; }
+  .corr-stat-value { font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; }
   .corr-stat-sub { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
-  .corr-note { font-size: 10px; color: var(--text-muted); line-height: 1.5; margin-top: 12px; padding: 10px; background: var(--bg-secondary); border-radius: 8px; }
+  .corr-note { font-size: 10px; color: var(--text-muted); line-height: 1.6; margin-top: 12px; padding: 10px 12px; background: rgba(255,255,255,0.02); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); }
 
   /* === INSTITUTIONAL FORECAST PANEL === */
   .inst-forecast-panel {
@@ -495,8 +497,8 @@
 
   /* Consensus bar */
   .consensus-row {
-    margin-top: 20px; padding: 16px 20px; border-radius: 12px;
-    background: linear-gradient(135deg, rgba(245,200,66,0.06), rgba(245,200,66,0.02));
+    margin-top: 20px; padding: 16px 20px; border-radius: var(--radius-md);
+    background: linear-gradient(135deg, rgba(240,192,64,0.06), rgba(240,192,64,0.01));
     border: 1px solid var(--border);
     display: flex; align-items: center; gap: 24px;
   }
@@ -562,33 +564,33 @@
   .risk-table tbody tr:last-child td { border-bottom: none; }
   .risk-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
   .risk-cat-badge {
-    display: inline-block; font-size: 9px; font-weight: 700; padding: 3px 10px;
-    border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+    display: inline-block; font-size: 8.5px; font-weight: 700; padding: 3px 10px;
+    border-radius: 20px; text-transform: uppercase; letter-spacing: 0.6px;
     white-space: nowrap;
   }
-  .cat-geo { background: rgba(255,71,87,0.1); color: var(--red); border: 1px solid rgba(255,71,87,0.15); }
-  .cat-flow { background: rgba(78,159,255,0.1); color: var(--blue); border: 1px solid rgba(78,159,255,0.15); }
-  .cat-market { background: rgba(0,214,143,0.1); color: var(--green); border: 1px solid rgba(0,214,143,0.15); }
-  .cat-macro { background: rgba(245,200,66,0.1); color: var(--gold-primary); border: 1px solid rgba(245,200,66,0.15); }
-  .risk-indicator-name { font-weight: 600; color: var(--text-primary); }
+  .cat-geo { background: var(--red-bg); color: var(--red); border: 1px solid rgba(240,62,82,0.18); }
+  .cat-flow { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(75,158,255,0.18); }
+  .cat-market { background: var(--green-bg); color: var(--green); border: 1px solid rgba(0,201,125,0.18); }
+  .cat-macro { background: var(--gold-glow); color: var(--gold-primary); border: 1px solid rgba(240,192,64,0.18); }
+  .risk-indicator-name { font-weight: 600; color: var(--text-primary); font-size: 12.5px; }
   .risk-indicator-src { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
-  .risk-value { font-weight: 700; font-family: 'Be Vietnam Pro', monospace; }
+  .risk-value { font-weight: 700; font-variant-numeric: tabular-nums; }
   .risk-trend { font-size: 11px; font-weight: 600; }
   .risk-trend.up { color: var(--green); }
   .risk-trend.down { color: var(--red); }
   .risk-trend.neutral { color: var(--text-muted); }
-  .risk-threshold { font-size: 11px; color: var(--text-secondary); font-family: monospace; }
+  .risk-threshold { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
   .risk-status-badge {
     display: inline-flex; align-items: center; gap: 5px;
-    font-size: 10px; font-weight: 700; padding: 4px 12px; border-radius: 6px;
-    letter-spacing: 0.3px; white-space: nowrap;
+    font-size: 9.5px; font-weight: 700; padding: 4px 12px; border-radius: 20px;
+    letter-spacing: 0.2px; white-space: nowrap; border: 1px solid transparent;
   }
-  .rs-warn { background: rgba(255,71,87,0.12); color: var(--red); }
-  .rs-caution { background: rgba(255,154,60,0.12); color: var(--orange); }
-  .rs-normal { background: rgba(0,214,143,0.1); color: var(--green); }
-  .rs-dot { width: 6px; height: 6px; border-radius: 50%; }
-  .rs-warn .rs-dot { background: var(--red); }
-  .rs-caution .rs-dot { background: var(--orange); }
+  .rs-warn { background: var(--red-bg); color: var(--red); border-color: rgba(240,62,82,0.18); }
+  .rs-caution { background: rgba(240,144,48,0.1); color: var(--orange); border-color: rgba(240,144,48,0.18); }
+  .rs-normal { background: var(--green-bg); color: var(--green); border-color: rgba(0,201,125,0.15); }
+  .rs-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .rs-warn .rs-dot { background: var(--red); box-shadow: 0 0 3px rgba(240,62,82,0.5); }
+  .rs-caution .rs-dot { background: var(--orange); box-shadow: 0 0 3px rgba(240,144,48,0.5); }
   .rs-normal .rs-dot { background: var(--green); }
 
   /* === FETCH LOG PANEL === */
@@ -630,9 +632,9 @@
     font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
     text-transform: uppercase; letter-spacing: 0.3px;
   }
-  .log-ok { background: rgba(0,214,143,0.1); color: var(--green); }
-  .log-fail { background: rgba(255,71,87,0.1); color: var(--red); }
-  .log-mock { background: rgba(255,154,60,0.1); color: var(--orange); }
+  .log-ok { background: var(--green-bg); color: var(--green); border: 1px solid rgba(0,201,125,0.15); }
+  .log-fail { background: var(--red-bg); color: var(--red); border: 1px solid rgba(240,62,82,0.15); }
+  .log-mock { background: rgba(240,144,48,0.1); color: var(--orange); border: 1px solid rgba(240,144,48,0.15); }
   .log-source { color: var(--text-secondary); font-family: 'Be Vietnam Pro', monospace; font-size: 10px; }
   .log-time { color: var(--text-muted); font-size: 10px; font-family: monospace; }
   .log-latency { font-weight: 600; font-size: 10px; }
@@ -846,16 +848,16 @@
   .rec-signal-label {
     font-size: 21px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 4px;
   }
-  .rec-signal-label.signal-strong-buy { color: #00D68F; }
+  .rec-signal-label.signal-strong-buy { color: var(--green); }
   .rec-signal-label.signal-buy { color: #4ADE80; }
-  .rec-signal-label.signal-hold { color: #F5C842; }
-  .rec-signal-label.signal-sell { color: #FF9A3C; }
-  .rec-signal-label.signal-strong-sell { color: #FF4757; }
+  .rec-signal-label.signal-hold { color: var(--gold-primary); }
+  .rec-signal-label.signal-sell { color: var(--orange); }
+  .rec-signal-label.signal-strong-sell { color: var(--red); }
   .rec-signal-sub { font-size: 11px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.4; }
 
   .rec-score-meter {
     height: 8px;
-    background: linear-gradient(90deg, #FF4757 0%, #FF9A3C 25%, #F5C842 50%, #4ADE80 75%, #00D68F 100%);
+    background: linear-gradient(90deg, var(--red) 0%, var(--orange) 25%, var(--gold-primary) 50%, #4ADE80 75%, var(--green) 100%);
     border-radius: 4px;
     position: relative;
     margin: 10px 0 4px;
@@ -878,7 +880,7 @@
 
   .rec-factors { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .rec-factor {
-    background: var(--bg-secondary); border-radius: 10px;
+    background: rgba(255,255,255,0.03); border-radius: var(--radius-md);
     padding: 12px; border: 1px solid var(--border-subtle);
   }
   .rec-factor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
@@ -900,9 +902,9 @@
   .rec-signal-item {
     display: flex; align-items: flex-start; gap: 9px;
     font-size: 11px; color: var(--text-secondary);
-    background: var(--bg-secondary); border-radius: 8px;
+    background: rgba(255,255,255,0.025); border-radius: var(--radius-sm);
     padding: 9px 12px; border-left: 3px solid transparent;
-    line-height: 1.4;
+    line-height: 1.5; border: 1px solid var(--border-subtle); border-left-width: 3px;
   }
   .rec-signal-item.bullish { border-left-color: var(--green); }
   .rec-signal-item.bearish { border-left-color: var(--red); }
@@ -920,7 +922,7 @@
   }
   .rec-target-item {
     text-align: center; padding: 12px 8px;
-    background: var(--bg-secondary); border-radius: 10px;
+    background: rgba(255,255,255,0.03); border-radius: var(--radius-md);
     border: 1px solid var(--border-subtle);
   }
   .rec-target-label {
@@ -934,14 +936,14 @@
     padding-top: 14px; border-top: 1px solid var(--border-subtle);
   }
   .indicator-signal.signal-neutral {
-    background: rgba(245,200,66,0.12); color: var(--gold-primary); border-color: rgba(245,200,66,0.2);
+    background: var(--gold-glow); color: var(--gold-primary); border-color: rgba(240,192,64,0.2);
   }
   @media (max-width: 900px) {
     .rec-main { grid-template-columns: 1fr 1fr; }
     .rec-signal-block { grid-column: span 2; }
   }
   @media (max-width: 600px) {
-    .rec-panel { margin: 0 10px 16px; padding: 16px; }
+    .rec-panel { margin: 0; padding: 16px; }
     .rec-main { grid-template-columns: 1fr; }
     .rec-signal-block { grid-column: span 1; }
     .rec-factors { grid-template-columns: 1fr; }
@@ -1199,7 +1201,7 @@
       </div>
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-subtle)">
         <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Khuyến nghị AI</div>
-        <div id="sentimentAIBox" style="background:rgba(0,214,143,0.08);border:1px solid rgba(0,214,143,0.2);border-radius:8px;padding:10px;font-size:12px;line-height:1.6;color:var(--text-primary)">
+        <div id="sentimentAIBox" style="background:rgba(0,201,125,0.07);border:1px solid rgba(0,201,125,0.18);border-radius:var(--radius-sm);padding:10px 12px;font-size:11.5px;line-height:1.65;color:var(--text-primary)">
           Nên <strong style="color:var(--green)">tích luỹ</strong> vàng tại các nhịp điều chỉnh về vùng <strong id="aiAccumZone">--</strong>.
           Tỷ trọng vàng trong danh mục nên chiếm <strong>10–15%</strong> để phòng ngừa rủi ro địa chính trị.
         </div>
@@ -1448,7 +1450,7 @@
           </div>
           <div style="font-size:11px;color:var(--text-muted)" id="dxySource">Investing.com</div>
         </div>
-        <div class="macro-icon" style="background:rgba(78,159,255,0.1)">💲</div>
+        <div class="macro-icon" style="background:var(--blue-bg)">💲</div>
       </div>
       <div class="macro-value-row">
         <span class="macro-value" style="color:var(--blue)" id="dxyValue">--</span>
@@ -1481,7 +1483,7 @@
           </div>
           <div style="font-size:11px;color:var(--text-muted)" id="yieldSource">Investing.com</div>
         </div>
-        <div class="macro-icon" style="background:rgba(255,71,87,0.1)">📊</div>
+        <div class="macro-icon" style="background:var(--red-bg)">📊</div>
       </div>
       <div class="macro-value-row">
         <span class="macro-value" style="color:var(--red)" id="yieldValue">--</span>
@@ -1514,7 +1516,7 @@
           </div>
           <div style="font-size:11px;color:var(--text-muted)" id="rateSource">CafeF / NHNN</div>
         </div>
-        <div class="macro-icon" style="background:rgba(245,200,66,0.1)">🏦</div>
+        <div class="macro-icon" style="background:var(--gold-glow)">🏦</div>
       </div>
       <div class="macro-value-row">
         <span class="macro-value" style="color:var(--gold-primary)" id="rateAvgValue">--</span>
@@ -1552,7 +1554,7 @@
           </div>
           <div style="font-size:11px;color:var(--text-muted)" id="oilSource">Đang tải...</div>
         </div>
-        <div class="macro-icon" style="background:rgba(255,154,60,0.12)">🛢️</div>
+        <div class="macro-icon" style="background:rgba(240,144,48,0.1)">🛢️</div>
       </div>
 
       <div class="oil-price-row">
@@ -1598,7 +1600,7 @@
           </div>
           <div style="font-size:11px;color:var(--text-muted)">Tính toán tự động từ giá live</div>
         </div>
-        <div class="macro-icon" style="background:rgba(245,200,66,0.12)">📈</div>
+        <div class="macro-icon" style="background:var(--gold-glow)">📈</div>
       </div>
 
       <div class="corr-stat-grid" style="grid-template-columns:1fr 1fr 1fr">
@@ -1649,7 +1651,7 @@
       </div>
 
       <div class="risk-item">
-        <div class="risk-icon" style="background:rgba(255,71,87,0.1)">⚡</div>
+        <div class="risk-icon" style="background:var(--red-bg)">⚡</div>
         <div class="risk-content">
           <div class="risk-title">Chiến tranh thương mại Mỹ – Trung leo thang</div>
           <div class="risk-desc">Mỹ áp thuế 145% lên hàng Trung Quốc. Trung Quốc đáp trả 125%. Căng thẳng thương mại đẩy nhà đầu tư tìm tài sản trú ẩn an toàn.</div>
@@ -1658,7 +1660,7 @@
       </div>
 
       <div class="risk-item">
-        <div class="risk-icon" style="background:rgba(255,154,60,0.1)">🏦</div>
+        <div class="risk-icon" style="background:rgba(240,144,48,0.1)">🏦</div>
         <div class="risk-content">
           <div class="risk-title">Fed có thể cắt giảm lãi suất năm 2026</div>
           <div class="risk-desc">Kỳ vọng cắt 2–3 lần trong 2026. Lãi suất thấp làm giảm chi phí cơ hội giữ vàng, hỗ trợ giá tăng mạnh.</div>
@@ -1667,7 +1669,7 @@
       </div>
 
       <div class="risk-item">
-        <div class="risk-icon" style="background:rgba(255,154,60,0.1)">🌍</div>
+        <div class="risk-icon" style="background:rgba(240,144,48,0.1)">🌍</div>
         <div class="risk-content">
           <div class="risk-title">Xung đột Trung Đông tiếp tục bất ổn</div>
           <div class="risk-desc">Căng thẳng Israel–Iran và tình hình Gaza chưa có dấu hiệu hạ nhiệt, tạo nhu cầu trú ẩn liên tục cho vàng.</div>
@@ -1676,7 +1678,7 @@
       </div>
 
       <div class="risk-item">
-        <div class="risk-icon" style="background:rgba(78,159,255,0.1)">🏛️</div>
+        <div class="risk-icon" style="background:var(--blue-bg)">🏛️</div>
         <div class="risk-content">
           <div class="risk-title">Ngân hàng Trung ương mua vàng kỷ lục</div>
           <div class="risk-desc">Các NHTW thế giới (Trung Quốc, Ấn Độ, Nga, Ba Lan) tiếp tục mua vàng để đa dạng hóa dự trữ, giảm phụ thuộc USD.</div>
@@ -1685,7 +1687,7 @@
       </div>
 
       <div class="risk-item">
-        <div class="risk-icon" style="background:rgba(0,214,143,0.1)">💵</div>
+        <div class="risk-icon" style="background:var(--green-bg)">💵</div>
         <div class="risk-content">
           <div class="risk-title">Đồng USD suy yếu nhẹ trong quý II/2026</div>
           <div class="risk-desc">DXY dưới 102. Đô la yếu hơn làm vàng (tính bằng USD) trở nên rẻ hơn với nhà đầu tư ngoại, tăng cầu.</div>
@@ -1727,12 +1729,12 @@
           <div class="target-price change-up" id="target3m">$3,600</div>
           <div class="target-change change-up" id="target3mPct">+9.6%</div>
         </div>
-        <div class="target-item" style="background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.1)">
+        <div class="target-item" style="background:rgba(240,62,82,0.06);border:1px solid rgba(240,62,82,0.12)">
           <div class="target-label">Hỗ trợ mạnh</div>
           <div class="target-price change-down" id="support">$3,150</div>
           <div class="target-change change-down">Key support</div>
         </div>
-        <div class="target-item" style="background:rgba(255,154,60,0.06);border:1px solid rgba(255,154,60,0.1)">
+        <div class="target-item" style="background:rgba(240,144,48,0.06);border:1px solid rgba(240,144,48,0.12)">
           <div class="target-label">Kháng cự</div>
           <div class="target-price" style="color:var(--orange)" id="resistance">$3,450</div>
           <div class="target-change" style="color:var(--orange)">Key resistance</div>
@@ -1840,7 +1842,7 @@
     </div>
 
     <!-- Disclaimer -->
-    <div style="margin-top:16px;padding:12px 16px;background:rgba(255,154,60,0.06);border:1px solid rgba(255,154,60,0.15);border-radius:10px;display:flex;align-items:flex-start;gap:10px">
+    <div style="margin-top:16px;padding:12px 16px;background:rgba(240,144,48,0.05);border:1px solid rgba(240,144,48,0.14);border-radius:var(--radius-md);display:flex;align-items:flex-start;gap:10px">
       <span style="font-size:16px;flex-shrink:0;margin-top:1px">⚠️</span>
       <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
         <strong style="color:var(--orange)">Lưu ý:</strong> Dữ liệu dự báo trong bảng này được tổng hợp thủ công từ các báo cáo công khai của từng tổ chức và <strong style="color:var(--text-primary)">không tự động cập nhật</strong> khi các tổ chức công bố mục tiêu giá mới.
@@ -2272,9 +2274,9 @@ function renderMainChart(goldUSD, range) {
   const minP = Math.min(...prices), maxP = Math.max(...prices);
 
   const gradient = ctx.createLinearGradient(0, 0, 0, 220);
-  gradient.addColorStop(0, 'rgba(245,200,66,0.25)');
-  gradient.addColorStop(0.6, 'rgba(245,200,66,0.05)');
-  gradient.addColorStop(1, 'rgba(245,200,66,0)');
+  gradient.addColorStop(0, 'rgba(240,192,64,0.22)');
+  gradient.addColorStop(0.6, 'rgba(240,192,64,0.04)');
+  gradient.addColorStop(1, 'rgba(240,192,64,0)');
 
   const labels = data.map(d => {
     if (range === '24h') return d.x.toLocaleTimeString('vi', {hour:'2-digit',minute:'2-digit'});
@@ -2289,13 +2291,13 @@ function renderMainChart(goldUSD, range) {
       labels,
       datasets: [{
         data: prices,
-        borderColor: '#F5C842',
+        borderColor: '#F0C040',
         borderWidth: 2,
         backgroundColor: gradient,
         fill: true,
         pointRadius: 0,
         pointHoverRadius: 4,
-        pointHoverBackgroundColor: '#F5C842',
+        pointHoverBackgroundColor: '#F0C040',
         tension: 0.3
       }]
     },
@@ -2306,10 +2308,10 @@ function renderMainChart(goldUSD, range) {
         legend: { display: false },
         tooltip: {
           backgroundColor: '#1a2235',
-          borderColor: 'rgba(245,200,66,0.3)',
+          borderColor: 'rgba(240,192,64,0.25)',
           borderWidth: 1,
-          titleColor: '#8B949E',
-          bodyColor: '#F5C842',
+          titleColor: '#7D8998',
+          bodyColor: '#F0C040',
           bodyFont: { weight: 'bold', size: 14 },
           padding: 10,
           callbacks: {
@@ -2442,7 +2444,7 @@ function renderSentimentChart() {
     data: {
       datasets: [{
         data: [50, 30, 20],
-        backgroundColor: ['rgba(0,214,143,0.8)', 'rgba(139,148,158,0.5)', 'rgba(255,71,87,0.8)'],
+        backgroundColor: ['rgba(0,201,125,0.85)', 'rgba(125,137,152,0.45)', 'rgba(240,62,82,0.85)'],
         borderColor: ['#070B14'],
         borderWidth: 3,
         hoverBorderWidth: 0
@@ -2532,11 +2534,11 @@ function calculateDynamicSentiment() {
 
   // Label
   let label, labelColor;
-  if      (clipped >= 80) { label = 'Tham lam cực độ'; labelColor = '#00D68F'; }
+  if      (clipped >= 80) { label = 'Tham lam cực độ'; labelColor = '#00C97D'; }
   else if (clipped >= 62) { label = 'Tham lam';        labelColor = '#4ADE80'; }
-  else if (clipped >= 45) { label = 'Trung tính';      labelColor = '#F5C842'; }
-  else if (clipped >= 28) { label = 'Sợ hãi';          labelColor = '#FF9A3C'; }
-  else                    { label = 'Sợ hãi cực độ';   labelColor = '#FF4757'; }
+  else if (clipped >= 45) { label = 'Trung tính';      labelColor = '#F0C040'; }
+  else if (clipped >= 28) { label = 'Sợ hãi';          labelColor = '#F09030'; }
+  else                    { label = 'Sợ hãi cực độ';   labelColor = '#F03E52'; }
 
   return { score: clipped, buyPct, holdPct, sellPct, label, labelColor, rsi, vix, goldChg, dxyChg };
 }
@@ -2605,8 +2607,8 @@ function renderSentimentPanel() {
       alloc  = '5%';
     }
 
-    const bdrColor = s.score >= 50 ? 'rgba(0,214,143,0.2)' : s.score >= 35 ? 'rgba(245,200,66,0.2)' : 'rgba(255,71,87,0.2)';
-    const bgColor  = s.score >= 50 ? 'rgba(0,214,143,0.08)' : s.score >= 35 ? 'rgba(245,200,66,0.06)' : 'rgba(255,71,87,0.06)';
+    const bdrColor = s.score >= 50 ? 'rgba(0,201,125,0.18)' : s.score >= 35 ? 'rgba(240,192,64,0.18)' : 'rgba(240,62,82,0.18)';
+    const bgColor  = s.score >= 50 ? 'rgba(0,201,125,0.07)' : s.score >= 35 ? 'rgba(240,192,64,0.05)' : 'rgba(240,62,82,0.06)';
     aiBox.style.background   = bgColor;
     aiBox.style.borderColor  = bdrColor;
     aiBox.innerHTML = `Nên <strong style="color:${actionColor}">${action}</strong> vàng tại vùng <strong id="aiAccumZone">${zone}</strong>.
@@ -2726,8 +2728,8 @@ function renderVNTable(data) {
       <td>
         <div class="brand-name">${g.name}
           ${g.isReal
-            ? '<span style="font-size:9px;background:rgba(0,214,143,0.15);color:var(--green);padding:1px 5px;border-radius:4px;margin-left:4px;font-weight:700">LIVE</span>'
-            : '<span style="font-size:9px;background:rgba(255,154,60,0.12);color:var(--orange);padding:1px 5px;border-radius:4px;margin-left:4px">ước tính</span>'
+            ? '<span style="font-size:9px;background:rgba(0,201,125,0.12);color:var(--green);padding:1px 6px;border-radius:20px;margin-left:4px;font-weight:700;border:1px solid rgba(0,201,125,0.2)">LIVE</span>'
+            : '<span style="font-size:9px;background:rgba(240,144,48,0.1);color:var(--orange);padding:1px 6px;border-radius:20px;margin-left:4px;border:1px solid rgba(240,144,48,0.18)">ước tính</span>'
           }
         </div>
         <div class="brand-type">${g.type}</div>
@@ -3310,7 +3312,7 @@ function renderInstitutionalForecasts(goldUSD) {
         </div>
         <div class="inst-bar-wrap">
           <div class="inst-bar-track">
-            <div class="inst-bar-range" style="left:0;width:100%;background:linear-gradient(90deg,rgba(255,71,87,0.3),rgba(245,200,66,0.3),rgba(0,214,143,0.3));border-radius:2px"></div>
+            <div class="inst-bar-range" style="left:0;width:100%;background:linear-gradient(90deg,rgba(240,62,82,0.25),rgba(240,192,64,0.25),rgba(0,201,125,0.25));border-radius:2px"></div>
             <div class="inst-bar-marker" style="left:${currentPos}%;background:var(--text-primary)" title="Giá hiện tại"></div>
             <div class="inst-bar-marker" style="left:${targetPos}%;background:var(--gold-primary)" title="Mục tiêu"></div>
           </div>
