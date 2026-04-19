@@ -70,12 +70,17 @@ A professional, single-file HTML dashboard for real-time monitoring of gold pric
 Scrolling marquee showing quick prices: Gold, SJC, DOJI, USD/VND, Silver, DXY, S&P 500, Bitcoin, WTI Oil.
 
 ### 2. Header
-- **Market Monitor** branding with LIVE badge
-- Risk summary badges (X Cảnh báo / Y Cảnh giác / Z Bình thường)
+- **Market Monitor** branding with LIVE badge and data status indicator
+- **Visitor counter** — shows visit counts for Today / 7D / 30D / 3M / 1Y (stored in localStorage, per-device)
 - Current date/time with auto-refresh button
 
+### 2b. System Log (below header)
+Collapsible panel positioned immediately below the header so fetch status is visible without scrolling:
+- Status: ✓ Live / ⚠ Fallback / ✗ Error per data source
+- API endpoint used, value received, latency (ms), last update timestamp
+
 ### 3. Risk Indicator Table
-A comprehensive risk monitoring table with 6 columns:
+A comprehensive risk monitoring table with 6 columns. The panel header now shows summary badges (**X Cảnh báo / Y Cảnh giác / Z Bình thường**) on the right side:
 
 | Column | Description |
 |--------|-------------|
@@ -187,13 +192,8 @@ Three cards side-by-side:
 
 > **Note:** Institutional forecasts are **not auto-updated**. They are based on published reports and must be manually updated when institutions release new targets.
 
-### 12. System Log
-Collapsible panel showing fetch status for every data source:
-- Status: ✓ Live / ⚠ Fallback / ✗ Error
-- API endpoint used
-- Value received
-- Latency (ms)
-- Last update timestamp
+### 12. Institutional Forecasts (continued)
+> See §11 above. The "Dự Báo Từ Các Tổ Chức Tài Chính Hàng Đầu" panel includes a consensus bar showing average, high, and low targets across all 12 institutions.
 
 ## Indicators Reference
 
@@ -304,7 +304,7 @@ Each source is tried with a timeout. If all live sources fail, hardcoded MOCK va
 ## Technical Notes
 
 ### Architecture
-- **Single-file HTML** — all CSS, JS, and content in one `index.html` (~3,600 lines, ~164 KB)
+- **Single-file HTML** — all CSS, JS, and content in one `index.html` (~3,900 lines, ~172 KB)
 - **No build step** — open directly in browser, no npm/webpack/etc.
 - **No server required** — 100% client-side, all API calls made from browser
 - **No API keys** — all data sources are free and keyless
@@ -313,9 +313,10 @@ Each source is tried with a timeout. If all live sources fail, hardcoded MOCK va
 | Component | Technology |
 |-----------|-----------|
 | Charts | Chart.js 4.4.0 (CDN) |
-| Font | Be Vietnam Pro (Google Fonts) |
-| Theme | Custom CSS dark mode with glassmorphism |
-| Colors | Gold accent `#F5C842`, Dark BG `#070B14` |
+| Fonts | Inter + Be Vietnam Pro (Google Fonts) |
+| Theme | Dark mode with glassmorphism cards, gradient mesh background |
+| Design tokens | 35+ CSS variables: color system, shadow scale, border-radius scale |
+| Colors | Gold `#F0C040`, Green `#00C97D`, Red `#F03E52`, BG `#060A12` |
 | JS | Vanilla ES2020+ (async/await, optional chaining) |
 
 ### Auto-Refresh
@@ -426,12 +427,17 @@ Since the dashboard is a single HTML file, it works on any static hosting:
 Chạy ngang hiển thị nhanh: Vàng TG, SJC, DOJI, USD/VND, Bạc, DXY, S&P 500, Bitcoin, Dầu WTI.
 
 ### 2. Header
-- Tên **Market Monitor** với badge LIVE
-- Badge tổng hợp rủi ro (X Cảnh báo / Y Cảnh giác / Z Bình thường)
+- Tên **Market Monitor** với badge LIVE và trạng thái dữ liệu
+- **Bộ đếm lượt truy cập** — hiển thị Hôm nay / 7 ngày / 30 ngày / 3 tháng / 1 năm (lưu trong localStorage, theo từng thiết bị)
 - Ngày giờ hiện tại + nút "Làm mới"
 
+### 2b. System Log (dưới header)
+Panel thu gọn đặt ngay dưới header — thấy ngay trạng thái fetch mà không cần cuộn:
+- Trạng thái: ✓ Live / ⚠ Fallback / ✗ Lỗi
+- API endpoint, giá trị nhận, độ trễ, thời gian cập nhật
+
 ### 3. Bảng Chỉ Báo Rủi Ro
-Bảng theo dõi rủi ro đa chiều với 6 cột:
+Bảng theo dõi rủi ro đa chiều với 6 cột. Header panel hiển thị badge tổng hợp (**X Cảnh báo / Y Cảnh giác / Z Bình thường**) ở phía phải:
 
 | Cột | Ý Nghĩa |
 |-----|---------|
@@ -665,7 +671,7 @@ Mỗi nguồn được thử với timeout. Nếu tất cả nguồn live đều
 ## Ghi Chú Kỹ Thuật
 
 ### Kiến Trúc
-- **Single-file HTML** — toàn bộ CSS, JS, nội dung trong một file `index.html` (~3.600 dòng, ~164 KB)
+- **Single-file HTML** — toàn bộ CSS, JS, nội dung trong một file `index.html` (~3.900 dòng, ~172 KB)
 - **Không cần build** — mở trực tiếp trên trình duyệt, không cần npm/webpack
 - **Không cần server** — 100% client-side, mọi API call từ trình duyệt
 - **Không cần API key** — tất cả nguồn dữ liệu miễn phí
@@ -674,9 +680,10 @@ Mỗi nguồn được thử với timeout. Nếu tất cả nguồn live đều
 | Thành Phần | Công Nghệ |
 |------------|-----------|
 | Biểu đồ | Chart.js 4.4.0 (CDN) |
-| Font | Be Vietnam Pro (Google Fonts) |
-| Giao diện | CSS dark mode tùy chỉnh + glassmorphism |
-| Màu sắc | Vàng chủ đạo `#F5C842`, Nền tối `#070B14` |
+| Font | Inter + Be Vietnam Pro (Google Fonts) |
+| Giao diện | Dark mode, glassmorphism, gradient mesh nền |
+| Design tokens | 35+ biến CSS: hệ màu, shadow, border-radius scale |
+| Màu sắc | Vàng `#F0C040`, Xanh `#00C97D`, Đỏ `#F03E52`, Nền `#060A12` |
 | JS | Vanilla ES2020+ (async/await, optional chaining) |
 
 ### Tự Động Làm Mới
@@ -697,7 +704,7 @@ Mỗi nguồn được thử với timeout. Nếu tất cả nguồn live đều
 Một lần gọi CNBC API duy nhất lấy đồng thời DXY, US10Y, WTI, Brent — giảm độ trễ và số request. Kết quả được cache trong mỗi chu kỳ refresh, chia sẻ giữa section macro, dầu, và bảng rủi ro.
 
 ### System Log
-Panel "System Log" thu gọn ở cuối trang theo dõi:
+Panel "System Log" thu gọn nằm ngay dưới header (không cần cuộn để thấy) theo dõi:
 - Trạng thái thành công/thất bại của mọi API call
 - Nguồn thực tế được sử dụng (chính vs dự phòng)
 - Độ trễ mạng từng nguồn
@@ -749,8 +756,67 @@ Vì dashboard chỉ là một file HTML, nó hoạt động trên mọi hosting 
 
 ## Changelog / Lịch Sử Phiên Bản
 
-### v1.4 — 13/04/2026 ⭐ Latest
-**Dynamic Market Sentiment Panel**
+### v1.5 — 19/04/2026 ⭐ Latest
+**Professional UI Redesign / Thiết Kế Lại Giao Diện Chuyên Nghiệp**
+
+**EN:**
+- Expanded CSS design system: 35+ variables for color tokens, glass backgrounds, shadow scale (`--shadow-card`, `--shadow-elevated`), consistent border-radius scale (`--radius-sm/md/lg/xl`)
+- Subtle radial gradient mesh on body background (gold + blue ambient light)
+- Header: gradient shimmer top border, gradient clip brand title text, gold-glow brand icon with inner highlight, LIVE badge with drop shadow
+- Added **Inter** font alongside Be Vietnam Pro; `-webkit-font-smoothing: antialiased` for crisp text
+- All cards unified: `box-shadow: var(--shadow-card)`, smoother hover `translateY(-3px)` + elevated shadow
+- Featured price card: stronger gradient tint + brighter top accent bar
+- Chart tabs: pill-shaped container background (no more individual button borders)
+- Chart stats: boxed items with subtle border
+- Section dividers: pill-label badges with fading side lines (replaces old `line — TEXT — line` pattern)
+- Status indicators: rounded pill badges with glow dots
+- Risk badges: border + color-matched glow dots
+- Category tags (Địa chính trị, Dòng tiền…): rounded pills
+- All secondary-background elements (ma-item, macro-detail, rec-factor, signal-item, target-item…): upgraded to rgba glass with 1px border
+- `corr-stat-card`, `oil-detail-item`, `inst-card`: hover border highlight
+- Score meter gradient, donut chart, tooltip colors aligned to new token palette
+- Zero hardcoded old color values — all CSS/HTML/JS use design tokens
+- Scrollbar: transparent track, thinner thumb (5px → 4px)
+- Footer: hover color changes to gold primary
+
+**VI:**
+- Hệ thống design mở rộng: 35+ biến CSS cho màu sắc, nền glass, shadow scale, border-radius scale
+- Nền body có gradient mesh ánh sáng xung quanh (vàng + xanh lam)
+- Header: viền top shimmer gradient, chữ brand dùng gradient clip, icon brand với hiệu ứng glow vàng
+- Thêm font **Inter** + antialiasing cho chữ sắc nét hơn
+- Toàn bộ card thống nhất: shadow system, hover mượt hơn (translateY −3px + shadow nổi)
+- Card giá vàng featured: gradient tint đậm hơn + viền top sáng hơn
+- Chart tabs: container nền pill thay vì từng nút riêng lẻ
+- Chart stats: item có viền nhẹ
+- Section dividers: badge label pill với line fade hai bên (thay kiểu line/text/line cũ)
+- Status badge: pill tròn với glow dot màu
+- Risk badge: có viền + glow dot theo màu cảnh báo
+- Category tag (Địa chính trị, Dòng tiền…): pill tròn
+- Toàn bộ element nền thứ cấp: nâng lên rgba glass với viền 1px
+- Màu gradient score meter, donut chart, tooltip đồng bộ palette mới
+- Không còn hardcode màu cũ — toàn bộ CSS/HTML/JS dùng design token
+- Scrollbar mỏng hơn, track trong suốt
+- Footer: hover chuyển sang gold primary
+
+---
+
+### v1.4.1 — 19/04/2026
+**Layout Restructuring / Tái Cấu Trúc Bố Cục**
+
+**EN:**
+- **Visitor counter** added to header center: shows Today / 7D / 30D / 3M / 1Y visit counts using localStorage (per-device tracking, no server needed)
+- **Risk summary badges** (Cảnh báo / Cảnh giác / Bình thường) moved from header center into the "Chi Tiết Các Chỉ Báo Rủi Ro" panel header (right side)
+- **System Log panel** relocated from bottom of page to immediately below the header — fetch status now visible without scrolling
+
+**VI:**
+- **Bộ đếm lượt truy cập** thêm vào header: hiển thị Hôm nay / 7 ngày / 30 ngày / 3 tháng / 1 năm qua localStorage (theo thiết bị, không cần server)
+- **Badge tổng hợp rủi ro** chuyển từ header vào tiêu đề panel "Chi Tiết Các Chỉ Báo Rủi Ro" (bên phải)
+- **Panel System Log** chuyển từ cuối trang lên ngay dưới header — thấy trạng thái fetch ngay khi vào trang
+
+---
+
+### v1.4 — 13/04/2026
+**Dynamic Market Sentiment Panel / Panel Tâm Lý Nhà Đầu Tư Động**
 
 **EN:**
 - Replaced all hardcoded/random values in the Market Sentiment panel with real calculations
