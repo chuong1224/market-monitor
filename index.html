@@ -458,8 +458,23 @@
   .consensus-stat-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
   .consensus-stat-value { font-size: 13px; font-weight: 700; }
 
-  /* === HEADER CENTER — RISK SUMMARY BADGES === */
-  .header-center { display: flex; gap: 10px; align-items: center; }
+  /* === VISITOR COUNTER === */
+  .visitor-counter {
+    display: flex; align-items: center; gap: 16px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle);
+    border-radius: 12px; padding: 8px 18px;
+  }
+  .visitor-counter-title {
+    font-size: 9px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap;
+  }
+  .visitor-counter-stats { display: flex; gap: 14px; align-items: center; }
+  .vc-stat { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .vc-stat-value { font-size: 14px; font-weight: 800; color: var(--text-primary); font-family: 'Be Vietnam Pro', monospace; }
+  .vc-stat-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .vc-divider { width: 1px; height: 24px; background: var(--border-subtle); }
+
+  /* === RISK SUMMARY BADGES (in risk panel header) === */
   .risk-badge {
     display: inline-flex; align-items: center; gap: 6px;
     font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 20px;
@@ -523,7 +538,7 @@
 
   /* === FETCH LOG PANEL === */
   .fetch-log-panel {
-    margin: 0 40px 0; padding: 0;
+    margin: 16px 40px; padding: 0;
   }
   .fetch-log-toggle {
     display: flex; align-items: center; gap: 8px; cursor: pointer;
@@ -895,8 +910,19 @@
       </div>
     </div>
   </div>
-  <div class="header-center" id="riskSummaryBadges">
-    <!-- Filled by JS -->
+  <div class="visitor-counter" id="visitorCounter">
+    <div class="visitor-counter-title">👥 Lượt truy cập</div>
+    <div class="visitor-counter-stats">
+      <div class="vc-stat"><span class="vc-stat-value" id="vc-today">—</span><span class="vc-stat-label">Hôm nay</span></div>
+      <div class="vc-divider"></div>
+      <div class="vc-stat"><span class="vc-stat-value" id="vc-7d">—</span><span class="vc-stat-label">7 ngày</span></div>
+      <div class="vc-divider"></div>
+      <div class="vc-stat"><span class="vc-stat-value" id="vc-30d">—</span><span class="vc-stat-label">30 ngày</span></div>
+      <div class="vc-divider"></div>
+      <div class="vc-stat"><span class="vc-stat-value" id="vc-3m">—</span><span class="vc-stat-label">3 tháng</span></div>
+      <div class="vc-divider"></div>
+      <div class="vc-stat"><span class="vc-stat-value" id="vc-1y">—</span><span class="vc-stat-label">1 năm</span></div>
+    </div>
   </div>
   <div class="header-meta">
     <div class="meta-date" id="headerDate">--/--/----</div>
@@ -914,6 +940,34 @@
   </div>
 </div>
 
+<!-- FETCH LOG (top, so status is immediately visible) -->
+<div class="fetch-log-panel">
+  <div class="fetch-log-toggle" onclick="toggleFetchLog()">
+    <span class="fetch-log-toggle-icon" id="logToggleIcon">▶</span>
+    <span class="fetch-log-toggle-title">📋 System Log — Trạng Thái Fetch Dữ Liệu</span>
+    <div class="fetch-log-summary" id="logSummary">
+      <span style="color:var(--text-muted)">Đang tải...</span>
+    </div>
+  </div>
+  <div class="fetch-log-body" id="logBody">
+    <table class="fetch-log-table">
+      <thead>
+        <tr>
+          <th style="width:18%">Nguồn dữ liệu</th>
+          <th style="width:12%">Trạng thái</th>
+          <th style="width:25%">API / Endpoint</th>
+          <th style="width:15%">Giá trị nhận</th>
+          <th style="width:10%">Latency</th>
+          <th style="width:20%">Thời gian cập nhật</th>
+        </tr>
+      </thead>
+      <tbody id="logTableBody">
+        <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:16px">Đang thu thập dữ liệu...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <!-- MAIN -->
 <div class="main">
 
@@ -923,6 +977,9 @@
       <div>
         <div class="panel-title" style="font-size:16px;font-weight:800">Chi Tiết Các Chỉ Báo Rủi Ro</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Theo dõi đa chiều: Địa chính trị, Dòng tiền, Thị trường, Vĩ mô</div>
+      </div>
+      <div id="riskSummaryBadges" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <!-- Filled by JS -->
       </div>
     </div>
     <table class="risk-table">
@@ -1729,34 +1786,6 @@
   </div>
 
 
-</div>
-
-<!-- FETCH LOG -->
-<div class="fetch-log-panel">
-  <div class="fetch-log-toggle" onclick="toggleFetchLog()">
-    <span class="fetch-log-toggle-icon" id="logToggleIcon">▶</span>
-    <span class="fetch-log-toggle-title">📋 System Log — Trạng Thái Fetch Dữ Liệu</span>
-    <div class="fetch-log-summary" id="logSummary">
-      <span style="color:var(--text-muted)">Đang tải...</span>
-    </div>
-  </div>
-  <div class="fetch-log-body" id="logBody">
-    <table class="fetch-log-table">
-      <thead>
-        <tr>
-          <th style="width:18%">Nguồn dữ liệu</th>
-          <th style="width:12%">Trạng thái</th>
-          <th style="width:25%">API / Endpoint</th>
-          <th style="width:15%">Giá trị nhận</th>
-          <th style="width:10%">Latency</th>
-          <th style="width:20%">Thời gian cập nhật</th>
-        </tr>
-      </thead>
-      <tbody id="logTableBody">
-        <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:16px">Đang thu thập dữ liệu...</td></tr>
-      </tbody>
-    </table>
-  </div>
 </div>
 
 <!-- FOOTER -->
@@ -3799,11 +3828,38 @@ async function refreshData() {
 }
 
 // =============================================
+//  VISITOR COUNTER (localStorage-based, per device)
+// =============================================
+function recordVisit() {
+  const now = Date.now();
+  let visits = JSON.parse(localStorage.getItem('mm_visits') || '[]');
+  visits.push(now);
+  visits = visits.filter(t => t > now - 365 * 86400000);
+  localStorage.setItem('mm_visits', JSON.stringify(visits));
+}
+
+function renderVisitorCounter() {
+  const now = Date.now();
+  const visits = JSON.parse(localStorage.getItem('mm_visits') || '[]');
+  const midnight = new Date(); midnight.setHours(0, 0, 0, 0);
+  const count = cutoff => visits.filter(t => t >= cutoff).length;
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n);
+  const set = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = fmt(n); };
+  set('vc-today', count(midnight.getTime()));
+  set('vc-7d',    count(now - 7   * 86400000));
+  set('vc-30d',   count(now - 30  * 86400000));
+  set('vc-3m',    count(now - 90  * 86400000));
+  set('vc-1y',    count(now - 365 * 86400000));
+}
+
+// =============================================
 //  INIT
 // =============================================
 async function init() {
   updateClock();
   setInterval(updateClock, 1000);
+  recordVisit();
+  renderVisitorCounter();
   renderSentimentChart();
 
   // Show skeleton with mock data immediately so layout is visible
