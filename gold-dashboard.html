@@ -3895,7 +3895,84 @@ async function refreshData() {
 }
 
 // =============================================
-//  VISITOR COUNTER (localStorage-based, per device)
+//  GOATCOUNTER CONFIG
+//  Bước 1: Đăng ký miễn phí tại https://www.goatcounter.com
+//  Bước 2: Tạo site, chọn mã (code), ví dụ: market-monitor
+//  Bước 3: Vào Settings → API → Create token
+//  Bước 4: Điền GC_CODE và GC_TOKEN bên dưới
+// =============================================
+const GC_CODE  = '';   // ví dụ: 'market-monitor'
+const GC_TOKEN = '';   // API token từ Settings → API
+
+function loadGoatCounterScript() {
+  if (!GC_CODE) return;
+  const s = document.createElement('script');
+  s.dataset.goatcounter = `https://${GC_CODE}.goatcounter.com/count`;
+  s.src = '//gc.zgo.at/count.js';
+  s.async = true;
+  document.head.appendChild(s);
+}
+
+async function fetchGoatCounterVisits() {
+  if (!GC_CODE || !GC_TOKEN) {
+    renderVisitorCounter();
+    return;
+  }
+
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n);
+  const set = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = fmt(n); };
+  const dateStr = d => d.toISOString().slice(0, 10);
+  const now = new Date();
+  const today = dateStr(now);
+  const daysAgo = n => { const d = new Date(now); d.setDate(d.getDate() - n); return dateStr(d); };
+
+  // Show loading state
+  ['vc-today','vc-7d','vc-30d','vc-3m','vc-1y'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = '…';
+  });
+
+  const gcFetch = async (start, end) => {
+    const res = await fetch(
+      `https://${GC_CODE}.goatcounter.com/api/v0/stats/hits?start=${start}&end=${end}`,
+      { headers: { 'Authorization': `Bearer ${GC_TOKEN}` } }
+    );
+    if (!res.ok) throw new Error(`GoatCounter HTTP ${res.status}`);
+    const data = await res.json();
+    // Sum all paths
+    if (typeof data.total === 'number') return data.total;
+    if (Array.isArray(data.hits)) return data.hits.reduce((s, h) => s + (h.count || 0), 0);
+    return 0;
+  };
+
+  try {
+    const [y1, m3, d30, d7, d1] = await Promise.all([
+      gcFetch(daysAgo(365), today),
+      gcFetch(daysAgo(90),  today),
+      gcFetch(daysAgo(30),  today),
+      gcFetch(daysAgo(7),   today),
+      gcFetch(today,        today),
+    ]);
+    set('vc-1y',    y1);
+    set('vc-3m',    m3);
+    set('vc-30d',   d30);
+    set('vc-7d',    d7);
+    set('vc-today', d1);
+  } catch (err) {
+    console.warn('GoatCounter API lỗi:', err);
+    // Fallback: thử lấy tổng từ public endpoint
+    try {
+      const res = await fetch(`https://${GC_CODE}.goatcounter.com/counter//.json`);
+      const data = await res.json();
+      const total = parseInt(data.count) || 0;
+      set('vc-1y', total);
+    } catch {}
+    // Các period còn lại dùng localStorage
+    renderVisitorCounter();
+  }
+}
+
+// =============================================
+//  VISITOR COUNTER (localStorage fallback khi chưa cấu hình GoatCounter)
 // =============================================
 function recordVisit() {
   const now = Date.now();
@@ -3925,8 +4002,9 @@ function renderVisitorCounter() {
 async function init() {
   updateClock();
   setInterval(updateClock, 1000);
+  loadGoatCounterScript();
   recordVisit();
-  renderVisitorCounter();
+  fetchGoatCounterVisits(); // dùng GoatCounter nếu đã cấu hình, fallback về localStorage
   renderSentimentChart();
 
   // Show skeleton with mock data immediately so layout is visible
@@ -3935,6 +4013,8 @@ async function init() {
 
   // Auto-refresh every 5 minutes
   setInterval(refreshData, 5 * 60 * 1000);
+  // Refresh visitor counter mỗi 10 phút
+  setInterval(fetchGoatCounterVisits, 10 * 60 * 1000);
 }
 
 window.addEventListener('load', init);
