@@ -66,134 +66,77 @@ A professional, single-file HTML dashboard for real-time monitoring of gold pric
 
 ## Dashboard Sections
 
-### 1. Ticker Bar (top)
+### 1. Top Bar
+- **Market Monitor** branding (Fraunces serif) with animated green LIVE dot
+- Clock (time + date) and icon refresh button
+
+### 2. Ticker Bar
 Scrolling marquee showing quick prices: Gold, SJC, DOJI, USD/VND, Silver, DXY, S&P 500, Bitcoin, WTI Oil.
 
-### 2. Header
-- **Market Monitor** branding with LIVE badge and data status indicator
-- **Visitor counter** — shows visit counts for Today / 7D / 30D / 3M / 1Y (stored in localStorage, per-device)
-- Current date/time with auto-refresh button
+### 3. Hero Section
+Two-column editorial header:
+- **Left — Signal panel**: editorial headline describing the market signal in plain language (e.g. "Vàng đang *tích lũy*, tâm lý nghiêng về *tham lam*"), score meter needle (−100→+100), live signal score
+- **Right — Quote panel**: XAU/USD price (large Fraunces serif), 24h and 7-day change, mini sparkline chart, quick stats (SJC sell price, USD/VND, SJC premium %)
 
-### 2b. System Log (below header)
-Collapsible panel positioned immediately below the header so fetch status is visible without scrolling:
-- Status: ✓ Live / ⚠ Fallback / ✗ Error per data source
-- API endpoint used, value received, latency (ms), last update timestamp
+### 4. Risk Strip
+Compact horizontal band of 6 key market health indicators — replaces the previous 8-row risk table:
 
-### 3. Risk Indicator Table
-A comprehensive risk monitoring table with 6 columns. The panel header now shows summary badges (**X Cảnh báo / Y Cảnh giác / Z Bình thường**) on the right side:
+| Indicator | Alert Threshold |
+|-----------|----------------|
+| DXY (USD Index) | Outside 95–105 |
+| US 10Y Yield | > 4.5% |
+| VIX | > 30 |
+| WTI Crude Oil | > $95/barrel |
+| SJC Premium | > 8% over world price |
+| Gold/Oil Ratio | Far above 25-year avg (16.5x) |
 
-| Column | Description |
-|--------|-------------|
-| Hạng Mục | Category: Geopolitical, Macro, Market, Fund Flow |
-| Chỉ Báo | Indicator name + data source |
-| Giá Trị Hiện Tại | Current live value |
-| Xu Hướng 1 Tuần | Weekly trend (% change) |
-| Ngưỡng Cảnh Báo | Alert threshold |
-| Trạng Thái | Status: CẢNH BÁO (red) / CẢNH GIÁC (orange) / Bình thường (green) |
+Each cell is color-coded: **Bình thường** (green) / **Cảnh giác** (orange) / **Cảnh báo** (red).
 
-**Indicators monitored:**
+### 5. Chart + Guidance (2-column)
+**Left — Price Chart:**
+- Interactive Chart.js line chart (24h / 7 days / 30 days / 1 year)
+- Footer stats: Open, High, Low, RSI 14, MA 50
 
-| Indicator | Category | Alert Threshold |
-|-----------|----------|----------------|
-| WTI Crude Oil | Geopolitical | > $95/barrel |
-| Gold/Oil Ratio | Geopolitical | > 25x or < 10x |
-| DXY (USD Index) | Macro | > 105 or < 95 |
-| US 10Y Yield | Macro | > 4.5% or < 3.5% |
-| VIX | Market | > 30 |
-| HYG/TLT Ratio | Market | Drop > 5%/week |
-| Gold (XAU/USD) | Fund Flow | Volatility > 3%/day |
-| USD/VND | Fund Flow | Volatility > 0.5%/day |
+**Right — Guidance Sidebar (new):**
+- **Investor Advice card** — editorial AI advice on position sizing
+- **Weekly Watchlist** — 4 key events/factors to monitor, each tagged: Hỗ trợ (bull) / Rủi ro (bear) / Trung tính (neutral)
 
-### 4. Price Cards
-Four summary cards showing:
-- **World Gold** (XAU/USD) — with 24h and 7d change
-- **SJC Gold** (VND/lượng) — with premium over world price
-- **USD/VND** exchange rate
-- **Market Sentiment** (Fear & Greed index) — dynamic score 0–100 derived from VIX, RSI, gold momentum & DXY
-
-### 5. Vietnamese Gold Price Table + Market Sentiment Panel
-Left: live prices from 11 domestic brands via vang.today API:
+### 6. Vietnamese Gold Price Table
+Live prices from 11 domestic brands via vang.today API:
 - SJC 9999, VN Gold SJC, DOJI (3 locations), PNJ (2 types), Bảo Tín (2 types), SJC Ring, Viettin SJC
 - Columns: Brand, Buy, Sell, Spread, Premium vs World, Today's Change
 
-Right: **Market Sentiment Analysis** panel (fully dynamic):
-- **Donut chart** — Buy / Hold / Sell percentages update live from real data
-- **Fear & Greed score** (0–100) with label: Sợ hãi cực độ / Sợ hãi / Trung tính / Tham lam / Tham lam cực độ
-- **Scoring inputs:** VIX (35%) + Gold 24h momentum (25%) + RSI (25%) + DXY trend (15%)
-- **AI recommendation box** — dynamic text, color, and portfolio allocation % based on score
+### 7. Macro Indicators (3-column grid)
+- **DXY** — US Dollar Index with 52-week range bar + gold correlation explanation
+- **US 10Y Treasury Yield** — with 52-week range bar + gold correlation explanation
+- **Vietnam Savings Rates** — 12-month average from 10 major banks (CafeF) with per-bank breakdown
 
-### 6. Price Chart + Technical Indicators
-- Interactive Chart.js line chart (1D / 1W / 1M / 3M / 1Y)
-- Technical panel: RSI(14), MACD, Bollinger Bands, Moving Averages (MA20/50/100/200)
-- Overall signal synthesis — all values calculated from real price history, no random mocks
+### 8. Oil & Gold-Oil Ratio (3-column grid, same row as Macro)
+- **WTI Crude** — live price with daily change + context note
+- **Brent Crude** — live price with Brent–WTI spread
+- **Gold/Oil Ratio** — current vs 25-year historical average (16.5x) with interpretation
 
-### 7. Professional Recommendation Panel ⭐ New
-Fully dynamic buy/sell/hold recommendation engine using quantitative multi-factor scoring:
-
-**Signal levels** (score −100 → +100):
-| Score | Signal | Meaning |
-|-------|--------|---------|
-| ≥ +55 | 🚀 TÍCH LŨY MẠNH | Strong Buy — all factors aligned |
-| +22 to +54 | 📈 TÍCH LŨY | Buy — positive signals dominate |
-| −21 to +21 | ⚖️ NẮM GIỮ | Hold — mixed signals, await confirmation |
-| −54 to −22 | 📉 GIẢM VỊ THẾ | Reduce — negative signals dominate |
-| ≤ −55 | 🔴 THOÁT HÀNG | Strong Sell — all factors adverse |
-
-**Four scoring factors:**
-
-| Factor | Weight | Inputs |
-|--------|--------|--------|
-| Technical Analysis | 40% | RSI(14), MACD histogram direction, Bollinger Band position, MA20/50/200 alignment |
-| Macro Conditions | 30% | DXY level & trend, US 10Y Yield level & direction |
-| Market Sentiment | 20% | VIX fear index, gold 24h momentum, Gold/Oil ratio |
-| Vietnam Market | 10% | SJC premium over world price, USD/VND change |
-
-**UI elements:**
-- Animated score needle on a gradient meter (red → yellow → green)
-- Per-factor score bars with color coding (green positive / red negative / gold neutral)
-- Up to 7 ranked key signals (bullish / bearish / neutral) with reasoning text
-- Price targets: accumulation zone, 1-month target, stop-loss
-- Confidence level (High / Medium / Low) based on live data availability
-- Auto-updates on page load, after macro data arrives, and after risk data arrives
-
-### 8. Macro Indicators
-Three cards side-by-side:
-- **DXY** — US Dollar Index with 52-week range, gold correlation note
-- **US 10Y Treasury Yield** — with 52-week range
-- **Vietnam Savings Rates** — 12-month average from 10 major banks (CafeF)
-
-### 9. Crude Oil & Gold-Oil Correlation
-- **WTI & Brent** live prices with daily change
-- **Gold/Oil Ratio** — current vs 25-year historical average (16.5x)
-- **Ratio Assessment** — automatic evaluation (Gold expensive / Balanced / Oil expensive)
-
-### 10. Geopolitical Analysis
-6 key geopolitical factors affecting gold:
-- US-China trade war, Fed rate cuts, Middle East tensions, Central bank buying, De-dollarization, Inflation expectations
-- Each factor rated: HIGH / MEDIUM impact
-
-### 11. Institutional Forecasts
-12 major institutions with gold price targets:
+### 9. Institutional Forecasts
+12 major institutions displayed as a compact card grid. Each card shows: institution name, price target, timeframe, and **live % delta vs current gold price**:
 
 | Institution | Target | Timeframe |
 |-------------|--------|-----------|
 | J.P. Morgan | $6,300 | End 2026 |
 | UBS | $6,200 | Q3 2026 |
+| ANZ | $5,800 | Q2 2026 |
 | Goldman Sachs | $5,400 | End 2026 |
 | ING | $5,190 | Avg 2026 |
 | Bank of America | $5,000 | 2026 |
 | Citigroup | $5,000 | 0-3 months |
 | HSBC | $5,000 | H1 2026 |
-| ANZ | $5,800 | Q2 2026 |
 | World Gold Council | $4,669 | Apr 2026 |
 | Standard Chartered | $4,500 | 12 months |
 | Deutsche Bank | $4,300 | Q4 2026 |
 | Macquarie | $4,323 | Avg 2026 |
 
-> **Note:** Institutional forecasts are **not auto-updated**. They are based on published reports and must be manually updated when institutions release new targets.
+**Consensus panel** (below cards): average target, consensus bar showing current price position within the low–high range, bullish/neutral/bearish count, variance statistic.
 
-### 12. Institutional Forecasts (continued)
-> See §11 above. The "Dự Báo Từ Các Tổ Chức Tài Chính Hàng Đầu" panel includes a consensus bar showing average, high, and low targets across all 12 institutions.
+> **Note:** Institutional forecasts are **not auto-updated**. They are based on published reports and must be manually updated when institutions release new targets.
 
 ## Indicators Reference
 
@@ -304,7 +247,7 @@ Each source is tried with a timeout. If all live sources fail, hardcoded MOCK va
 ## Technical Notes
 
 ### Architecture
-- **Single-file HTML** — all CSS, JS, and content in one `index.html` (~3,900 lines, ~172 KB)
+- **Single-file HTML** — all CSS, JS, and content in one `index.html` (~1,200 lines, ~61 KB)
 - **No build step** — open directly in browser, no npm/webpack/etc.
 - **No server required** — 100% client-side, all API calls made from browser
 - **No API keys** — all data sources are free and keyless
@@ -313,10 +256,10 @@ Each source is tried with a timeout. If all live sources fail, hardcoded MOCK va
 | Component | Technology |
 |-----------|-----------|
 | Charts | Chart.js 4.4.0 (CDN) |
-| Fonts | Inter + Be Vietnam Pro (Google Fonts) |
-| Theme | Dark mode with glassmorphism cards, gradient mesh background |
-| Design tokens | 35+ CSS variables: color system, shadow scale, border-radius scale |
-| Colors | Gold `#F0C040`, Green `#00C97D`, Red `#F03E52`, BG `#060A12` |
+| Fonts | Fraunces (serif) + Inter + Be Vietnam Pro + JetBrains Mono (Google Fonts) |
+| Theme | Dark + Light mode; warm parchment palette; gradient mesh background |
+| Design tokens | CSS variables: parchment ink system, density tokens (`--gap`, `--pad`, `--px`, `--row-h`), border-radius scale (`--r-xs/sm/md/lg/xl`) |
+| Colors | Accent gold `#E8B64A`, Up `#7DC48A`, Down `#E06B6B`, BG `#080A10` |
 | JS | Vanilla ES2020+ (async/await, optional chaining) |
 
 ### Auto-Refresh
@@ -423,139 +366,77 @@ Since the dashboard is a single HTML file, it works on any static hosting:
 
 ## Các Khu Vực Dashboard
 
-### 1. Thanh Ticker (đầu trang)
+### 1. Top Bar
+- Thương hiệu **Market Monitor** (font Fraunces serif) với chấm xanh LIVE động
+- Đồng hồ (giờ + ngày) và nút làm mới dạng icon
+
+### 2. Thanh Ticker
 Chạy ngang hiển thị nhanh: Vàng TG, SJC, DOJI, USD/VND, Bạc, DXY, S&P 500, Bitcoin, Dầu WTI.
 
-### 2. Header
-- Tên **Market Monitor** với badge LIVE và trạng thái dữ liệu
-- **Bộ đếm lượt truy cập** — hiển thị Hôm nay / 7 ngày / 30 ngày / 3 tháng / 1 năm (lưu trong localStorage, theo từng thiết bị)
-- Ngày giờ hiện tại + nút "Làm mới"
+### 3. Section Hero
+Hai cột editorial:
+- **Trái — Panel Tín hiệu**: tiêu đề editorial mô tả tín hiệu thị trường bằng ngôn ngữ tự nhiên (VD: "Vàng đang *tích lũy*, tâm lý nghiêng về *tham lam*"), kim thang điểm (−100→+100), điểm tín hiệu live
+- **Phải — Panel Giá**: giá XAU/USD lớn (Fraunces serif), biến động 24h và 7 ngày, sparkline mini, số nhanh (SJC bán, USD/VND, phụ trội SJC %)
 
-### 2b. System Log (dưới header)
-Panel thu gọn đặt ngay dưới header — thấy ngay trạng thái fetch mà không cần cuộn:
-- Trạng thái: ✓ Live / ⚠ Fallback / ✗ Lỗi
-- API endpoint, giá trị nhận, độ trễ, thời gian cập nhật
+### 4. Risk Strip (Dải Rủi Ro)
+Dải ngang compact 6 ô theo dõi sức khỏe thị trường — thay thế bảng rủi ro 8 hàng trước đây:
 
-### 3. Bảng Chỉ Báo Rủi Ro
-Bảng theo dõi rủi ro đa chiều với 6 cột. Header panel hiển thị badge tổng hợp (**X Cảnh báo / Y Cảnh giác / Z Bình thường**) ở phía phải:
+| Chỉ Báo | Ngưỡng Cảnh Báo |
+|---------|----------------|
+| DXY (USD Index) | Ngoài khoảng 95–105 |
+| US 10Y Yield | > 4.5% |
+| VIX | > 30 |
+| Dầu WTI | > $95/thùng |
+| Phụ trội SJC | > 8% so với giá thế giới |
+| Tỷ lệ Vàng/Dầu | Cao bất thường so với TB 25 năm (16.5x) |
 
-| Cột | Ý Nghĩa |
-|-----|---------|
-| Hạng Mục | Phân loại: Địa chính trị, Vĩ mô, Thị trường, Dòng tiền |
-| Chỉ Báo | Tên chỉ báo + nguồn dữ liệu |
-| Giá Trị Hiện Tại | Giá trị live đang cập nhật |
-| Xu Hướng 1 Tuần | Biến động % trong tuần |
-| Ngưỡng Cảnh Báo | Mức ngưỡng kích hoạt cảnh báo |
-| Trạng Thái | CẢNH BÁO (đỏ) / CẢNH GIÁC (cam) / Bình thường (xanh) |
+Mỗi ô mã màu: **Bình thường** (xanh) / **Cảnh giác** (cam) / **Cảnh báo** (đỏ).
 
-**Các chỉ báo được theo dõi:**
+### 5. Biểu Đồ + Guidance (2 cột)
+**Trái — Biểu đồ giá:**
+- Chart.js tương tác (24h / 7 ngày / 30 ngày / 1 năm)
+- Footer: Mở cửa, Cao nhất, Thấp nhất, RSI 14, MA 50
 
-| Chỉ Báo | Hạng Mục | Ngưỡng Cảnh Báo |
-|----------|----------|-----------------|
-| Dầu WTI | Địa chính trị | > $95/thùng |
-| Tỷ lệ Vàng/Dầu | Địa chính trị | > 25x hoặc < 10x |
-| DXY (USD Index) | Vĩ mô | > 105 hoặc < 95 |
-| US 10Y Yield | Vĩ mô | > 4.5% hoặc < 3.5% |
-| VIX | Thị trường | > 30 |
-| HYG/TLT Ratio | Thị trường | Giảm > 5%/tuần |
-| Vàng XAU/USD | Dòng tiền | Biến động > 3%/ngày |
-| USD/VND | Dòng tiền | Biến động > 0.5%/ngày |
+**Phải — Sidebar Guidance (mới):**
+- **Ô Lời khuyên AI** — gợi ý phân bổ vị thế dạng editorial
+- **Danh sách Theo dõi tuần** — 4 sự kiện/yếu tố quan trọng, mỗi mục có tag: Hỗ trợ (bull) / Rủi ro (bear) / Trung tính (neutral)
 
-### 4. Thẻ Giá Chính
-Bốn thẻ tóm tắt:
-- **Vàng Thế Giới** (XAU/USD) — biến động 24h và 7 ngày
-- **Vàng SJC** (VND/lượng) — chênh lệch so với giá thế giới
-- **Tỷ giá USD/VND**
-- **Tâm lý thị trường** — điểm Fear & Greed động (0–100), tính từ VIX, RSI, momentum giá & DXY
-
-### 5. Bảng Giá Vàng Việt Nam + Panel Tâm Lý Nhà Đầu Tư
-Trái: giá live từ 11 thương hiệu qua API vang.today:
+### 6. Bảng Giá Vàng Việt Nam
+Giá live từ 11 thương hiệu qua API vang.today:
 - SJC 9999, VN Gold SJC, DOJI (3 địa điểm), PNJ (2 loại), Bảo Tín (2 loại), SJC Nhẫn, Viettin SJC
 - Cột: Thương hiệu, Mua vào, Bán ra, Chênh lệch, Phụ trội so TG, Biến động hôm nay
 
-Phải: **Panel Tâm Lý Nhà Đầu Tư** (hoàn toàn động):
-- **Biểu đồ donut** — % Mua/Giữ/Bán cập nhật live theo dữ liệu thực
-- **Chỉ số Fear & Greed** (0–100) với nhãn: Sợ hãi cực độ / Sợ hãi / Trung tính / Tham lam / Tham lam cực độ
-- **Công thức tính điểm:** VIX (35%) + Momentum vàng 24h (25%) + RSI (25%) + Xu hướng DXY (15%)
-- **Ô Khuyến nghị AI** — tự thay đổi nội dung, màu sắc và % tỷ trọng danh mục theo điểm
+### 7. Chỉ Số Vĩ Mô (grid 3 cột)
+- **DXY** — thanh phạm vi 52 tuần + dòng giải thích tương quan vàng
+- **Lợi suất 10Y Mỹ** — thanh phạm vi 52 tuần + dòng giải thích
+- **Lãi suất tiết kiệm VN** — trung bình 12 tháng từ 10 NHTM lớn kèm bảng per-bank
 
-### 6. Biểu Đồ Giá + Chỉ Báo Kỹ Thuật
-- Biểu đồ Chart.js tương tác (1 ngày / 1 tuần / 1 tháng / 3 tháng / 1 năm)
-- Panel kỹ thuật: RSI(14), MACD, Bollinger Bands, Đường trung bình (MA20/50/100/200)
-- Tổng hợp tín hiệu chung — tất cả giá trị được tính từ dữ liệu giá thực, không dùng giá ngẫu nhiên
+### 8. Dầu & Tỷ Lệ Vàng/Dầu (grid 3 cột, cùng hàng Vĩ mô)
+- **Dầu WTI** — giá live + biến động ngày + ghi chú tác động vàng
+- **Dầu Brent** — giá live + spread Brent–WTI
+- **Tỷ lệ Vàng/Dầu** — hiện tại vs TB lịch sử 25 năm (16.5x) kèm diễn giải
 
-### 7. Panel Khuyến Nghị Chuyên Nghiệp ⭐ Mới
-Engine khuyến nghị mua/bán/nắm giữ hoàn toàn động, sử dụng mô hình chấm điểm đa yếu tố định lượng:
-
-**Các mức tín hiệu** (điểm từ −100 → +100):
-| Điểm | Tín Hiệu | Ý Nghĩa |
-|------|----------|---------|
-| ≥ +55 | 🚀 TÍCH LŨY MẠNH | Mua mạnh — toàn bộ yếu tố thuận lợi |
-| +22 đến +54 | 📈 TÍCH LŨY | Mua — tín hiệu tích cực chiếm ưu thế |
-| −21 đến +21 | ⚖️ NẮM GIỮ | Giữ nguyên — tín hiệu hỗn hợp, chờ xác nhận |
-| −54 đến −22 | 📉 GIẢM VỊ THẾ | Giảm tỷ trọng — tín hiệu tiêu cực chiếm ưu thế |
-| ≤ −55 | 🔴 THOÁT HÀNG | Bán mạnh — toàn bộ yếu tố bất lợi |
-
-**Bốn yếu tố chấm điểm:**
-
-| Yếu Tố | Trọng Số | Đầu Vào |
-|--------|----------|---------|
-| Phân tích kỹ thuật | 40% | RSI(14), hướng histogram MACD, vị trí trong Bollinger Band, căn chỉnh MA20/50/200 |
-| Yếu tố vĩ mô | 30% | Mức & xu hướng DXY, mức & hướng Lợi suất 10 năm Mỹ |
-| Tâm lý thị trường | 20% | Chỉ số sợ hãi VIX, momentum giá vàng 24h, tỷ lệ Vàng/Dầu |
-| Thị trường Việt Nam | 10% | Phụ trội SJC so với giá thế giới, biến động USD/VND |
-
-**Các thành phần giao diện:**
-- Kim chỉ số động trên thang điểm gradient (đỏ → vàng → xanh)
-- Thanh điểm từng yếu tố với mã màu (xanh = tích cực / đỏ = tiêu cực / vàng = trung lập)
-- Tối đa 7 tín hiệu then chốt được xếp hạng (tăng/giảm/trung tính) kèm lý giải
-- Giá mục tiêu: vùng tích lũy, mục tiêu 1 tháng, điểm cắt lỗ
-- Mức độ tin cậy (Cao/Trung bình/Thấp) theo chất lượng dữ liệu live
-- Tự động cập nhật: khi tải trang, khi có dữ liệu vĩ mô, khi có dữ liệu rủi ro
-
-### 8. Chỉ Số Vĩ Mô
-Ba thẻ cạnh nhau:
-- **DXY** — Chỉ số sức mạnh USD với phạm vi 52 tuần, ghi chú tương quan nghịch với vàng
-- **Lợi suất trái phiếu Mỹ 10 năm** — với phạm vi 52 tuần
-- **Lãi suất tiết kiệm VN** — trung bình kỳ 12 tháng từ 10 NHTM lớn (CafeF)
-
-### 9. Giá Dầu Thô & Tương Quan Dầu-Vàng
-- **WTI & Brent** giá live với biến động ngày
-- **Tỷ lệ Vàng/Dầu** — hiện tại vs trung bình lịch sử 25 năm (16.5x)
-- **Đánh giá tỷ lệ** — tự động phân loại (Vàng đắt / Cân bằng / Dầu đắt)
-
-### 10. Phân Tích Địa Chính Trị
-6 yếu tố địa chính trị chính tác động giá vàng:
-- Chiến tranh thương mại Mỹ-Trung, Fed cắt giảm lãi suất, Xung đột Trung Đông, NHTW mua vàng kỷ lục, Phi đô-la hóa, Kỳ vọng lạm phát
-- Mỗi yếu tố được đánh giá: TÁC ĐỘNG CAO / TRUNG BÌNH
-
-### 11. Dự Báo Từ Các Tổ Chức
-12 tổ chức tài chính lớn với mục tiêu giá vàng:
+### 9. Dự Báo Từ Các Tổ Chức
+12 tổ chức hiển thị dạng card grid compact, mỗi card gồm: tên tổ chức, giá mục tiêu, khung thời gian, và **% delta live so với giá vàng hiện tại**:
 
 | Tổ Chức | Mục Tiêu | Thời Gian |
 |---------|----------|-----------|
 | J.P. Morgan | $6,300 | Cuối 2026 |
 | UBS | $6,200 | Q3 2026 |
-| Goldman Sachs | $5,400 | Cuối 2026 |
-| ING | $5,190 | TB năm 2026 |
-| Bank of America | $5,000 | 2026 |
-| Citigroup | $5,000 | 0-3 tháng |
-| HSBC | $5,000 | H1 2026 |
 | ANZ | $5,800 | Q2 2026 |
+| Goldman Sachs | $5,400 | Cuối 2026 |
+| ING | $5,190 | TB 2026 |
+| Bank of America | $5,000 | 2026 |
+| Citigroup | $5,000 | 0–3 tháng |
+| HSBC | $5,000 | H1 2026 |
 | World Gold Council | $4,669 | 04/2026 |
 | Standard Chartered | $4,500 | 12 tháng |
 | Deutsche Bank | $4,300 | Q4 2026 |
 | Macquarie | $4,323 | TB 2026 |
 
-> **Lưu ý:** Dự báo từ các tổ chức **không tự động cập nhật**. Dữ liệu được tổng hợp từ các báo cáo công khai và cần cập nhật thủ công khi tổ chức công bố dự báo mới.
+**Panel Đồng thuận** (dưới cards): mục tiêu trung bình, thanh đồng thuận hiển thị vị trí giá hiện tại trong dải thấp–cao, thống kê tăng/trung/giảm, phương sai.
 
-### 12. System Log
-Panel thu gọn ở cuối trang theo dõi trạng thái fetch:
-- Trạng thái: ✓ Live / ⚠ Fallback / ✗ Lỗi
-- API endpoint đã sử dụng
-- Giá trị nhận được
-- Độ trễ (ms)
-- Thời gian cập nhật chính xác
+> **Lưu ý:** Dự báo từ các tổ chức **không tự động cập nhật**. Dữ liệu được tổng hợp từ các báo cáo công khai và cần cập nhật thủ công.
 
 ## Giải Thích Chỉ Số
 
@@ -671,7 +552,7 @@ Mỗi nguồn được thử với timeout. Nếu tất cả nguồn live đều
 ## Ghi Chú Kỹ Thuật
 
 ### Kiến Trúc
-- **Single-file HTML** — toàn bộ CSS, JS, nội dung trong một file `index.html` (~3.900 dòng, ~172 KB)
+- **Single-file HTML** — toàn bộ CSS, JS, nội dung trong một file `index.html` (~1.200 dòng, ~61 KB)
 - **Không cần build** — mở trực tiếp trên trình duyệt, không cần npm/webpack
 - **Không cần server** — 100% client-side, mọi API call từ trình duyệt
 - **Không cần API key** — tất cả nguồn dữ liệu miễn phí
@@ -680,10 +561,10 @@ Mỗi nguồn được thử với timeout. Nếu tất cả nguồn live đều
 | Thành Phần | Công Nghệ |
 |------------|-----------|
 | Biểu đồ | Chart.js 4.4.0 (CDN) |
-| Font | Inter + Be Vietnam Pro (Google Fonts) |
-| Giao diện | Dark mode, glassmorphism, gradient mesh nền |
-| Design tokens | 35+ biến CSS: hệ màu, shadow, border-radius scale |
-| Màu sắc | Vàng `#F0C040`, Xanh `#00C97D`, Đỏ `#F03E52`, Nền `#060A12` |
+| Font | Fraunces (serif) + Inter + Be Vietnam Pro + JetBrains Mono (Google Fonts) |
+| Giao diện | Dark + Light mode; palette parchment ấm; gradient mesh nền |
+| Design tokens | Biến CSS hệ parchment, density tokens (`--gap`, `--pad`, `--px`, `--row-h`), border-radius scale (`--r-xs/sm/md/lg/xl`) |
+| Màu sắc | Accent vàng `#E8B64A`, Tăng `#7DC48A`, Giảm `#E06B6B`, Nền `#080A10` |
 | JS | Vanilla ES2020+ (async/await, optional chaining) |
 
 ### Tự Động Làm Mới
@@ -756,7 +637,40 @@ Vì dashboard chỉ là một file HTML, nó hoạt động trên mọi hosting 
 
 ## Changelog / Lịch Sử Phiên Bản
 
-### v1.5 — 19/04/2026 ⭐ Latest
+### v1.6 — 20/04/2026 ⭐ Latest
+**Complete Editorial Redesign / Thiết Kế Lại Hoàn Toàn Theo Phong Cách Editorial**
+
+**EN:**
+- **New "parchment" token system**: all color/spacing variables renamed and rebuilt (`--bg`, `--ink`, `--accent`, `--up`, `--down`, `--rule`, `--card`, `--r-*`, `--gap`, `--pad`, `--px`, `--row-h`)
+- **New fonts**: Fraunces (optical-size serif) for headlines and price figures; JetBrains Mono for tabular numbers — alongside existing Inter + Be Vietnam Pro; utility classes `.serif`, `.mono`, `.num`
+- **Light theme**: full `[data-theme="light"]` support with warm paper tones (`--bg:#F6F3EC`, `--ink:#15130D`)
+- **Density modes**: Compact / Normal / Spacious layout toggle via `[data-density]` attribute
+- **New Hero section** (replaces 4-card price row): editorial signal headline ("Vàng đang tích lũy…") with live recommendation verb + mood text, animated score meter needle (−100→+100), XAU/USD quote panel with sparkline chart, and SJC / USD/VND / premium quick stats
+- **Risk Strip** (replaces 8-row risk indicator table): compact 6-cell horizontal band — DXY, US 10Y Yield, VIX, WTI Crude, SJC Premium, Gold/Oil Ratio — color-coded `ok` / `warn` / `alert`
+- **Chart + Guidance 2-column layout**: price chart (left) + new editorial guidance sidebar (right) with investor advice card and weekly watchlist (4 items tagged Hỗ trợ / Rủi ro / Trung tính)
+- **Macro cards redesign**: each card now includes a `corr-note` explaining gold correlation; oil section (WTI, Brent, Gold/Oil ratio) merged into the same 3-column macro grid
+- **Institutional Forecasts redesign**: compact card grid with live % delta vs current price; consensus bar showing current price position within the low–high range; bullish / neutral / bearish count + variance statistic
+- **Removed**: Professional Recommendation Engine panel, Market Sentiment donut chart panel, Geopolitical Analysis section, Visitor counter
+- **New tweaks panel**: slide-out sidebar for theme and density settings
+- **File size**: 3,933 → 1,194 lines (−70%), 172 KB → 61 KB
+
+**VI:**
+- **Hệ thống design token "parchment" mới**: đổi tên và xây lại toàn bộ biến CSS (`--bg`, `--ink`, `--accent`, `--up`, `--down`, `--rule`, `--card`, `--r-*`, `--gap`, `--pad`, `--px`, `--row-h`)
+- **Font mới**: Fraunces (serif optical-size) cho tiêu đề và số giá; JetBrains Mono cho số tabular — bên cạnh Inter + Be Vietnam Pro; thêm class tiện ích `.serif`, `.mono`, `.num`
+- **Light theme**: hỗ trợ đầy đủ `[data-theme="light"]` với tông màu giấy ấm
+- **Chế độ mật độ**: Compact / Normal / Spacious qua thuộc tính `[data-density]`
+- **Section Hero mới** (thay thế 4 thẻ giá cũ): tiêu đề tín hiệu editorial với động từ/tâm lý live, kim thang điểm động (−100→+100), bảng giá XAU/USD kèm sparkline, số nhanh SJC/USD/VND/phụ trội
+- **Risk Strip** (thay bảng rủi ro 8 hàng): dải ngang 6 ô compact — DXY, Yield 10Y, VIX, WTI, Phụ trội SJC, Vàng/Dầu — mã màu ok/warn/alert
+- **Bố cục 2 cột Chart + Guidance**: biểu đồ bên trái, sidebar tư vấn editorial bên phải gồm lời khuyên AI và danh sách theo dõi tuần (4 sự kiện tag Hỗ trợ/Rủi ro/Trung tính)
+- **Thiết kế lại Macro cards**: mỗi card thêm dòng giải thích tương quan vàng (`corr-note`); tích hợp dầu (WTI, Brent, tỷ lệ Vàng/Dầu) vào cùng grid 3 cột
+- **Thiết kế lại Dự báo tổ chức**: card grid compact với % delta live; thanh đồng thuận; thống kê tăng/trung/giảm + phương sai
+- **Đã loại bỏ**: panel Khuyến nghị đa yếu tố, panel donut Tâm lý thị trường, section Địa chính trị, bộ đếm lượt truy cập
+- **Panel Tweaks mới**: thanh trượt cài đặt theme/density
+- **Kích thước file**: 3.933 → 1.194 dòng (−70%), 172 KB → 61 KB
+
+---
+
+### v1.5 — 19/04/2026
 **Professional UI Redesign / Thiết Kế Lại Giao Diện Chuyên Nghiệp**
 
 **EN:**
