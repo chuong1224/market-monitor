@@ -1,3 +1,19 @@
+<p align="center">
+  <img src="https://img.shields.io/badge/HTML-5-orange?logo=html5&logoColor=white" alt="HTML">
+  <a href="https://github.com/chuong1224/market-monitor/blob/master/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT">
+  </a>
+  <a href="https://github.com/chuong1224/market-monitor/commits/master">
+    <img src="https://img.shields.io/github/last-commit/chuong1224/market-monitor?color=brightgreen" alt="Last commit">
+  </a>
+  <a href="https://github.com/chuong1224/market-monitor/stargazers">
+    <img src="https://img.shields.io/github/stars/chuong1224/market-monitor?style=social" alt="Stars">
+  </a>
+  <a href="https://chuong1224.github.io/market-monitor/">
+    <img src="https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-blue?logo=github" alt="Live Demo">
+  </a>
+</p>
+
 # Market Monitor — Real-Time Financial Dashboard
 
 > **Live Demo**: [https://chuong1224.github.io/market-monitor/](https://chuong1224.github.io/market-monitor/)
@@ -120,7 +136,7 @@ Right: **Market Sentiment Analysis** panel (fully dynamic):
 - **Donut chart** — Buy / Hold / Sell percentages update live from real data
 - **Fear & Greed score** (0–100) with label: Sợ hãi cực độ / Sợ hãi / Trung tính / Tham lam / Tham lam cực độ
 - **Scoring inputs:** VIX (35%) + Gold 24h momentum (25%) + RSI (25%) + DXY trend (15%)
-- **AI recommendation box** — dynamic text, color, and portfolio allocation % based on score
+- **AI recommendation box** — dynamic text, color, border color, and portfolio allocation % based on score
 
 ### 6. Price Chart + Technical Indicators
 - Interactive Chart.js line chart (1D / 1W / 1M / 3M / 1Y)
@@ -214,7 +230,7 @@ The CBOE Volatility Index, measuring expected 30-day volatility of the S&P 500. 
 - < 15: Low volatility (complacency)
 - 15-25: Normal
 - 25-30: Elevated (caution)
-- \> 30: High fear (gold tends to benefit)
+- > 30: High fear (gold tends to benefit)
 
 ### HYG/TLT Ratio
 Ratio of iShares High Yield Corporate Bond ETF (HYG) to iShares 20+ Year Treasury Bond ETF (TLT). Measures credit risk appetite:
@@ -223,7 +239,7 @@ Ratio of iShares High Yield Corporate Bond ETF (HYG) to iShares 20+ Year Treasur
 
 ### Gold/Oil Ratio
 Number of barrels of WTI crude oil that 1 troy ounce of gold can buy. Historical 25-year average: ~16.5x
-- \> 25x: Gold is very expensive relative to oil
+- > 25x: Gold is very expensive relative to oil
 - 10-20x: Normal range
 - < 10x: Oil is expensive relative to gold
 
@@ -331,7 +347,7 @@ Each source is tried with a timeout. If all live sources fail, hardcoded MOCK va
 | > 900px | Desktop | Full grid layouts |
 | 601-900px | Tablet | 2-column cards, stacked macro/oil/chart |
 | 401-600px | Mobile | 2-column cards, all grids stacked, scrollable tables |
-| ≤ 400px | Small mobile | Simplified cards, single-column forecasts |
+| ≤ 400px | Small mobile | Cards đơn giản, forecast 1 cột |
 
 ### CNBC Batch Fetch
 A single CNBC API call fetches DXY, US10Y, WTI, and Brent simultaneously, reducing latency and request count. The result is cached per refresh cycle and shared between the macro indicators, oil section, and risk table.
@@ -432,7 +448,7 @@ Chạy ngang hiển thị nhanh: Vàng TG, SJC, DOJI, USD/VND, Bạc, DXY, S&P 5
 - Ngày giờ hiện tại + nút "Làm mới"
 
 ### 2b. System Log (dưới header)
-Panel thu gọn đặt ngay dưới header — thấy ngay trạng thái fetch mà không cần cuộn:
+Panel thu gọn đặt ngay dưới header — thấy ngay trạng thái fetch ngay khi vào trang
 - Trạng thái: ✓ Live / ⚠ Fallback / ✗ Lỗi
 - API endpoint, giá trị nhận, độ trễ, thời gian cập nhật
 
@@ -520,7 +536,7 @@ Ba thẻ cạnh nhau:
 - **Lãi suất tiết kiệm VN** — trung bình kỳ 12 tháng từ 10 NHTM lớn (CafeF)
 
 ### 9. Giá Dầu Thô & Tương Quan Dầu-Vàng
-- **WTI & Brent** giá live với biến động ngày
+- **WTI & Brent** giá live with biến động ngày
 - **Tỷ lệ Vàng/Dầu** — hiện tại vs trung bình lịch sử 25 năm (16.5x)
 - **Đánh giá tỷ lệ** — tự động phân loại (Vàng đắt / Cân bằng / Dầu đắt)
 
@@ -581,7 +597,7 @@ Chỉ số CBOE đo biến động dự kiến 30 ngày của S&P 500, hay gọi
 - < 15: Biến động thấp (thị trường tự mãn)
 - 15-25: Bình thường
 - 25-30: Tăng cao (cảnh giác)
-- \> 30: Hoảng loạn (vàng thường được hưởng lợi)
+- > 30: Hoảng loạn (vàng thường được hưởng lợi)
 
 ### Tỷ Lệ HYG/TLT
 Tỷ lệ giữa ETF trái phiếu doanh nghiệp lợi suất cao (HYG) và ETF trái phiếu kho bạc dài hạn (TLT). Đo mức chấp nhận rủi ro:
@@ -590,7 +606,7 @@ Tỷ lệ giữa ETF trái phiếu doanh nghiệp lợi suất cao (HYG) và ETF
 
 ### Tỷ Lệ Vàng/Dầu (Gold/Oil Ratio)
 Số thùng dầu WTI mà 1 ounce vàng có thể mua. Trung bình lịch sử 25 năm: ~16.5x
-- \> 25x: Vàng rất đắt so với dầu
+- > 25x: Vàng rất đắt so với dầu
 - 10-20x: Phạm vi bình thường
 - < 10x: Dầu đắt so với vàng
 
@@ -617,7 +633,7 @@ Số thùng dầu WTI mà 1 ounce vàng có thể mua. Trung bình lịch sử 2
 Chỉ báo dao động đo động lượng (0-100) tính bằng **phương pháp làm mịn Wilder** trên 14 kỳ. Trên 70 = quá mua; dưới 30 = quá bán. Dùng trong engine khuyến nghị: RSI < 30 → tín hiệu mua mạnh; RSI > 70 → tín hiệu bán.
 
 ### MACD (Phân Kỳ/Hội Tụ Đường Trung Bình)
-Tính bằng **EMA(12) − EMA(26)** với đường tín hiệu EMA 9 kỳ. Histogram (đường MACD − đường tín hiệu) cho thấy hướng động lượng. Histogram dương tăng → góp điểm mua; histogram âm giảm → góp điểm bán.
+Tính bằng **EMA(12) − EMA(26)** với đường tín hiệu EMA 9 kỳ. Histogram (đường MACD − đường tín hiệu) cho thấy hướng động momentum. Histogram dương tăng → góp điểm mua; histogram âm giảm → góp điểm bán.
 
 ### Bollinger Bands
 SMA 20 kỳ ± 2 độ lệch chuẩn. "Vị trí BB" (0–100%) đo vị trí của giá trong dải. Dưới 15% → gần hỗ trợ dưới (tín hiệu mua); trên 85% → gần kháng cự trên (tín hiệu bán).
@@ -682,7 +698,7 @@ Mỗi nguồn được thử với timeout. Nếu tất cả nguồn live đều
 | Biểu đồ | Chart.js 4.4.0 (CDN) |
 | Font | Inter + Be Vietnam Pro (Google Fonts) |
 | Giao diện | Dark mode, glassmorphism, gradient mesh nền |
-| Design tokens | 35+ biến CSS: hệ màu, shadow, border-radius scale |
+| Design tokens | 35+ biến CSS cho màu sắc, nền glass, shadow, border-radius scale |
 | Màu sắc | Vàng `#F0C040`, Xanh `#00C97D`, Đỏ `#F03E52`, Nền `#060A12` |
 | JS | Vanilla ES2020+ (async/await, optional chaining) |
 
@@ -832,7 +848,7 @@ Vì dashboard chỉ là một file HTML, nó hoạt động trên mọi hosting 
 - Thay thế toàn bộ giá trị hardcode/ngẫu nhiên trong panel Tâm Lý Nhà Đầu Tư bằng tính toán thực
 - Engine `calculateDynamicSentiment()` mới: điểm Fear & Greed 0–100 từ VIX (35%), momentum giá vàng 24h (25%), RSI (25%), xu hướng DXY (15%)
 - Biểu đồ donut (% Mua/Giữ/Bán) cập nhật live qua instance Chart.js đã lưu — không cần reload
-- Nhãn trung tâm (điểm % + văn bản) và 3 thanh bars/phần trăm cập nhật động
+- Nhãn trung tâm (điểm % + văn bản) và 3 thanh bars/percentages cập nhật động
 - Thẻ Fear & Greed trong Price Cards cũng cập nhật động — loại bỏ `Math.random()`
 - Ô khuyến nghị AI tự thay đổi nội dung, màu nền, viền và % tỷ trọng danh mục theo điểm
 - Đồng bộ cập nhật: gọi từ `updateRecommendation()` → kích hoạt khi tải trang + sau khi có dữ liệu VIX/vĩ mô
